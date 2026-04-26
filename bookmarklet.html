@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>HTML-DB Bookmarklet</title>
+<style>
+:root{--bg:#0e0e14;--surf:#16161f;--surf2:#1f1f2c;--border:#2a2a3a;--accent:#8b7cf8;--accent2:#d4a574;--text:#e8e8f0;--muted:#7a7a9a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;padding:30px 20px;line-height:1.6;min-height:100vh}
+.wrap{max-width:680px;margin:0 auto}
+h1{color:var(--accent2);font-size:1.6rem;margin-bottom:8px}
+h2{color:var(--accent);font-size:1.1rem;margin:24px 0 10px}
+p{color:var(--muted);margin-bottom:14px;font-size:.95rem}
+.bm{display:inline-block;background:var(--accent);color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;font-size:1.05rem;cursor:grab;border:none;margin:14px 0;box-shadow:0 4px 12px rgba(139,124,248,.4);transition:transform .15s}
+.bm:hover{transform:translateY(-2px)}
+.bm:active{cursor:grabbing}
+.box{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--accent);padding:16px 20px;border-radius:8px;margin:14px 0}
+.box.cfg{border-left-color:var(--accent2)}
+ol{padding-left:22px;margin:10px 0}
+li{margin-bottom:8px;color:var(--text)}
+code{background:var(--surf2);padding:2px 6px;border-radius:4px;font-family:'Courier New',monospace;font-size:.88rem;color:var(--accent)}
+.field{margin:12px 0}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.field input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:.9rem;outline:none}
+.field input:focus{border-color:var(--accent)}
+.btn{background:var(--accent);color:white;border:none;padding:9px 16px;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:500}
+.btn:hover{filter:brightness(1.1)}
+.code-display{background:var(--surf2);border:1px solid var(--border);padding:12px;border-radius:8px;font-family:'Courier New',monospace;font-size:.78rem;color:var(--muted);word-break:break-all;max-height:120px;overflow:auto;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📑 HTML-DB Bookmarklet</h1>
+  <p>Mit diesem Bookmarklet kannst du auf jeder Claude-Artefakt-Seite mit einem Klick einen neuen Eintrag in deine Datenbank anlegen.</p>
+
+  <h2>1. URL deiner HTML-DB eintragen</h2>
+  <div class="box cfg">
+    <p style="margin-bottom:8px">Trage hier die URL deiner GitHub-Pages-Datenbank ein – das Bookmarklet wird darauf zeigen.</p>
+    <div class="field">
+      <label>URL deiner HTML-DB</label>
+      <input type="url" id="db-url" placeholder="https://DEINNAME.github.io/htmldb/" oninput="updateBookmarklet()">
+    </div>
+  </div>
+
+  <h2>2. Bookmarklet in die Lesezeichenleiste ziehen</h2>
+  <p>Stell sicher, dass die Lesezeichenleiste sichtbar ist (<code>Strg+Umschalt+B</code> in Chrome/Edge). Dann ziehe den lila Button mit der Maus dorthin:</p>
+
+  <a class="bm" id="bm-link" href="javascript:void(0)" onclick="alert('Bitte stattdessen in die Lesezeichenleiste ziehen!')">➕ HTML-DB Hinzufügen</a>
+
+  <p style="font-size:.82rem">Falls dein Browser den Drag-Drop blockiert, kannst du den Code auch per Rechtsklick kopieren und manuell ein Lesezeichen anlegen:</p>
+  <details>
+    <summary style="cursor:pointer;color:var(--accent);margin:8px 0">▸ Code zum Kopieren anzeigen</summary>
+    <div class="code-display" id="bm-code">URL oben eintragen…</div>
+    <button class="btn" onclick="copyCode()">📋 Code kopieren</button>
+  </details>
+
+  <h2>3. Workflow</h2>
+  <div class="box">
+    <ol>
+      <li>In einem Claude-Chat ein gutes Artefakt erstellt → <strong>Veröffentlichen</strong> klicken</li>
+      <li>Auf der entstehenden <code>claude.ai/public/artifacts/...</code>-Seite das Bookmarklet anklicken</li>
+      <li>Ein kleines Popup erscheint mit Titel und Tag-Eingabe</li>
+      <li>Tags eintragen (z. B. <code>klasse-10, mathematik</code>) → <strong>Hinzufügen</strong></li>
+      <li>Eintrag öffnet sich direkt in deiner HTML-DB im neuen Tab</li>
+    </ol>
+  </div>
+
+  <h2>Alternative: Direkt aus Claude-Chat (statt Veröffentlichen)</h2>
+  <p>Du kannst das Bookmarklet auch auf einer normalen <code>claude.ai/chat/...</code>-Seite anklicken – die URL des aktuellen Chats wird übernommen. Praktisch, wenn du dir Chats markieren willst (z. B. besonders gute Lernpfad-Generierungen für später).</p>
+</div>
+
+<script>
+function generateBookmarklet(dbUrl) {
+  // Das Bookmarklet selbst – läuft auf claude.ai, sammelt URL+Titel,
+  // zeigt ein kleines Popup für Tags, und leitet zur HTML-DB weiter mit ?add=<base64>
+  const code = `(function(){
+    var url=location.href;
+    var title=document.title.replace(/\\s*[-|]\\s*Claude.*$/i,'').trim();
+    if(!title) title=url;
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,sans-serif';
+    ov.innerHTML='<div style="background:#16161f;border:1px solid #2a2a3a;border-left:3px solid #8b7cf8;border-radius:14px;padding:24px;max-width:480px;width:100%;color:#e8e8f0">'+
+      '<h2 style="color:#d4a574;margin:0 0 16px;font-size:1.15rem">📑 In HTML-DB übernehmen</h2>'+
+      '<div style="font-size:.78rem;color:#7a7a9a;margin-bottom:4px;text-transform:uppercase">Titel</div>'+
+      '<input id="bmt" style="width:100%;background:#0e0e14;border:1px solid #2a2a3a;color:#e8e8f0;padding:9px 12px;border-radius:8px;font-size:.9rem;margin-bottom:12px" value="">'+
+      '<div style="font-size:.78rem;color:#7a7a9a;margin-bottom:4px;text-transform:uppercase">URL</div>'+
+      '<input id="bmu" style="width:100%;background:#0e0e14;border:1px solid #2a2a3a;color:#e8e8f0;padding:9px 12px;border-radius:8px;font-size:.78rem;margin-bottom:12px;font-family:monospace" readonly>'+
+      '<div style="font-size:.78rem;color:#7a7a9a;margin-bottom:4px;text-transform:uppercase">Tags (kommagetrennt)</div>'+
+      '<input id="bmtg" style="width:100%;background:#0e0e14;border:1px solid #2a2a3a;color:#e8e8f0;padding:9px 12px;border-radius:8px;font-size:.9rem;margin-bottom:16px" placeholder="z. B. klasse-10, mathematik" value="">'+
+      '<div style="display:flex;gap:8px;justify-content:flex-end">'+
+        '<button id="bmc" style="background:#1f1f2c;color:#e8e8f0;border:1px solid #2a2a3a;padding:8px 16px;border-radius:8px;cursor:pointer">Abbrechen</button>'+
+        '<button id="bmok" style="background:#8b7cf8;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:500">Hinzufügen</button>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(ov);
+    document.getElementById('bmt').value=title;
+    document.getElementById('bmu').value=url;
+    var lt=localStorage.getItem('bm_lasttags')||'';
+    document.getElementById('bmtg').value=lt;
+    document.getElementById('bmt').focus();
+    document.getElementById('bmt').select();
+    document.getElementById('bmc').onclick=function(){document.body.removeChild(ov)};
+    document.getElementById('bmok').onclick=function(){
+      var t=document.getElementById('bmt').value.trim();
+      var u=document.getElementById('bmu').value.trim();
+      var tg=document.getElementById('bmtg').value.split(',').map(function(s){return s.trim().toLowerCase()}).filter(Boolean);
+      localStorage.setItem('bm_lasttags',document.getElementById('bmtg').value);
+      var data={title:t,url:u,tags:tg};
+      var b64=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      window.open('${dbUrl}?add='+b64,'_blank');
+      document.body.removeChild(ov);
+    };
+    ov.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('bmc').click();if(e.key==='Enter'&&e.ctrlKey)document.getElementById('bmok').click()});
+  })();`;
+  // Whitespace + Newlines entfernen für Bookmarklet
+  return 'javascript:' + encodeURIComponent(code.replace(/\s+/g,' ').trim());
+}
+
+const STORAGE = 'htmldb_bookmarklet_url';
+
+function updateBookmarklet() {
+  const input = document.getElementById('db-url');
+  let url = input.value.trim();
+  if (!url) {
+    document.getElementById('bm-link').href = 'javascript:alert("Bitte erst URL eintragen")';
+    document.getElementById('bm-code').textContent = 'URL oben eintragen…';
+    return;
+  }
+  if (!url.endsWith('/')) url += '/';
+  localStorage.setItem(STORAGE, url);
+  const code = generateBookmarklet(url);
+  document.getElementById('bm-link').href = code;
+  document.getElementById('bm-code').textContent = code;
+}
+
+function copyCode() {
+  const code = document.getElementById('bm-code').textContent;
+  if (!code || code === 'URL oben eintragen…') { alert('Bitte erst URL eintragen'); return; }
+  navigator.clipboard.writeText(code).then(() => alert('Code kopiert!'));
+}
+
+// Beim Laden: gespeicherte URL wiederherstellen
+const saved = localStorage.getItem(STORAGE);
+if (saved) { document.getElementById('db-url').value = saved; updateBookmarklet(); }
+</script>
+</body>
+</html>

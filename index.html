@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML-Datenbank</title>
+<style>
+:root{
+  --bg:#0e0e14; --surf:#16161f; --surf2:#1f1f2c; --border:#2a2a3a;
+  --accent:#8b7cf8; --accent2:#d4a574; --text:#e8e8f0; --muted:#7a7a9a;
+  --ok:#5ae0a0; --warn:#f59e0b; --err:#e05a5a; --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50}
+.topbar h1{font-size:1.1rem;font-weight:600;color:var(--accent2)}
+.topbar h1 span{color:var(--muted);font-weight:400;margin-left:6px}
+.search{position:relative;flex:1;max-width:420px}
+.search input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 14px 8px 36px;border-radius:var(--r);font-size:.9rem;outline:none}
+.search input:focus{border-color:var(--accent)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.sync{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r);font-size:.82rem;background:var(--surf2);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.sync:hover{border-color:var(--accent)}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.sync.ok .dot{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.sync.sync .dot{background:var(--warn);animation:pulse 1s infinite}
+.sync.err .dot{background:var(--err)}
+@keyframes pulse{50%{opacity:.4}}
+.btn{background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:var(--r);font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.danger{background:var(--err)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:240px 1fr;flex:1;overflow:hidden}
+aside{background:var(--surf);border-right:1px solid var(--border);padding:16px;overflow-y:auto;height:calc(100vh - 57px)}
+.section-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;margin:14px 0 8px}
+.section-label:first-child{margin-top:0}
+.tag{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);font-size:.85rem;cursor:pointer;color:var(--text);transition:background .15s;margin-bottom:2px}
+.tag:hover{background:var(--surf2)}
+.tag.active{background:var(--surf2);font-weight:500}
+.tag .dt{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tag .badge{margin-left:auto;background:var(--bg);color:var(--muted);font-size:.72rem;padding:2px 7px;border-radius:8px}
+.tag.active .badge{color:var(--accent);background:rgba(139,124,248,.15)}
+
+main{padding:20px 24px;overflow-y:auto;height:calc(100vh - 57px)}
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.toolbar h2{font-size:1.15rem;font-weight:600;flex:1}
+.stats{color:var(--muted);font-size:.82rem}
+select{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:var(--r);font-size:.85rem;cursor:pointer;outline:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--r);padding:14px 14px 12px;cursor:pointer;transition:all .15s;position:relative;display:flex;flex-direction:column;gap:8px}
+.card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.card .ttl{font-weight:600;font-size:.95rem;line-height:1.3;padding-right:24px;word-break:break-word}
+.card .typ{position:absolute;top:12px;right:12px;font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg);padding:2px 6px;border-radius:4px}
+.card .url{color:var(--muted);font-size:.78rem;word-break:break-all;font-family:'Courier New',monospace}
+.card .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto}
+.card .tags span{background:var(--surf2);color:var(--accent);font-size:.72rem;padding:2px 7px;border-radius:8px}
+.card .acts{display:flex;gap:6px;margin-top:6px;border-top:1px solid var(--border);padding-top:8px}
+.card .acts button{flex:1;background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:5px;border-radius:6px;font-size:.78rem;cursor:pointer}
+.card .acts button:hover{border-color:var(--accent);color:var(--accent)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ic{font-size:3rem;margin-bottom:10px}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.overlay.hide{display:none}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.modal h2{margin-bottom:16px;color:var(--accent2);font-size:1.1rem}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field textarea,.field select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--r);font-size:.9rem;outline:none;font-family:inherit}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:80px;font-family:'Courier New',monospace;font-size:.85rem}
+.field .hint{font-size:.75rem;color:var(--muted);margin-top:4px}
+.colors{display:flex;gap:6px;flex-wrap:wrap}
+.colors div{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.colors div:hover{transform:scale(1.1)}
+.colors div.sel{border-color:white;transform:scale(1.1)}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.actions .left{margin-right:auto}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surf);border:1px solid var(--border);padding:11px 18px;border-radius:var(--r);font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:300;max-width:90%}
+.toast.show{opacity:1}
+.toast.ok{border-color:var(--ok)}
+.toast.err{border-color:var(--err)}
+
+/* SETUP SCREEN */
+.setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
+.setup .card{max-width:480px;width:100%;background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:14px;padding:32px;cursor:default}
+.setup .card:hover{transform:none;box-shadow:none}
+.setup h1{color:var(--accent2);margin-bottom:8px;font-size:1.4rem}
+.setup p{color:var(--muted);margin-bottom:18px;font-size:.9rem;line-height:1.5}
+.setup p a{color:var(--accent)}
+
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  aside{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN (initial) -->
+<div class="setup hide" id="setup">
+  <div class="card">
+    <h1>🔐 Erste Einrichtung</h1>
+    <p>Trage deine GitHub-Daten ein, um die Datenbank mit der Cloud zu verbinden. Setup-Anleitung siehe <a href="https://github.com/" target="_blank">SETUP.md im Repo</a>.</p>
+    <div class="field">
+      <label>GitHub-Benutzername</label>
+      <input type="text" id="cfg-user" placeholder="z. B. nelsonfink" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Repository-Name</label>
+      <input type="text" id="cfg-repo" placeholder="htmldb" value="htmldb" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Personal Access Token</label>
+      <input type="password" id="cfg-token" placeholder="github_pat_..." autocomplete="off">
+      <div class="hint">Wird verschlüsselt im Browser gespeichert, niemals im Repo.</div>
+    </div>
+    <div class="field">
+      <label>Branch (optional)</label>
+      <input type="text" id="cfg-branch" placeholder="main" value="main" autocomplete="off">
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="saveConfig()">Verbinden</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <h1>HTML-DB <span id="count">0</span></h1>
+  <div class="search">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" id="search" placeholder="Suchen…" oninput="render()">
+  </div>
+  <div class="sync" id="sync" onclick="syncNow()" title="Klick zum manuellen Sync">
+    <span class="dot"></span><span id="sync-text">offline</span>
+  </div>
+  <button class="btn ghost" onclick="openSettings()" title="Einstellungen">⚙️</button>
+  <button class="btn" onclick="openModal()">+ Neu</button>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <aside>
+    <div class="section-label">Filter</div>
+    <div class="tag" id="filter-all" onclick="setFilter('all')"><div class="dt" style="background:var(--accent)"></div>Alle <span class="badge" id="b-all">0</span></div>
+    <div class="tag" id="filter-pinned" onclick="setFilter('pinned')"><div class="dt" style="background:var(--accent2)"></div>⭐ Favoriten <span class="badge" id="b-pin">0</span></div>
+    <div class="tag" id="filter-url" onclick="setFilter('url')"><div class="dt" style="background:#06b6d4"></div>URLs <span class="badge" id="b-url">0</span></div>
+    <div class="tag" id="filter-code" onclick="setFilter('code')"><div class="dt" style="background:#22c55e"></div>HTML-Code <span class="badge" id="b-code">0</span></div>
+
+    <div class="section-label">Tags</div>
+    <div id="tag-list"></div>
+  </aside>
+
+  <main>
+    <div class="toolbar">
+      <h2 id="view-title">Alle Einträge</h2>
+      <div class="stats" id="stats"></div>
+      <select id="sort" onchange="render()">
+        <option value="newest">Neueste zuerst</option>
+        <option value="oldest">Älteste zuerst</option>
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+      </select>
+    </div>
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="overlay hide" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2 id="modal-title">Neuer Eintrag</h2>
+    <div class="field">
+      <label>Titel</label>
+      <input type="text" id="f-title" maxlength="120" placeholder="z. B. Lernpfad Wahrscheinlichkeit">
+    </div>
+    <div class="field">
+      <label>Typ</label>
+      <select id="f-type" onchange="onTypeChange()">
+        <option value="url">URL (z. B. Claude-Artifact)</option>
+        <option value="code">HTML-Code</option>
+      </select>
+    </div>
+    <div class="field" id="f-url-wrap">
+      <label>URL</label>
+      <input type="url" id="f-url" placeholder="https://claude.ai/public/artifacts/...">
+    </div>
+    <div class="field hide" id="f-code-wrap">
+      <label>HTML-Code</label>
+      <textarea id="f-code" placeholder="<!DOCTYPE html>..."></textarea>
+    </div>
+    <div class="field">
+      <label>Tags (kommagetrennt)</label>
+      <input type="text" id="f-tags" placeholder="z. B. klasse-10, mathematik, lernpfad">
+    </div>
+    <div class="field">
+      <label>Farbe</label>
+      <div class="colors" id="colors"></div>
+    </div>
+    <div class="actions">
+      <button class="btn danger left hide" id="f-del" onclick="deleteItem()">Löschen</button>
+      <button class="btn ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn" onclick="saveItem()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay hide" id="settings" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h2>⚙️ Einstellungen</h2>
+    <div class="field">
+      <label>Verbunden mit</label>
+      <input type="text" id="s-info" readonly>
+    </div>
+    <div class="field">
+      <label>Letzter Sync</label>
+      <input type="text" id="s-lastsync" readonly>
+    </div>
+    <div class="actions" style="flex-direction:column;align-items:stretch">
+      <button class="btn ghost" onclick="exportJSON()">↓ Komplette DB als JSON exportieren</button>
+      <button class="btn ghost" onclick="document.getElementById('imp').click()">↑ Aus JSON importieren</button>
+      <input type="file" id="imp" accept=".json" style="display:none" onchange="importJSON(event)">
+      <button class="btn ghost" onclick="syncNow()">🔄 Manuell synchronisieren</button>
+      <button class="btn danger" onclick="resetConfig()">Verbindung trennen / Token löschen</button>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" onclick="closeSettings()">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// HTML-DATENBANK – Cloud-Sync via GitHub API
+// ══════════════════════════════════════════════════════════════════════════════
+
+const COLORS = ['#8b7cf8','#ec4899','#f59e0b','#22c55e','#06b6d4','#f87171','#a855f7','#64748b','#d4a574','#5ae0a0'];
+const CFG_KEY = 'htmldb_cloud_cfg';
+const CACHE_KEY = 'htmldb_cloud_cache';
+const FILE_PATH = 'data.json';
+
+let cfg = null;       // {user, repo, token, branch}
+let db = {version:1, updatedAt:0, items:[]};
+let sha = null;       // current sha of data.json on server
+let dirty = false;    // unsaved local changes
+let syncing = false;
+let activeFilter = 'all';
+let activeTag = null;
+let editId = null;
+let curColor = COLORS[0];
+
+// ── CONFIG ─────────────────────────────────────────────────────────────────────
+function loadConfig() {
+  try { cfg = JSON.parse(localStorage.getItem(CFG_KEY) || 'null'); } catch { cfg = null; }
+  return cfg;
+}
+function saveConfig() {
+  const user = document.getElementById('cfg-user').value.trim();
+  const repo = document.getElementById('cfg-repo').value.trim();
+  const token = document.getElementById('cfg-token').value.trim();
+  const branch = document.getElementById('cfg-branch').value.trim() || 'main';
+  if (!user || !repo || !token) { toast('Bitte alle Felder ausfüllen', 'err'); return; }
+  cfg = {user, repo, token, branch};
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  document.getElementById('setup').classList.add('hide');
+  init();
+}
+function resetConfig() {
+  if (!confirm('Wirklich Token & Verbindung löschen? Lokaler Cache bleibt erhalten.')) return;
+  localStorage.removeItem(CFG_KEY);
+  location.reload();
+}
+
+// ── BOOKMARKLET HANDOFF ────────────────────────────────────────────────────────
+// Wenn URL Parameter ?add=… enthält, automatisch ins Modal vorladen
+function checkURLParams() {
+  const p = new URLSearchParams(location.search);
+  const add = p.get('add');
+  if (!add) return;
+  try {
+    const data = JSON.parse(decodeURIComponent(atob(add)));
+    history.replaceState(null, '', location.pathname);
+    setTimeout(() => {
+      openModal();
+      document.getElementById('f-title').value = data.title || '';
+      document.getElementById('f-url').value = data.url || '';
+      document.getElementById('f-tags').value = (data.tags || []).join(', ');
+      document.getElementById('f-type').value = 'url';
+      onTypeChange();
+    }, 500);
+  } catch (e) { console.warn('Bookmarklet-Param ungültig:', e); }
+}
+
+// ── GITHUB API ─────────────────────────────────────────────────────────────────
+async function ghFetch(path, opts={}) {
+  const url = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${path}`;
+  const params = opts.params ? '?' + new URLSearchParams(opts.params) : '';
+  const r = await fetch(url + params, {
+    method: opts.method || 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + cfg.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opts.body ? {'Content-Type': 'application/json'} : {})
+    },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (!r.ok && r.status !== 404) {
+    const txt = await r.text();
+    throw new Error(`GitHub API ${r.status}: ${txt}`);
+  }
+  return r;
+}
+
+async function loadFromCloud() {
+  setSync('sync', 'Lade…');
+  try {
+    const r = await ghFetch(FILE_PATH, {params:{ref: cfg.branch}});
+    if (r.status === 404) {
+      // Datei existiert noch nicht → leere DB anlegen
+      db = {version:1, updatedAt:Date.now(), items:[]};
+      sha = null;
+      await pushToCloud(); // erste data.json erstellen
+      setSync('ok', 'verbunden');
+      return;
+    }
+    const j = await r.json();
+    sha = j.sha;
+    const txt = decodeURIComponent(escape(atob(j.content.replace(/\s/g,''))));
+    db = JSON.parse(txt);
+    if (!db.items) db.items = [];
+    cacheLocal();
+    setSync('ok', 'synchron');
+  } catch (e) {
+    console.error(e);
+    setSync('err', 'Fehler');
+    toast('Lade-Fehler: ' + e.message + ' – nutze lokalen Cache', 'err');
+    loadFromCache();
+  }
+}
+
+async function pushToCloud(retried=false) {
+  if (syncing) return;
+  syncing = true;
+  setSync('sync', 'Speichere…');
+  try {
+    db.updatedAt = Date.now();
+    const txt = JSON.stringify(db, null, 2);
+    const content = btoa(unescape(encodeURIComponent(txt)));
+    const body = {
+      message: `Update – ${new Date().toLocaleString('de-DE')}`,
+      content,
+      branch: cfg.branch
+    };
+    if (sha) body.sha = sha;
+    const r = await ghFetch(FILE_PATH, {method:'PUT', body});
+    if (r.status === 409 || r.status === 422) {
+      // Konflikt: Server hat neuere Version
+      if (retried) throw new Error('Wiederholter Konflikt');
+      toast('Konflikt – lade neueste Version…', 'err');
+      await loadFromCloud();
+      // hier könnte man Merge-Logik einbauen; vorerst: neuestes laden + Hinweis
+      syncing = false;
+      throw new Error('Datenbank wurde von anderem Gerät aktualisiert. Bitte Änderung erneut vornehmen.');
+    }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    sha = j.content.sha;
+    dirty = false;
+    cacheLocal();
+    setSync('ok', 'synchron');
+  } catch (e) {
+    console.error(e);
+    dirty = true;
+    setSync('err', 'Fehler');
+    toast('Sync-Fehler: ' + e.message, 'err');
+    throw e;
+  } finally {
+    syncing = false;
+  }
+}
+
+let pushTimer = null;
+function schedulePush() {
+  dirty = true;
+  setSync('sync', 'wartet…');
+  cacheLocal();
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => pushToCloud().catch(()=>{}), 600);
+}
+
+async function syncNow() {
+  if (!cfg) return;
+  try {
+    if (dirty) await pushToCloud();
+    else await loadFromCloud();
+    render();
+    toast('✓ Synchronisiert', 'ok');
+  } catch {}
+}
+
+// ── LOCAL CACHE (Fallback bei Offline / Erst-Aufruf) ───────────────────────────
+function cacheLocal() {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({db, sha, ts:Date.now()})); } catch {}
+}
+function loadFromCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (c) { db = c.db; sha = c.sha; }
+  } catch {}
+}
+
+// ── SYNC STATUS UI ─────────────────────────────────────────────────────────────
+function setSync(state, text) {
+  const el = document.getElementById('sync');
+  el.classList.remove('ok','sync','err');
+  el.classList.add(state);
+  document.getElementById('sync-text').textContent = text;
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+function render() {
+  renderSidebar();
+  renderGrid();
+  document.getElementById('count').textContent = db.items.length;
+}
+
+function renderSidebar() {
+  // Counts
+  document.getElementById('b-all').textContent = db.items.length;
+  document.getElementById('b-pin').textContent = db.items.filter(i => i.pinned).length;
+  document.getElementById('b-url').textContent = db.items.filter(i => i.type === 'url').length;
+  document.getElementById('b-code').textContent = db.items.filter(i => i.type === 'code').length;
+
+  // Active filter
+  ['all','pinned','url','code'].forEach(f => {
+    document.getElementById('filter-'+f).classList.toggle('active', activeFilter === f && !activeTag);
+  });
+
+  // Tag list
+  const tagCounts = {};
+  db.items.forEach(i => (i.tags || []).forEach(t => tagCounts[t] = (tagCounts[t]||0)+1));
+  const sorted = Object.entries(tagCounts).sort((a,b) => b[1]-a[1]);
+  const list = document.getElementById('tag-list');
+  list.innerHTML = sorted.map(([tag, n]) =>
+    `<div class="tag ${activeTag===tag?'active':''}" onclick="setTag('${escTag(tag)}')">
+       <div class="dt" style="background:${tagColor(tag)}"></div>
+       ${esc(tag)}
+       <span class="badge">${n}</span>
+     </div>`
+  ).join('');
+}
+
+function renderGrid() {
+  const search = document.getElementById('search').value.trim().toLowerCase();
+  const sort = document.getElementById('sort').value;
+
+  let items = db.items.slice();
+
+  // Filter
+  if (activeFilter === 'pinned') items = items.filter(i => i.pinned);
+  else if (activeFilter === 'url') items = items.filter(i => i.type === 'url');
+  else if (activeFilter === 'code') items = items.filter(i => i.type === 'code');
+  if (activeTag) items = items.filter(i => (i.tags||[]).includes(activeTag));
+  if (search) {
+    items = items.filter(i =>
+      i.title.toLowerCase().includes(search) ||
+      (i.tags||[]).some(t => t.toLowerCase().includes(search)) ||
+      (i.html||'').toLowerCase().includes(search)
+    );
+  }
+
+  // Sort
+  if (sort === 'newest') items.sort((a,b) => (b.t||0) - (a.t||0));
+  else if (sort === 'oldest') items.sort((a,b) => (a.t||0) - (b.t||0));
+  else if (sort === 'az') items.sort((a,b) => a.title.localeCompare(b.title, 'de'));
+  else if (sort === 'za') items.sort((a,b) => b.title.localeCompare(a.title, 'de'));
+
+  // Pinned first
+  items.sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0));
+
+  const grid = document.getElementById('grid');
+  if (items.length === 0) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ic">📭</div>Keine Einträge gefunden</div>`;
+    return;
+  }
+  grid.innerHTML = items.map(i => {
+    const tags = (i.tags||[]).slice(0,4).map(t => `<span>${esc(t)}</span>`).join('');
+    const more = (i.tags||[]).length > 4 ? `<span>+${i.tags.length-4}</span>` : '';
+    const display = i.type === 'url' ? esc(i.html) : `<em>${(i.html||'').length} Zeichen</em>`;
+    return `<div class="card" style="border-left-color:${esc(i.color||COLORS[0])}" onclick="editItem('${i.id}')">
+      <div class="ttl">${i.pinned?'⭐ ':''}${esc(i.title)}</div>
+      <span class="typ">${i.type}</span>
+      <div class="url">${display}</div>
+      <div class="tags">${tags}${more}</div>
+      <div class="acts" onclick="event.stopPropagation()">
+        ${i.type==='url'
+          ? `<button onclick="window.open('${esc(i.html)}','_blank')">↗ Öffnen</button>
+             <button onclick="copy('${i.id}')">📋 Kopieren</button>`
+          : `<button onclick="downloadCode('${i.id}')">↓ Download</button>
+             <button onclick="copy('${i.id}')">📋 Kopieren</button>`
+        }
+        <button onclick="togglePin('${i.id}')">${i.pinned?'⭐':'☆'}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('stats').textContent = `${items.length} ${items.length===1?'Eintrag':'Einträge'}`;
+  const titles = {all:'Alle Einträge', pinned:'⭐ Favoriten', url:'URLs', code:'HTML-Code'};
+  document.getElementById('view-title').textContent = activeTag ? `Tag: ${activeTag}` : titles[activeFilter];
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function escTag(s){ return String(s||'').replace(/'/g,"\\'"); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function tagColor(tag){ let h=0; for(const c of tag) h=(h*31+c.charCodeAt(0))&0x7fffffff; return COLORS[h%COLORS.length]; }
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+function setFilter(f) { activeFilter = f; activeTag = null; render(); }
+function setTag(t) { activeTag = activeTag === t ? null : t; render(); }
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function copy(id) {
+  const i = db.items.find(x => x.id === id); if (!i) return;
+  navigator.clipboard.writeText(i.html).then(() => toast(i.type==='url'?'URL kopiert!':'Code kopiert!','ok'));
+}
+function togglePin(id) {
+  const i = db.items.find(x => x.id === id); if (!i) return;
+  i.pinned = !i.pinned; i.u = Date.now();
+  render(); schedulePush();
+}
+function downloadCode(id) {
+  const i = db.items.find(x => x.id === id); if (!i || i.type !== 'code') return;
+  const b = new Blob([i.html], {type:'text/html'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = i.title.replace(/[^a-z0-9äöüß]/gi,'_') + '.html';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 1000);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal() {
+  editId = null;
+  curColor = COLORS[Math.floor(Math.random()*COLORS.length)];
+  document.getElementById('modal-title').textContent = 'Neuer Eintrag';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-type').value = 'url';
+  document.getElementById('f-url').value = '';
+  document.getElementById('f-code').value = '';
+  document.getElementById('f-tags').value = '';
+  document.getElementById('f-del').classList.add('hide');
+  onTypeChange();
+  renderColors();
+  document.getElementById('modal').classList.remove('hide');
+  setTimeout(() => document.getElementById('f-title').focus(), 50);
+}
+function editItem(id) {
+  const i = db.items.find(x => x.id === id); if (!i) return;
+  editId = id;
+  curColor = i.color || COLORS[0];
+  document.getElementById('modal-title').textContent = 'Eintrag bearbeiten';
+  document.getElementById('f-title').value = i.title;
+  document.getElementById('f-type').value = i.type;
+  document.getElementById('f-url').value = i.type === 'url' ? i.html : '';
+  document.getElementById('f-code').value = i.type === 'code' ? i.html : '';
+  document.getElementById('f-tags').value = (i.tags || []).join(', ');
+  document.getElementById('f-del').classList.remove('hide');
+  onTypeChange();
+  renderColors();
+  document.getElementById('modal').classList.remove('hide');
+}
+function closeModal() {
+  document.getElementById('modal').classList.add('hide');
+}
+function onTypeChange() {
+  const t = document.getElementById('f-type').value;
+  document.getElementById('f-url-wrap').classList.toggle('hide', t !== 'url');
+  document.getElementById('f-code-wrap').classList.toggle('hide', t !== 'code');
+}
+function renderColors() {
+  document.getElementById('colors').innerHTML = COLORS.map(c =>
+    `<div style="background:${c}" class="${c===curColor?'sel':''}" onclick="pickColor('${c}')"></div>`
+  ).join('');
+}
+function pickColor(c) { curColor = c; renderColors(); }
+
+function saveItem() {
+  const title = document.getElementById('f-title').value.trim();
+  const type = document.getElementById('f-type').value;
+  const html = type === 'url' ? document.getElementById('f-url').value.trim() : document.getElementById('f-code').value;
+  const tags = document.getElementById('f-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  if (!title) { toast('Titel fehlt', 'err'); return; }
+  if (!html) { toast(type==='url'?'URL fehlt':'Code fehlt', 'err'); return; }
+
+  if (editId) {
+    const i = db.items.find(x => x.id === editId);
+    Object.assign(i, {title, type, html, tags, color:curColor, u:Date.now()});
+    toast('Aktualisiert', 'ok');
+  } else {
+    db.items.push({id:uid(), title, type, html, tags, color:curColor, links:[], pinned:false, t:Date.now(), u:Date.now()});
+    toast('Hinzugefügt', 'ok');
+  }
+  closeModal();
+  render();
+  schedulePush();
+}
+function deleteItem() {
+  if (!editId) return;
+  if (!confirm('Eintrag wirklich löschen?')) return;
+  db.items = db.items.filter(x => x.id !== editId);
+  closeModal(); render(); schedulePush();
+  toast('Gelöscht', 'ok');
+}
+
+// ── SETTINGS ───────────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('s-info').value = `${cfg.user}/${cfg.repo} (${cfg.branch})`;
+  const ts = db.updatedAt ? new Date(db.updatedAt).toLocaleString('de-DE') : 'noch nie';
+  document.getElementById('s-lastsync').value = ts;
+  document.getElementById('settings').classList.remove('hide');
+}
+function closeSettings() { document.getElementById('settings').classList.add('hide'); }
+
+function exportJSON() {
+  const b = new Blob([JSON.stringify(db, null, 2)], {type:'application/json'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = `htmldb-export-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 1000);
+}
+function importJSON(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      let imported = [];
+      if (Array.isArray(data)) imported = data;             // altes Format (htmldb1)
+      else if (data.items) imported = data.items;           // neues Format
+      else { toast('Ungültiges Format', 'err'); return; }
+
+      const existingIds = new Set(db.items.map(i => i.id));
+      let added = 0;
+      imported.forEach(i => {
+        if (!existingIds.has(i.id)) { db.items.push(i); added++; }
+      });
+      toast(`${added} Einträge importiert`, 'ok');
+      closeSettings();
+      render();
+      schedulePush();
+    } catch (e) { toast('Fehler beim Importieren: '+e.message, 'err'); }
+  };
+  r.readAsText(f);
+  ev.target.value = '';
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let tt = null;
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(tt);
+  tt = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  loadFromCache();
+  render();
+  await loadFromCloud();
+  render();
+  checkURLParams();
+}
+
+if (loadConfig()) {
+  init();
+} else {
+  document.getElementById('setup').classList.remove('hide');
+}
+
+// Keyboard: Strg+S = manueller Sync, Esc = Modal schließen
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); syncNow(); }
+  if (e.key === 'Escape') { closeModal(); closeSettings(); }
+});
+
+// Vor dem Verlassen warnen wenn ungespeicherte Änderungen
+window.addEventListener('beforeunload', e => {
+  if (dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+</script>
+</body>
+</html>
