@@ -86,13 +86,14 @@ select{background:var(--bg);color:var(--text);border:1px solid var(--border);pad
 .actions .left{margin-right:auto}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surf);border:1px solid var(--border);padding:11px 18px;border-radius:var(--r);font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:300;max-width:90%}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surf);border:1px solid var(--border);padding:11px 18px;border-radius:var(--r);font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:700;max-width:90%}
 .toast.show{opacity:1}
 .toast.ok{border-color:var(--ok)}
 .toast.err{border-color:var(--err)}
 
 /* SETUP SCREEN */
 .setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
+.setup.hide{display:none}
 .setup .card{max-width:480px;width:100%;background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:14px;padding:32px;cursor:default}
 .setup .card:hover{transform:none;box-shadow:none}
 .setup h1{color:var(--accent2);margin-bottom:8px;font-size:1.4rem}
@@ -129,8 +130,9 @@ select{background:var(--bg);color:var(--text);border:1px solid var(--border);pad
       <label>Branch (optional)</label>
       <input type="text" id="cfg-branch" placeholder="main" value="main" autocomplete="off">
     </div>
+    <div id="setup-status" style="margin:6px 0 12px;font-size:.88rem;min-height:1.2em"></div>
     <div class="actions">
-      <button class="btn" onclick="saveConfig()">Verbinden</button>
+      <button class="btn" id="setup-btn" onclick="saveConfig()">Verbinden</button>
     </div>
   </div>
 </div>
@@ -268,16 +270,55 @@ function loadConfig() {
   try { cfg = JSON.parse(localStorage.getItem(CFG_KEY) || 'null'); } catch { cfg = null; }
   return cfg;
 }
-function saveConfig() {
+async function saveConfig() {
   const user = document.getElementById('cfg-user').value.trim();
   const repo = document.getElementById('cfg-repo').value.trim();
   const token = document.getElementById('cfg-token').value.trim();
   const branch = document.getElementById('cfg-branch').value.trim() || 'main';
-  if (!user || !repo || !token) { toast('Bitte alle Felder ausfüllen', 'err'); return; }
-  cfg = {user, repo, token, branch};
-  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-  document.getElementById('setup').classList.add('hide');
-  init();
+  const status = document.getElementById('setup-status');
+  const btn = document.getElementById('setup-btn');
+
+  if (!user || !repo || !token) {
+    status.textContent = '❌ Bitte alle Felder ausfüllen';
+    status.style.color = 'var(--err)';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verbinde…';
+  status.textContent = '⏳ Prüfe Verbindung…';
+  status.style.color = 'var(--muted)';
+
+  try {
+    // Test 1: Repo erreichbar?
+    const r = await fetch(`https://api.github.com/repos/${user}/${repo}`, {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    });
+    if (r.status === 401) throw new Error('Token ungültig oder abgelaufen (401). Neu erstellen auf github.com/settings/tokens');
+    if (r.status === 403) throw new Error('Token hat keine Berechtigung (403). Im Token-Setup "Contents: Read and write" auswählen');
+    if (r.status === 404) throw new Error(`Repo "${user}/${repo}" nicht gefunden (404). Stimmen Username & Repo-Name?`);
+    if (!r.ok) throw new Error(`Unerwarteter Fehler: HTTP ${r.status}`);
+
+    // Erfolg
+    cfg = {user, repo, token, branch};
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+    status.textContent = '✓ Verbunden! Lade Daten…';
+    status.style.color = 'var(--ok)';
+    setTimeout(() => {
+      document.getElementById('setup').classList.add('hide');
+      init();
+    }, 400);
+  } catch (e) {
+    status.textContent = '❌ ' + e.message;
+    status.style.color = 'var(--err)';
+    btn.disabled = false;
+    btn.textContent = 'Verbinden';
+    cfg = null;
+  }
 }
 function resetConfig() {
   if (!confirm('Wirklich Token & Verbindung löschen? Lokaler Cache bleibt erhalten.')) return;
