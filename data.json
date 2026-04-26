@@ -1,28 +1,376 @@
 {
   "version": 1,
-  "updatedAt": 0,
+  "updatedAt": 1777221800727,
   "items": [
-    {"id":"s01","title":"Lernstrategien Mathematik & Physik SEK I/II","type":"url","html":"https://claude.ai/public/artifacts/e2686409-5b66-4452-8be8-ca732be69899","links":[],"tags":["allgemein","lernstrategien","mathematik","physik"],"color":"#64748b","t":1746000000000,"u":1746000000000,"pinned":false},
-    {"id":"s02","title":"Lernstrategien vereinfachte Sprache (Klasse 5/6)","type":"url","html":"https://claude.ai/public/artifacts/48087cfd-43e2-4c4d-956d-755ddadb0873","links":[],"tags":["allgemein","lernstrategien","klasse-5-6"],"color":"#64748b","t":1746000060000,"u":1746000060000,"pinned":false},
-    {"id":"s03","title":"Elternratgeber Klasse 5/6","type":"url","html":"https://claude.ai/public/artifacts/f24fd9b9-4022-4535-ae4d-71ca7566fa4d","links":[],"tags":["allgemein","eltern","klasse-5-6"],"color":"#64748b","t":1746000120000,"u":1746000120000,"pinned":false},
-    {"id":"s04","title":"Interaktive Touristenmap Porto – Version 2","type":"url","html":"https://claude.ai/public/artifacts/73305cd8-2a11-4a1c-841b-e32688e4bc52","links":[],"tags":["allgemein","geographie","interaktiv"],"color":"#64748b","t":1746000180000,"u":1746000180000,"pinned":false},
-    {"id":"s05","title":"KI Systeme im MINT Unterricht – Version UNESCO","type":"url","html":"https://claude.ai/public/artifacts/d6d1c1b3-f35a-42e1-9fde-f8e84d1a20f1","links":[],"tags":["allgemein","ki","mint"],"color":"#64748b","t":1746000240000,"u":1746000240000,"pinned":false},
-    {"id":"s06","title":"KI Systeme – Nicht MINT Fächer","type":"url","html":"https://claude.ai/public/artifacts/468561d9-ed3d-40e1-b134-0e59022073b0","links":[],"tags":["allgemein","ki"],"color":"#64748b","t":1746000300000,"u":1746000300000,"pinned":false},
-    {"id":"s07","title":"Deutsch Kl. 7: Quiz Aktiv & Passiv (API)","type":"url","html":"https://claude.ai/chat/c877f247-0681-49d1-b47d-33192bb6fabb","links":[],"tags":["allgemein","deutsch","klasse-7","quiz"],"color":"#64748b","t":1746000360000,"u":1746000360000,"pinned":false},
-    {"id":"s08","title":"Leitfaden für Kollegen – Claude für MINT","type":"url","html":"https://claude.ai/public/artifacts/a2b1de87-364e-472c-886c-0f6a7389846b","links":[],"tags":["mint","leitfaden"],"color":"#06b6d4","t":1746000420000,"u":1746000420000,"pinned":false},
-    {"id":"s09","title":"Interaktives Periodensystem Version 2","type":"url","html":"https://claude.ai/public/artifacts/50350de2-6732-4147-85c6-2905873be2a9","links":[],"tags":["mint","chemie","interaktiv"],"color":"#06b6d4","t":1746000480000,"u":1746000480000,"pinned":false},
-    {"id":"s10","title":"Artemis II – Mission-Webseite","type":"url","html":"https://claude.ai/public/artifacts/e4d4f1d0-1fe8-42cc-ad7a-dbf96b27767c","links":[],"tags":["mint","physik","astronomie"],"color":"#06b6d4","t":1746000540000,"u":1746000540000,"pinned":false},
-    {"id":"s11","title":"Konstruktionsübung Kongruenzsätze (Osterstunde)","type":"url","html":"https://claude.ai/public/artifacts/00430dc6-0441-44f9-9bb8-9ec6b2eaf07c","links":[],"tags":["klasse-6","mathematik","geometrie"],"color":"#22c55e","t":1746000600000,"u":1746000600000,"pinned":false},
-    {"id":"s12","title":"Flächeninhalt von Dreiecken (Deutsch)","type":"url","html":"https://claude.ai/public/artifacts/4cb6ea59-8352-48de-8f03-6779336ddfe6","links":[],"tags":["klasse-6","mathematik","geometrie"],"color":"#22c55e","t":1746000660000,"u":1746000660000,"pinned":false},
-    {"id":"s13","title":"Flächeninhalt von Dreiecken (Englisch)","type":"url","html":"https://claude.ai/public/artifacts/1edcbb68-444b-46bc-95ac-2f1e21ac0386","links":[],"tags":["klasse-6","mathematik","geometrie","englisch"],"color":"#22c55e","t":1746000720000,"u":1746000720000,"pinned":false},
-    {"id":"s14","title":"Messung Stromstärke & Spannung (V1)","type":"url","html":"https://claude.ai/public/artifacts/a5a5d5fc-018b-46d8-901e-8e8843fb9265","links":[],"tags":["klasse-7","physik","elektrizität"],"color":"#6366f1","t":1746000780000,"u":1746000780000,"pinned":false},
-    {"id":"s15","title":"Übung Lernbereich – Thermische Energie","type":"url","html":"https://claude.ai/public/artifacts/f27c8d9f-5cbb-4bf1-aba9-d16f1c59cdc4","links":[],"tags":["klasse-8","physik","thermodynamik"],"color":"#f59e0b","t":1746000840000,"u":1746000840000,"pinned":false},
-    {"id":"s16","title":"Zahlenfolgen – Einführung","type":"url","html":"https://claude.ai/public/artifacts/595e585c-7ebb-43bc-b808-5a8058e22926","links":[],"tags":["klasse-10","mathematik","zahlenfolgen"],"color":"#ec4899","t":1746000900000,"u":1746000900000,"pinned":false},
-    {"id":"s17","title":"Grenzwert – Einführung","type":"url","html":"https://claude.ai/public/artifacts/cdca8389-58d3-4c83-bafe-af0bda98a12b","links":[],"tags":["klasse-10","mathematik","grenzwert"],"color":"#ec4899","t":1746000960000,"u":1746000960000,"pinned":false},
-    {"id":"s18","title":"Lernpfad Grenzwert","type":"url","html":"https://claude.ai/public/artifacts/cca15906-4877-4fbd-9b29-d417dd8e9abc","links":[],"tags":["klasse-10","mathematik","grenzwert","lernpfad"],"color":"#ec4899","t":1746001020000,"u":1746001020000,"pinned":false},
-    {"id":"s19","title":"Zahlenfolgen Übung mit Musterlösung (PW: GW_Lsg_25)","type":"url","html":"https://claude.ai/public/artifacts/a4159158-b10a-41c4-bed0-dcf886e7dd3a","links":[],"tags":["klasse-10","mathematik","zahlenfolgen","passwortgeschützt"],"color":"#ec4899","t":1746001080000,"u":1746001080000,"pinned":false},
-    {"id":"s20","title":"Unterrichtsleistung Folgen","type":"url","html":"https://claude.ai/public/artifacts/78fa899e-5147-4ab1-ba12-513ff910b278","links":[],"tags":["klasse-10","mathematik","zahlenfolgen","test"],"color":"#ec4899","t":1746001140000,"u":1746001140000,"pinned":false},
-    {"id":"s21","title":"Lernpfad Lorentzkraft","type":"url","html":"https://claude.ai/public/artifacts/4c2e4ba8-4247-4891-a851-de5194cb2e5d","links":[],"tags":["klasse-11-12","physik","lorentzkraft","lernpfad"],"color":"#a855f7","t":1746001200000,"u":1746001200000,"pinned":false},
-    {"id":"s22","title":"Extremwertaufgaben – Lösungsvorgehen","type":"url","html":"https://claude.ai/public/artifacts/4b3cfb56-bb5a-4c48-99d1-46ba2664cb46","links":[],"tags":["klasse-11-12","mathematik","extremwert","analysis"],"color":"#f87171","t":1746001260000,"u":1746001260000,"pinned":false}
+    {
+      "id": "s01",
+      "title": "Lernstrategien Mathematik & Physik SEK I/II",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/e2686409-5b66-4452-8be8-ca732be69899",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "lernstrategien",
+        "mathematik",
+        "physik"
+      ],
+      "color": "#64748b",
+      "t": 1746000000000,
+      "u": 1746000000000,
+      "pinned": false
+    },
+    {
+      "id": "s02",
+      "title": "Lernstrategien vereinfachte Sprache (Klasse 5/6)",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/48087cfd-43e2-4c4d-956d-755ddadb0873",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "lernstrategien",
+        "klasse-5-6"
+      ],
+      "color": "#64748b",
+      "t": 1746000060000,
+      "u": 1746000060000,
+      "pinned": false
+    },
+    {
+      "id": "s03",
+      "title": "Elternratgeber Klasse 5/6",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/f24fd9b9-4022-4535-ae4d-71ca7566fa4d",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "eltern",
+        "klasse-5-6"
+      ],
+      "color": "#64748b",
+      "t": 1746000120000,
+      "u": 1746000120000,
+      "pinned": false
+    },
+    {
+      "id": "s04",
+      "title": "Interaktive Touristenmap Porto – Version 2",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/73305cd8-2a11-4a1c-841b-e32688e4bc52",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "geographie",
+        "interaktiv"
+      ],
+      "color": "#64748b",
+      "t": 1746000180000,
+      "u": 1746000180000,
+      "pinned": false
+    },
+    {
+      "id": "s05",
+      "title": "KI Systeme im MINT Unterricht – Version UNESCO",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/d6d1c1b3-f35a-42e1-9fde-f8e84d1a20f1",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "ki",
+        "mint"
+      ],
+      "color": "#64748b",
+      "t": 1746000240000,
+      "u": 1746000240000,
+      "pinned": false
+    },
+    {
+      "id": "s06",
+      "title": "KI Systeme – Nicht MINT Fächer",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/468561d9-ed3d-40e1-b134-0e59022073b0",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "ki"
+      ],
+      "color": "#64748b",
+      "t": 1746000300000,
+      "u": 1746000300000,
+      "pinned": false
+    },
+    {
+      "id": "s07",
+      "title": "Deutsch Kl. 7: Quiz Aktiv & Passiv (API)",
+      "type": "url",
+      "html": "https://claude.ai/chat/c877f247-0681-49d1-b47d-33192bb6fabb",
+      "links": [],
+      "tags": [
+        "allgemein",
+        "deutsch",
+        "klasse-7",
+        "quiz"
+      ],
+      "color": "#64748b",
+      "t": 1746000360000,
+      "u": 1746000360000,
+      "pinned": false
+    },
+    {
+      "id": "s08",
+      "title": "Leitfaden für Kollegen – Claude für MINT",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/a2b1de87-364e-472c-886c-0f6a7389846b",
+      "links": [],
+      "tags": [
+        "mint",
+        "leitfaden"
+      ],
+      "color": "#06b6d4",
+      "t": 1746000420000,
+      "u": 1746000420000,
+      "pinned": false
+    },
+    {
+      "id": "s09",
+      "title": "Interaktives Periodensystem Version 2",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/50350de2-6732-4147-85c6-2905873be2a9",
+      "links": [],
+      "tags": [
+        "mint",
+        "chemie",
+        "interaktiv"
+      ],
+      "color": "#06b6d4",
+      "t": 1746000480000,
+      "u": 1746000480000,
+      "pinned": false
+    },
+    {
+      "id": "s10",
+      "title": "Artemis II – Mission-Webseite",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/e4d4f1d0-1fe8-42cc-ad7a-dbf96b27767c",
+      "links": [],
+      "tags": [
+        "mint",
+        "physik",
+        "astronomie"
+      ],
+      "color": "#06b6d4",
+      "t": 1746000540000,
+      "u": 1746000540000,
+      "pinned": false
+    },
+    {
+      "id": "s11",
+      "title": "Konstruktionsübung Kongruenzsätze (Osterstunde)",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/00430dc6-0441-44f9-9bb8-9ec6b2eaf07c",
+      "links": [],
+      "tags": [
+        "klasse-6",
+        "mathematik",
+        "geometrie"
+      ],
+      "color": "#22c55e",
+      "t": 1746000600000,
+      "u": 1746000600000,
+      "pinned": false
+    },
+    {
+      "id": "s12",
+      "title": "Flächeninhalt von Dreiecken (Deutsch)",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/4cb6ea59-8352-48de-8f03-6779336ddfe6",
+      "links": [],
+      "tags": [
+        "klasse-6",
+        "mathematik",
+        "geometrie"
+      ],
+      "color": "#22c55e",
+      "t": 1746000660000,
+      "u": 1746000660000,
+      "pinned": false
+    },
+    {
+      "id": "s13",
+      "title": "Flächeninhalt von Dreiecken (Englisch)",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/1edcbb68-444b-46bc-95ac-2f1e21ac0386",
+      "links": [],
+      "tags": [
+        "klasse-6",
+        "mathematik",
+        "geometrie",
+        "englisch"
+      ],
+      "color": "#22c55e",
+      "t": 1746000720000,
+      "u": 1746000720000,
+      "pinned": false
+    },
+    {
+      "id": "s14",
+      "title": "Messung Stromstärke & Spannung (V1)",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/a5a5d5fc-018b-46d8-901e-8e8843fb9265",
+      "links": [],
+      "tags": [
+        "klasse-7",
+        "physik",
+        "elektrizität"
+      ],
+      "color": "#6366f1",
+      "t": 1746000780000,
+      "u": 1746000780000,
+      "pinned": false
+    },
+    {
+      "id": "s15",
+      "title": "Übung Lernbereich – Thermische Energie",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/f27c8d9f-5cbb-4bf1-aba9-d16f1c59cdc4",
+      "links": [],
+      "tags": [
+        "klasse-8",
+        "physik",
+        "thermodynamik"
+      ],
+      "color": "#f59e0b",
+      "t": 1746000840000,
+      "u": 1746000840000,
+      "pinned": false
+    },
+    {
+      "id": "s16",
+      "title": "Zahlenfolgen – Einführung",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/595e585c-7ebb-43bc-b808-5a8058e22926",
+      "links": [],
+      "tags": [
+        "klasse-10",
+        "mathematik",
+        "zahlenfolgen"
+      ],
+      "color": "#ec4899",
+      "t": 1746000900000,
+      "u": 1746000900000,
+      "pinned": false
+    },
+    {
+      "id": "s17",
+      "title": "Grenzwert – Einführung",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/cdca8389-58d3-4c83-bafe-af0bda98a12b",
+      "links": [],
+      "tags": [
+        "klasse-10",
+        "mathematik",
+        "grenzwert"
+      ],
+      "color": "#ec4899",
+      "t": 1746000960000,
+      "u": 1746000960000,
+      "pinned": false
+    },
+    {
+      "id": "s18",
+      "title": "Lernpfad Grenzwert",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/cca15906-4877-4fbd-9b29-d417dd8e9abc",
+      "links": [],
+      "tags": [
+        "klasse-10",
+        "mathematik",
+        "grenzwert",
+        "lernpfad"
+      ],
+      "color": "#ec4899",
+      "t": 1746001020000,
+      "u": 1746001020000,
+      "pinned": false
+    },
+    {
+      "id": "s19",
+      "title": "Zahlenfolgen Übung mit Musterlösung (PW: GW_Lsg_25)",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/a4159158-b10a-41c4-bed0-dcf886e7dd3a",
+      "links": [],
+      "tags": [
+        "klasse-10",
+        "mathematik",
+        "zahlenfolgen",
+        "passwortgeschützt"
+      ],
+      "color": "#ec4899",
+      "t": 1746001080000,
+      "u": 1746001080000,
+      "pinned": false
+    },
+    {
+      "id": "s20",
+      "title": "Unterrichtsleistung Folgen",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/78fa899e-5147-4ab1-ba12-513ff910b278",
+      "links": [],
+      "tags": [
+        "klasse-10",
+        "mathematik",
+        "zahlenfolgen",
+        "test"
+      ],
+      "color": "#ec4899",
+      "t": 1746001140000,
+      "u": 1746001140000,
+      "pinned": false
+    },
+    {
+      "id": "s21",
+      "title": "Lernpfad Lorentzkraft",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/4c2e4ba8-4247-4891-a851-de5194cb2e5d",
+      "links": [],
+      "tags": [
+        "klasse-11-12",
+        "physik",
+        "lorentzkraft",
+        "lernpfad"
+      ],
+      "color": "#a855f7",
+      "t": 1746001200000,
+      "u": 1746001200000,
+      "pinned": false
+    },
+    {
+      "id": "s22",
+      "title": "Extremwertaufgaben – Lösungsvorgehen",
+      "type": "url",
+      "html": "https://claude.ai/public/artifacts/4b3cfb56-bb5a-4c48-99d1-46ba2664cb46",
+      "links": [],
+      "tags": [
+        "klasse-11-12",
+        "mathematik",
+        "extremwert",
+        "analysis"
+      ],
+      "color": "#f87171",
+      "t": 1746001260000,
+      "u": 1746001260000,
+      "pinned": false
+    },
+    {
+      "id": "mofzz1dn004s9a",
+      "title": "osterliche_konstruktionen_v2",
+      "type": "url",
+      "html": "https://Monetos.github.io/htmldb/htmls/osterliche-konstruktionen-v2-zyzjr.html",
+      "tags": [],
+      "color": "#a855f7",
+      "links": [],
+      "pinned": false,
+      "t": 1777221800123,
+      "u": 1777221800123
+    }
   ]
 }
