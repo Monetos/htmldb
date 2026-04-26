@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐣 Osterliche Konstruktionen – Klasse 6 Mathematik</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mint:#B5EAD7;--yellow:#FFEAA7;--pink:#FFB7C5;
+  --blue:#A8DADC;--lav:#C3B1E1;--gold:#F9CA24;
+  --dark:#2D3436;--mid:#636E72;--light:#F8F9FA;
+  --fh:'Fredoka One',cursive;--fb:'Nunito',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--fb);background:linear-gradient(135deg,#FFF5F7 0%,#F0FFF8 50%,#F5F0FF 100%);color:var(--dark);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── HEADER ─────────────────────────────────── */
+.hdr{background:#fff;border-bottom:3px solid var(--mint);padding:10px 22px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 14px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
+.hdr-title{font-family:var(--fh);font-size:1.5rem;color:var(--dark);}
+.hdr-sub{font-size:.78rem;color:var(--mid);font-weight:700;}
+.hdr-deco{margin-left:auto;font-size:1.4rem;letter-spacing:3px;animation:sway 3s ease-in-out infinite;}
+.prog-wrap{display:flex;align-items:center;gap:8px;margin-left:14px;}
+.prog-bar{width:110px;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--lav),var(--blue),var(--mint));border-radius:4px;transition:width .5s;}
+.prog-lbl{font-size:.75rem;font-weight:800;color:var(--mid);white-space:nowrap;}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.layout{display:flex;flex:1;max-width:1400px;margin:0 auto;width:100%;padding:18px;gap:18px;}
+
+/* ── SIDEBAR ─────────────────────────────────── */
+.sidebar{width:236px;flex-shrink:0;position:sticky;top:76px;height:fit-content;}
+.sb-lbl{font-family:var(--fh);font-size:.78rem;color:var(--mid);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+.pb{background:#fff;border:2.5px solid transparent;border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.06);width:100%;margin-bottom:8px;display:block;}
+.pb:hover{border-color:var(--blue);transform:translateX(3px);}
+.pb.active{border-color:var(--blue);background:linear-gradient(135deg,#fff,#f0f9ff);}
+.pb.done{border-color:var(--mint);}
+.pb-row{display:flex;align-items:center;gap:10px;}
+.pb-em{font-size:1.5rem;width:34px;text-align:center;}
+.pb-name{font-weight:800;font-size:.84rem;line-height:1.25;}
+.pb-meta{display:flex;align-items:center;gap:4px;margin-top:2px;}
+.pb-stars{font-size:.62rem;color:var(--gold);}
+.pb-pct{font-size:.68rem;color:var(--mid);}
+.mini-bar{height:3px;background:#eee;border-radius:2px;margin-top:7px;overflow:hidden;}
+.mini-fill{height:100%;background:linear-gradient(90deg,var(--mint),var(--blue));border-radius:2px;transition:width .3s;}
+
+/* ── TIP BOX in SIDEBAR ─────────────────────── */
+.hint-box{background:linear-gradient(135deg,var(--yellow),#fffae5);border:1px solid #f0d060;border-radius:10px;padding:11px 13px;margin-top:10px;font-size:.78rem;line-height:1.5;color:#5a4200;}
+.hint-title{font-weight:800;margin-bottom:4px;font-size:.8rem;}
+
+/* ── MAIN ─────────────────────────────────── */
+.main{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:start;}
+.left-col{min-width:0;}
+.right-col{width:340px;flex-shrink:0;position:sticky;top:76px;}
+
+/* ── CARDS ─────────────────────────────────── */
+.card{background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.07);overflow:hidden;margin-bottom:16px;}
+
+/* Project header */
+.ph{padding:22px 26px 14px;position:relative;overflow:hidden;}
+.ph-bg{position:absolute;top:-6px;right:-6px;font-size:7rem;opacity:.09;line-height:1;pointer-events:none;}
+.pnum{font-size:.72rem;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:2px;margin-bottom:2px;}
+.ptitle{font-family:var(--fh);font-size:1.85rem;margin-bottom:8px;}
+.pmeta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.stars-big{color:var(--gold);font-size:1.05rem;letter-spacing:2px;}
+.stars-big .off{opacity:.2;}
+.badge{font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:20px;}
+.bg{background:var(--mint);color:#1a5c40;}
+.bp{background:var(--lav);color:#3a1f6e;}
+.bb{background:var(--blue);color:#0a3d4a;}
+.by{background:var(--yellow);color:#5a4200;}
+
+/* Lernziel */
+.lz{margin:0 26px 14px;background:linear-gradient(135deg,#fffde8,#fff9d0);border-left:4px solid var(--gold);border-radius:10px;padding:11px 15px;}
+.lz-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--mid);margin-bottom:3px;}
+.lz-txt{font-size:.87rem;font-weight:600;line-height:1.5;}
+
+/* Gegeben + Koordinaten */
+.gg{margin:0 26px 18px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.gg-block{background:#f7f9fc;border-radius:10px;padding:12px 14px;}
+.gg-block.full{grid-column:1/-1;}
+.gg-lbl{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--mid);margin-bottom:7px;}
+.gg-list{list-style:none;}
+.gg-list li{font-size:.82rem;font-weight:600;color:var(--dark);padding:2px 0;border-bottom:1px solid #eee;}
+.gg-list li:last-child{border:none;}
+.gg-list li::before{content:"▸ ";color:var(--mid);}
+
+/* Phase header */
+.phase-hdr{margin:4px 26px 6px;display:flex;align-items:center;gap:10px;}
+.phase-title{font-family:var(--fh);font-size:.92rem;color:var(--dark);white-space:nowrap;}
+.phase-line{flex:1;height:1px;background:#ebebeb;}
+
+/* Steps */
+.steps{padding:0 26px 6px;}
+.step{display:flex;gap:11px;padding:9px 10px;border-radius:10px;margin-bottom:5px;transition:background .2s;}
+.step:hover{background:#fafafa;}
+.step.done-step{background:linear-gradient(135deg,#f0fff8,#fff);}
+.step-cb{width:20px;height:20px;flex-shrink:0;accent-color:#27ae60;margin-top:4px;cursor:pointer;}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:2px;transition:all .3s;}
+.done-step .step-num{background:#27ae60;color:#fff;}
+.step-body{flex:1;}
+.tool-tag{display:inline-block;font-size:.61rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;padding:2px 7px;border-radius:4px;margin-bottom:3px;}
+.tt-b{background:#FFEAA7;color:#5a4200;}  /* Bleistift */
+.tt-z{background:#A8DADC;color:#0a3d4a;}  /* Zirkel */
+.tt-g{background:#FFB7C5;color:#6d1030;}  /* Geodreieck */
+.tt-a{background:#C3B1E1;color:#3a1860;}  /* Allgemein */
+.step-txt{font-size:.87rem;font-weight:600;color:var(--dark);line-height:1.55;}
+.step-btns{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
+.tip-btn{background:none;border:1.5px solid var(--gold);border-radius:16px;padding:2px 8px;font-size:.7rem;font-weight:700;cursor:pointer;color:#7a5e00;font-family:var(--fb);}
+.tip-btn:hover{background:var(--yellow);}
+.inf-btn{background:none;border:1.5px solid var(--lav);border-radius:16px;padding:2px 8px;font-size:.7rem;font-weight:700;cursor:pointer;color:var(--mid);font-family:var(--fb);}
+.inf-btn:hover{background:var(--lav);color:#fff;}
+.tip-text{margin-top:6px;background:#fffef0;border:1px solid #eeddb0;border-radius:8px;padding:8px 12px;font-size:.79rem;color:#5a4200;line-height:1.5;display:none;}
+.tip-text.vis{display:block;animation:fadein .2s;}
+
+/* Completion */
+.done-card{margin:0 26px 24px;background:linear-gradient(135deg,var(--mint),#d0f5e8);border-radius:14px;padding:18px 22px;display:none;}
+.done-card.vis{display:block;animation:slideup .4s ease;}
+.done-emoji{font-size:2rem;margin-bottom:4px;}
+.done-h{font-family:var(--fh);font-size:1.2rem;margin-bottom:5px;}
+.done-txt{font-size:.85rem;line-height:1.6;}
+
+.reset-btn{margin:0 26px 22px;background:none;border:1.5px solid #ddd;border-radius:16px;padding:5px 14px;font-size:.73rem;font-weight:700;cursor:pointer;color:var(--mid);font-family:var(--fb);}
+.reset-btn:hover{border-color:#bbb;background:#f5f5f5;}
+
+/* ── RIGHT COLUMN: ILLUSTRATION ─────────────── */
+.illus-card{background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.07);overflow:hidden;}
+.illus-hdr{padding:12px 18px 10px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
+.illus-title{font-family:var(--fh);font-size:.9rem;color:var(--mid);}
+.illus-lock{margin-left:auto;font-size:.72rem;color:var(--mid);}
+.illus-body{position:relative;min-height:240px;display:flex;align-items:center;justify-content:center;padding:12px;}
+.illus-card.revealed{box-shadow:0 0 30px rgba(249,202,36,.3),0 4px 20px rgba(0,0,0,.07);}
+.svg-layer{transition:opacity .8s ease, filter .8s ease;filter:blur(7px) grayscale(1);opacity:.12;}
+.svg-layer.revealed{filter:blur(0) grayscale(0);opacity:1;animation:pulse .7s ease;}
+.fog{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity .6s;pointer-events:none;}
+.fog.gone{opacity:0;}
+.fog-icon{font-size:2.5rem;opacity:.3;}
+.fog-txt{font-family:var(--fh);font-size:.85rem;color:var(--mid);opacity:.6;text-align:center;padding:0 20px;}
+.progress-indicator{padding:10px 18px;background:#f9f9f9;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:10px;}
+.prog-steps{flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden;}
+.prog-steps-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--mint));border-radius:3px;transition:width .4s;}
+.prog-steps-txt{font-size:.72rem;font-weight:800;color:var(--mid);}
+
+/* ── MODAL ─────────────────────────────────── */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-ov.vis{display:flex;animation:fadein .2s;}
+.modal{background:#fff;border-radius:18px;padding:26px 30px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-h{font-family:var(--fh);font-size:1.25rem;margin-bottom:10px;}
+.modal-txt{font-size:.88rem;line-height:1.7;}
+.modal-close{margin-top:16px;background:var(--mint);border:none;border-radius:20px;padding:7px 22px;font-family:var(--fh);font-size:.9rem;cursor:pointer;}
+
+/* ── FOOTER ─────────────────────────────────── */
+footer{background:#fff;border-top:2px solid var(--mint);padding:11px 22px;text-align:center;font-size:.8rem;color:var(--mid);font-weight:600;margin-top:auto;}
+footer strong{color:var(--dark);}
+
+/* ── ANIMATIONS ─────────────────────────────── */
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes slideup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div class="hdr-title">🐣 Osterliche Konstruktionen</div>
+    <div class="hdr-sub">Klasse 6 · Kongruenzsätze &amp; geometrische Konstruktionen</div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="gFill" style="width:0%"></div></div>
+    <span class="prog-lbl" id="gLbl">0 / 3</span>
+  </div>
+  <div class="hdr-deco">🥚🌸🐰</div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-lbl">Projekte</div>
+    <div id="sb"></div>
+    <div class="hint-box">
+      <div class="hint-title">📐 Materialien</div>
+      Karopapier (1 Kästchen = 1 cm), Bleistift, Zirkel, Geodreieck, Radiergummi.
+    </div>
+  </nav>
+
+  <!-- MAIN (two columns) -->
+  <div class="main">
+    <!-- Instructions column -->
+    <div class="left-col" id="left"></div>
+
+    <!-- Illustration column -->
+    <div class="right-col">
+      <div class="illus-card" id="illustCard">
+        <div class="illus-hdr">
+          <span class="illus-title">🎨 So soll dein Bild aussehen</span>
+          <span class="illus-lock" id="lockLbl">🔒 Alle Schritte abhaken</span>
+        </div>
+        <div class="illus-body" id="illustBody">
+          <div class="svg-layer" id="svgLayer"></div>
+          <div class="fog" id="fog">
+            <div class="fog-icon">🔒</div>
+            <div class="fog-txt">Hake alle Schritte ab,<br>um das Zielbild zu enthüllen!</div>
+          </div>
+        </div>
+        <div class="progress-indicator">
+          <div class="prog-steps"><div class="prog-steps-fill" id="stepsBar" style="width:0%"></div></div>
+          <span class="prog-steps-txt" id="stepsLbl">0 / 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Erstellt von <strong>Nelson Finkelmeyer</strong> &nbsp;·&nbsp;
+  <strong>Gymnasium Wilsdruff</strong> &nbsp;·&nbsp;
+  Klasse 6 Mathematik · Geometrische Konstruktionen
+</footer>
+
+<div class="modal-ov" id="modal">
+  <div class="modal">
+    <div class="modal-h" id="mH"></div>
+    <div class="modal-txt" id="mT"></div>
+    <button class="modal-close" onclick="closeModal()">Schließen</button>
+  </div>
+</div>
+
+<script>
+// ── INFO DICTIONARY ────────────────────────────────────────────────────────
+const INFO = {
+  sss:{h:"Kongruenzsatz SSS",t:"SSS bedeutet Seite–Seite–Seite. Zwei Dreiecke sind kongruent (deckungsgleich), wenn alle drei Seiten gleich lang sind: a=a′, b=b′, c=c′. Du konstruierst das Dreieck, indem du von zwei Endpunkten je einen Kreisbogen schlägst; ihr Schnittpunkt ist die dritte Ecke."},
+  kreis:{h:"Kreis mit Zirkel konstruieren",t:"Ein Kreis ist die Menge aller Punkte, die von einem Mittelpunkt M den gleichen Abstand r (Radius) haben. Du konstruierst ihn, indem du die Zirkelspitze in M setzt, den Zirkel auf r cm einstellst und einmal vollständig herumführst."},
+  rechteck:{h:"Rechteck konstruieren",t:"Ein Rechteck hat vier rechte Winkel und zwei Paare gleich langer Seiten. Du konstruierst es mit Geodreieck und Bleistift: Zeichne eine Grundlinie, errichte an beiden Endpunkten Senkrechte und trage die Höhe ab. Zwei Seiten sind parallel und gleich lang – das kannst du mit dem Zirkel prüfen."},
+  parallel:{h:"Parallele Geraden konstruieren",t:"Zwei Geraden sind parallel, wenn sie denselben Abstand zueinander haben und sich nicht schneiden. Du konstruierst eine Parallele zu einer Geraden g durch einen Punkt P, indem du das Geodreieck an g ausrichtest, dann verschiebst du es so, dass die Kante durch P verläuft, und zeichnest die Parallele."},
+  senkrecht:{h:"Senkrechte konstruieren",t:"Eine Senkrechte zu einer Geraden g steht im rechten Winkel (90°) auf g. Du konstruierst sie mit dem Geodreieck (90°-Ecke anlegen) oder mit dem Zirkel: Schlage zwei gleich große Bögen von einem Punkt auf g, dann von deren Schnittpunkten aus – der Verbindungsstrahl durch den äußeren Schnittpunkt ist die Senkrechte."},
+  spiegelung:{h:"Achsenspiegelung",t:"Bei der Achsenspiegelung wird jeder Punkt P an einer Achse g gespiegelt: Der Bildpunkt P′ liegt auf der anderen Seite von g, im gleichen Abstand. Die Verbindungsstrecke PP′ steht senkrecht auf g. Gespiegelte Figuren sind stets kongruent zum Original."},
+  sechseck:{h:"Reguläres Sechseck konstruieren",t:"Ein reguläres Sechseck hat sechs gleich lange Seiten und sechs gleiche Innenwinkel (je 120°). Es lässt sich elegant mit dem Zirkel konstruieren: Zeichne einen Kreis mit Radius r. Der Radius passt genau sechsmal in den Kreisumfang – trage ihn also sechsmal hintereinander ab und erhalte die sechs Eckpunkte."},
+  gleichseitig:{h:"Gleichseitiges Dreieck (SSS, alle Seiten gleich)",t:"Ein gleichseitiges Dreieck hat drei gleich lange Seiten und drei gleiche Winkel (je 60°). Konstruktion: Zeichne Grundstrecke AB. Schlage um A und um B je einen Kreisbogen mit Radius = AB. Ihr Schnittpunkt C ist die dritte Ecke. Alle Seiten = AB."},
+};
+
+// ── SVG DEFINITIONS ────────────────────────────────────────────────────────
+// All SVGs are ~320×400, coordinate grid (40px=1cm), origin shown
+// Recognized images: chick, bunny, flower
+const SVGs = {
+
+// ─── SVG 1: KÜKEN ──────────────────────────────────────────────────────────
+// Coordinate origin at pixel (160, 290). Scale: 40px = 1 cm.
+// px_x = 160 + x_cm*40,  px_y = 290 - y_cm*40
+// Body circle:  M=(0|0)→(160,290), r=2.5cm=100px
+// Head circle:  M=(0|3.5)→(160,150), r=1.5cm=60px (body top=190, head bottom=210 → 20px overlap=neck)
+// Beak triangle: A=(-0.8|2.2)→(128,202), B=(0.8|2.2)→(192,202), C=(0|1.0)→(160,250)
+// Eyes: L=(-0.6|4.1)→(136,126) r=11px;  R=(0.6|4.1)→(184,126) r=11px
+// Left wing: D=(-2.5|0.8)→(60,258), E=(-1.5|2.2)→(100,202), F=(-1.5|-2.2)→(100,378)
+// Right wing: mirror at x=160
+// Feet (strecken): L from (−0.8|−2.5)→(128,390) to (−0.8|−3.8)→(128,442)...
+//   → foot left: (128,370)→(115,400)→(95,400); foot right: (192,370)→(205,400)→(225,400)
+// Crest: triangles on top of head
+
+kueken: `<svg viewBox="0 0 320 420" width="310" height="405" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <pattern id="gk" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M40,0 L0,0 0,40" fill="none" stroke="#e5e5e5" stroke-width="0.6"/>
+  </pattern>
+</defs>
+<!-- Grid -->
+<rect width="320" height="420" fill="#FFFFFA"/>
+<rect width="320" height="420" fill="url(#gk)"/>
+<!-- Axes -->
+<line x1="160" y1="0" x2="160" y2="420" stroke="#ccc" stroke-width="1.2"/>
+<line x1="0" y1="290" x2="320" y2="290" stroke="#ccc" stroke-width="1.2"/>
+<text x="163" y="305" font-size="11" fill="#bbb" font-family="Nunito,sans-serif" font-weight="600">(0|0)</text>
+
+<!-- Construction arcs (light dashed – compass traces) -->
+<circle cx="160" cy="290" r="100" fill="none" stroke="#90CAF9" stroke-width="1.3" stroke-dasharray="5,4"/>
+<circle cx="160" cy="150" r="60" fill="none" stroke="#90CAF9" stroke-width="1.3" stroke-dasharray="5,4"/>
+<!-- Beak arc traces: arcs from A and B with r=AB -->
+<path d="M 128 202 A 70 70 0 0 1 192 202" fill="none" stroke="#FFAB76" stroke-width="1" stroke-dasharray="4,4"/>
+<circle cx="128" cy="202" r="48" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<circle cx="192" cy="202" r="48" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<!-- Wing arc traces -->
+<circle cx="100" cy="202" r="58" fill="none" stroke="#FFEAA7" stroke-width=".9" stroke-dasharray="4,4"/>
+
+<!-- ── BODY (Kreis, M=(0|0), r=2.5cm) ── -->
+<circle cx="160" cy="290" r="100" fill="#FFD700" fill-opacity=".85" stroke="#E67E22" stroke-width="2.8"/>
+
+<!-- ── HEAD (Kreis, M=(0|3.5), r=1.5cm) ── -->
+<circle cx="160" cy="150" r="60" fill="#FFD700" fill-opacity=".85" stroke="#E67E22" stroke-width="2.8"/>
+
+<!-- ── BEAK (Dreieck nach SSS, A=(-0.8|2.2), B=(0.8|2.2), C=(0|1.0)) ── -->
+<polygon points="128,202 192,202 160,250" fill="#FF8C00" stroke="#D35400" stroke-width="2.2"/>
+
+<!-- ── LEFT EYE (Kreis, M=(-0.6|4.1), r=0.28cm≈11px) ── -->
+<circle cx="136" cy="126" r="13" fill="#2D3436"/>
+<circle cx="132" cy="122" r="5" fill="white"/>
+
+<!-- ── RIGHT EYE ── -->
+<circle cx="184" cy="126" r="13" fill="#2D3436"/>
+<circle cx="180" cy="122" r="5" fill="white"/>
+
+<!-- ── CREST (drei kleine Dreiecke oben) ── -->
+<polygon points="150,92 160,70 170,92" fill="#FF8C00" stroke="#D35400" stroke-width="1.8"/>
+<polygon points="135,100 144,80 153,100" fill="#FFB347" stroke="#D35400" stroke-width="1.5"/>
+<polygon points="167,100 176,80 185,100" fill="#FFB347" stroke="#D35400" stroke-width="1.5"/>
+
+<!-- ── LEFT WING (Dreieck, D=(-2.5|0.8), E=(-1.5|2.2), F=(-1.5|-2.5)) ── -->
+<polygon points="60,258 100,202 100,390" fill="#FFB347" fill-opacity=".85" stroke="#E67E22" stroke-width="2.2"/>
+
+<!-- ── RIGHT WING (Spiegelbild an y-Achse) ── -->
+<polygon points="260,258 220,202 220,390" fill="#FFB347" fill-opacity=".85" stroke="#E67E22" stroke-width="2.2"/>
+
+<!-- ── FEET (Strecken) ── -->
+<!-- Left foot -->
+<line x1="135" y1="370" x2="120" y2="405" stroke="#D35400" stroke-width="3" stroke-linecap="round"/>
+<line x1="120" y1="405" x2="96" y2="405" stroke="#D35400" stroke-width="3" stroke-linecap="round"/>
+<line x1="120" y1="405" x2="120" y2="418" stroke="#D35400" stroke-width="3" stroke-linecap="round"/>
+<!-- Right foot -->
+<line x1="185" y1="370" x2="200" y2="405" stroke="#D35400" stroke-width="3" stroke-linecap="round"/>
+<line x1="200" y1="405" x2="224" y2="405" stroke="#D35400" stroke-width="3" stroke-linecap="round"/>
+<line x1="200" y1="405" x2="200" y2="418" stroke="#D35400" stroke-width="3" stroke-linecap="round"/>
+
+<!-- Labels -->
+<text x="162" y="296" font-size="10" fill="#E67E22" font-family="Nunito,sans-serif" font-weight="800">M₁</text>
+<text x="162" y="148" font-size="10" fill="#E67E22" font-family="Nunito,sans-serif" font-weight="800">M₂</text>
+<text x="110" y="244" font-size="9" fill="#636E72" font-family="Nunito,sans-serif">A</text>
+<text x="190" y="244" font-size="9" fill="#636E72" font-family="Nunito,sans-serif">B</text>
+<text x="163" y="258" font-size="9" fill="#636E72" font-family="Nunito,sans-serif">C</text>
+</svg>`,
+
+// ─── SVG 2: OSTERHASE ──────────────────────────────────────────────────────
+// Origin at pixel (162, 270). Scale: 40px=1cm.
+// Head circle:  M=(0|0)→(162,270), r=3.5cm=140px  → spans y=130 to y=410... too big
+// Let's use r=3cm=120px: head y=150 to y=390
+// Let's scale: origin (162,260), r=100px
+// Head: M=(0|0)→(162,260), r=2.5cm=100px → y=160 to y=360
+// Left ear: rect from (-2|3.5) to (-0.6|3.5) to (-0.6|8) to (-2|8) + semicircle
+//   → SVG: x from 82 to 138, y from 120 to -60... too high
+// Rescale: 1cm=35px
+// Head: (162,270), r=2.5cm=87px → y: 183 to 357
+// Left ear rect: x from (-1.9|3)→(96,165) to (-0.6|3)→(141,165) to (-0.6|8)→(141,-10)... off screen
+// Hmm the ears go very far up. Let me design purely in pixels.
+
+hase: `<svg viewBox="0 0 324 440" width="314" height="426" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <pattern id="gh" width="36" height="36" patternUnits="userSpaceOnUse">
+    <path d="M36,0 L0,0 0,36" fill="none" stroke="#e5e5e5" stroke-width="0.6"/>
+  </pattern>
+</defs>
+<!-- Grid (1 Kästchen = 1 cm ≈ 36px) -->
+<rect width="324" height="440" fill="#FFFFFB"/>
+<rect width="324" height="440" fill="url(#gh)"/>
+<!-- Axes -->
+<line x1="162" y1="0" x2="162" y2="440" stroke="#ccc" stroke-width="1.2"/>
+<line x1="0" y1="290" x2="324" y2="290" stroke="#ccc" stroke-width="1.2"/>
+<text x="165" y="305" font-size="10" fill="#bbb" font-family="Nunito,sans-serif" font-weight="600">(0|0)</text>
+
+<!-- Symmetrieachse (gestrichelt, gold) -->
+<line x1="162" y1="10" x2="162" y2="430" stroke="#F9CA24" stroke-width="1.8" stroke-dasharray="8,5"/>
+<text x="168" y="22" font-size="10" fill="#F9CA24" font-family="Nunito,sans-serif" font-weight="800">Symmetrieachse</text>
+
+<!-- Construction arcs (compass traces) -->
+<circle cx="162" cy="290" r="108" fill="none" stroke="#90CAF9" stroke-width="1.2" stroke-dasharray="5,4"/>
+<!-- Ear parallels (dashed) -->
+<line x1="108" y1="40" x2="108" y2="210" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<line x1="144" y1="40" x2="144" y2="210" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<line x1="180" y1="40" x2="180" y2="210" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<line x1="216" y1="40" x2="216" y2="210" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+
+<!-- ── HEAD (Kreis, M=(0|0), r=3cm = 108px) ── -->
+<circle cx="162" cy="290" r="108" fill="#F5E6CC" fill-opacity=".9" stroke="#8B5E3C" stroke-width="2.8"/>
+
+<!-- ── LEFT EAR (Rechteck + Halbkreis) ── -->
+<!-- Rect: x=108..144, y=50..214 -->
+<rect x="108" y="50" width="36" height="164" fill="#F5E6CC" stroke="#8B5E3C" stroke-width="2.5" rx="0"/>
+<!-- Inner pink ear -->
+<rect x="115" y="58" width="22" height="148" fill="#FFB7C5" stroke="none" rx="0"/>
+<!-- Semicircle top -->
+<path d="M 108 50 A 18 18 0 0 1 144 50 Z" fill="#F5E6CC" stroke="#8B5E3C" stroke-width="2.5"/>
+<path d="M 115 55 A 11 11 0 0 1 137 55 Z" fill="#FFB7C5" stroke="none"/>
+
+<!-- ── RIGHT EAR (Spiegelbild) ── -->
+<rect x="180" y="50" width="36" height="164" fill="#F5E6CC" stroke="#8B5E3C" stroke-width="2.5" rx="0"/>
+<rect x="187" y="58" width="22" height="148" fill="#FFB7C5" stroke="none" rx="0"/>
+<path d="M 180 50 A 18 18 0 0 1 216 50 Z" fill="#F5E6CC" stroke="#8B5E3C" stroke-width="2.5"/>
+<path d="M 187 55 A 11 11 0 0 1 209 55 Z" fill="#FFB7C5" stroke="none"/>
+
+<!-- ── LEFT EYE ── -->
+<circle cx="128" cy="265" r="20" fill="#fff" stroke="#8B5E3C" stroke-width="2"/>
+<circle cx="128" cy="265" r="13" fill="#2D3436"/>
+<circle cx="123" cy="260" r="5" fill="white"/>
+
+<!-- ── RIGHT EYE ── -->
+<circle cx="196" cy="265" r="20" fill="#fff" stroke="#8B5E3C" stroke-width="2"/>
+<circle cx="196" cy="265" r="13" fill="#2D3436"/>
+<circle cx="191" cy="260" r="5" fill="white"/>
+
+<!-- ── NOSE (kleines Dreieck, SSS) ── -->
+<polygon points="151,318 173,318 162,335" fill="#FFB7C5" stroke="#C0616C" stroke-width="2"/>
+
+<!-- ── MOUTH (zwei Strecken) ── -->
+<line x1="162" y1="335" x2="145" y2="350" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="162" y1="335" x2="179" y2="350" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round"/>
+
+<!-- ── WHISKERS (Strecken) ── -->
+<line x1="50"  y1="308" x2="138" y2="316" stroke="#8B5E3C" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="44"  y1="325" x2="136" y2="322" stroke="#8B5E3C" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="52"  y1="342" x2="137" y2="330" stroke="#8B5E3C" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="186" y1="316" x2="274" y2="308" stroke="#8B5E3C" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="188" y1="322" x2="280" y2="325" stroke="#8B5E3C" stroke-width="1.8" stroke-linecap="round"/>
+<line x1="187" y1="330" x2="272" y2="342" stroke="#8B5E3C" stroke-width="1.8" stroke-linecap="round"/>
+
+<!-- ── CHEEKS (helle Kreise) ── -->
+<circle cx="104" cy="330" r="22" fill="#FFB7C5" fill-opacity=".4"/>
+<circle cx="220" cy="330" r="22" fill="#FFB7C5" fill-opacity=".4"/>
+
+<!-- Labels -->
+<text x="165" y="288" font-size="9" fill="#8B5E3C" font-family="Nunito,sans-serif" font-weight="800">M</text>
+<text x="115" y="140" font-size="9" fill="#636E72" font-family="Nunito,sans-serif">l. Ohr</text>
+<text x="183" y="140" font-size="9" fill="#636E72" font-family="Nunito,sans-serif">r. Ohr</text>
+</svg>`,
+
+// ─── SVG 3: OSTERBLUME ─────────────────────────────────────────────────────
+// Regular hexagon + 6 equilateral triangles (petals) + circles + stem
+// Center M at pixel (162, 175). Scale: 1cm=36px.
+// Hexagon r=72px (=2cm). Hexagon points at 60° intervals.
+// P1=(162, 103), P2=(162+62, 139)=(224,139), P3=(224,211), P4=(162,247), P5=(100,211), P6=(100,139)
+// Each side length = r = 72px.
+// Equilateral triangle apex outward (side=72, height=62):
+//   X12=(224,77), X23=(286,175), X34=(224,273), X45=(100,273), X56=(38,175), X61=(100,77)
+// Inkreis: r_in = 72*cos(30°) = 72*0.866 = 62px
+// Stem: rect (154,247)..(170,340), width=16px
+// Leaves: triangles
+
+blume: `<svg viewBox="0 0 324 430" width="314" height="416" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <pattern id="gf" width="36" height="36" patternUnits="userSpaceOnUse">
+    <path d="M36,0 L0,0 0,36" fill="none" stroke="#e5e5e5" stroke-width="0.6"/>
+  </pattern>
+</defs>
+<!-- Grid -->
+<rect width="324" height="430" fill="#FFFFFB"/>
+<rect width="324" height="430" fill="url(#gf)"/>
+<!-- Axes -->
+<line x1="162" y1="0" x2="162" y2="430" stroke="#ccc" stroke-width="1.2"/>
+<line x1="0" y1="355" x2="324" y2="355" stroke="#ccc" stroke-width="1.2"/>
+<text x="165" y="368" font-size="10" fill="#bbb" font-family="Nunito,sans-serif" font-weight="600">(0|0)</text>
+
+<!-- Construction arcs (Zirkelspuren) -->
+<!-- Main circle and 6 marking arcs -->
+<circle cx="162" cy="175" r="72" fill="none" stroke="#90CAF9" stroke-width="1.3" stroke-dasharray="5,4"/>
+<!-- Arc traces for equilateral triangles (from P1, r=72): -->
+<circle cx="162" cy="103" r="72" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<circle cx="224" cy="139" r="72" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<circle cx="224" cy="211" r="72" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<circle cx="162" cy="247" r="72" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<circle cx="100" cy="211" r="72" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+<circle cx="100" cy="139" r="72" fill="none" stroke="#FFAB76" stroke-width=".9" stroke-dasharray="4,4"/>
+
+<!-- Inkreis (dashed) -->
+<circle cx="162" cy="175" r="62" fill="none" stroke="#C3B1E1" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+<!-- ── 6 BLÜTENBLÄTTER (gleichseitige Dreiecke, SSS) ── -->
+<!-- Petals with alternating colors -->
+<polygon points="162,103 224,139 224,77" fill="#FFB7C5" fill-opacity=".82" stroke="#E84393" stroke-width="2"/>
+<polygon points="224,139 224,211 286,175" fill="#FFEAA7" fill-opacity=".82" stroke="#F9CA24" stroke-width="2"/>
+<polygon points="224,211 162,247 224,273" fill="#B5EAD7" fill-opacity=".82" stroke="#00B894" stroke-width="2"/>
+<polygon points="162,247 100,211 100,273" fill="#A8DADC" fill-opacity=".82" stroke="#0984E3" stroke-width="2"/>
+<polygon points="100,211 100,139 38,175" fill="#C3B1E1" fill-opacity=".82" stroke="#6C5CE7" stroke-width="2"/>
+<polygon points="100,139 162,103 100,77" fill="#FFB7C5" fill-opacity=".82" stroke="#E84393" stroke-width="2"/>
+
+<!-- ── SECHSECK (Hauptkonstruktion) ── -->
+<polygon points="162,103 224,139 224,211 162,247 100,211 100,139"
+  fill="#FFEAA7" fill-opacity=".7" stroke="#F9CA24" stroke-width="2.5"/>
+
+<!-- Radii (Verbindungen M zu Ecken) -->
+<line x1="162" y1="175" x2="162" y2="103" stroke="#E17055" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="162" y1="175" x2="224" y2="139" stroke="#E17055" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="162" y1="175" x2="224" y2="211" stroke="#E17055" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="162" y1="175" x2="162" y2="247" stroke="#E17055" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="162" y1="175" x2="100" y2="211" stroke="#E17055" stroke-width="1.5" stroke-dasharray="4,3"/>
+<line x1="162" y1="175" x2="100" y2="139" stroke="#E17055" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+<!-- ── INNERER KREIS (Inkreis des Sechsecks, r≈62px) ── -->
+<circle cx="162" cy="175" r="32" fill="#FFD700" fill-opacity=".8" stroke="#F9CA24" stroke-width="2.2"/>
+<!-- Mittelpunkt -->
+<circle cx="162" cy="175" r="4" fill="#E17055"/>
+<text x="166" y="172" font-size="10" fill="#E17055" font-family="Nunito,sans-serif" font-weight="800">M</text>
+
+<!-- ── STIEL (Rechteck) ── -->
+<rect x="154" y="247" width="16" height="90" fill="#27AE60" stroke="#1a7a42" stroke-width="2"/>
+
+<!-- ── BLÄTTER (Dreiecke links und rechts vom Stiel) ── -->
+<polygon points="154,310 100,285 150,340" fill="#2ECC71" fill-opacity=".82" stroke="#27AE60" stroke-width="1.8"/>
+<polygon points="170,310 224,285 174,340" fill="#2ECC71" fill-opacity=".82" stroke="#27AE60" stroke-width="1.8"/>
+
+<!-- ── BODEN-LINIE ── -->
+<line x1="110" y1="337" x2="214" y2="337" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round"/>
+
+<!-- Eckpunkt-Labels -->
+<text x="157" y="97" font-size="9" fill="#636E72" font-family="Nunito,sans-serif" font-weight="700">P₁</text>
+<text x="226" y="137" font-size="9" fill="#636E72" font-family="Nunito,sans-serif" font-weight="700">P₂</text>
+<text x="226" y="218" font-size="9" fill="#636E72" font-family="Nunito,sans-serif" font-weight="700">P₃</text>
+<text x="157" y="261" font-size="9" fill="#636E72" font-family="Nunito,sans-serif" font-weight="700">P₄</text>
+<text x="84"  y="218" font-size="9" fill="#636E72" font-family="Nunito,sans-serif" font-weight="700">P₅</text>
+<text x="84"  y="137" font-size="9" fill="#636E72" font-family="Nunito,sans-serif" font-weight="700">P₆</text>
+<!-- Apex labels -->
+<text x="220" y="72" font-size="8" fill="#E84393" font-family="Nunito,sans-serif">X₁₂</text>
+<text x="286" y="178" font-size="8" fill="#F9CA24" font-family="Nunito,sans-serif">X₂₃</text>
+<text x="220" y="282" font-size="8" fill="#00B894" font-family="Nunito,sans-serif">X₃₄</text>
+<text x="85"  y="282" font-size="8" fill="#0984E3" font-family="Nunito,sans-serif">X₄₅</text>
+<text x="20"  y="178" font-size="8" fill="#6C5CE7" font-family="Nunito,sans-serif">X₅₆</text>
+<text x="85"  y="72"  font-size="8" fill="#E84393" font-family="Nunito,sans-serif">X₆₁</text>
+</svg>`
+};
+
+// ── PROJECT DATA ────────────────────────────────────────────────────────────
+const P = [
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJEKT 1 – DAS KÜKEN
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id:1, title:"Das Küken", emoji:"🐣", diff:2, afb:"I",
+    badge:"Kreise + Dreiecke + Strecken", color:"#FFD700", bg:"#fffdf0",
+    lernziel:"Kreise mit dem Zirkel konstruieren, ein Dreieck nach SSS aufbauen, Strecken mit dem Lineal zeichnen und gespiegelte Figuren an einer Achse erkennen.",
+    gegeben:[
+      "Karopapier (1 Kästchen = 1 cm)","Koordinatensystem einzeichnen",
+      "M₁ = (0|0) = Körpermittelpunkt, r₁ = 2,5 cm",
+      "M₂ = (0|3,5) = Kopfmittelpunkt, r₂ = 1,5 cm",
+      "Schnabel: A=(−0,8|2,2), B=(0,8|2,2), C=(0|1,0)",
+      "Augen: M_L=(−0,6|4,1), M_R=(0,6|4,1), r=0,3 cm"
+    ],
+    svgKey:"kueken",
+    phases:[
+      {
+        title:"Phase 1 – Körper und Kopf (zwei Kreise)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Zeichne auf deinem Karopapier ein Koordinatensystem: eine senkrechte y-Achse und eine waagerechte x-Achse. Markiere den Ursprung (0|0) mit einem kleinen Kreuz. Dieser Punkt wird der Körpermittelpunkt M₁.",
+           tip:"Der Ursprung liegt am besten in der unteren Hälfte des Blatts, damit der Kopf nach oben und die Füße nach unten Platz haben.",
+           info:"kreis"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Stelle den Zirkel auf genau 2,5 cm ein. Setze die Zirkelspitze in M₁ = (0|0) und zeichne einen vollständigen Kreis. Das ist der Rumpf des Kükens.",
+           tip:"Halte den Zirkel beim Drehen leicht schräg, damit er nicht wegrutscht. Der Stift muss scharf sein!",
+           info:"kreis"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Markiere den Punkt M₂ = (0|3,5) auf der y-Achse – also 3,5 Kästchen über M₁. Das ist der Mittelpunkt des Kopfes.",
+           tip:"3,5 Kästchen = 3 Kästchen und noch ein halbes. Du kannst auch zwei Kästchen + 5 mm abmessen."},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Stelle den Zirkel auf 1,5 cm ein. Setze die Spitze in M₂ = (0|3,5) und zeichne den Kopfkreis. Der untere Teil des Kopfes überschneidet sich mit dem oberen Teil des Rumpfes – das ist korrekt und bildet den Hals.",
+           tip:"Rumpfoberrand liegt bei y = 2,5 cm, Kopfunterrand bei y = 2 cm. Die 0,5 cm Überlappung erzeugt den natürlichen Hals!"}
+        ]
+      },
+      {
+        title:"Phase 2 – Schnabel (Dreieck nach SSS)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Markiere die drei Schnabel-Eckpunkte genau auf dem Karopapier: A = (−0,8|2,2), B = (0,8|2,2) und C = (0|1,0). Zeichne kleine Kreuzchen an jeden Punkt.",
+           tip:"A und B liegen auf gleicher Höhe (y = 2,2), symmetrisch zur y-Achse. C liegt auf der y-Achse, weiter unten.",
+           info:"sss"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Miss die Länge AB nach (= 1,6 cm). Stelle den Zirkel auf 1,6 cm ein. Schlage von A und von B je einen Kreisbogen – ihr Schnittpunkt bestätigt die Lage von C.",
+           tip:"Dieser Schritt beweist, dass das Dreieck nach SSS konstruiert ist: alle drei Seiten sind festgelegt!"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Verbinde A–B, B–C und A–C mit dem Lineal. Der Schnabel ist ein spitzes Dreieck, das aus dem Gesicht des Kükens herausragt.",
+           tip:"Der Schnabel liegt zwischen dem Kopfkreis und dem Körperkreis – genau auf der Grenzlinie zwischen Kopf und Hals. Schau, ob dein Dreieck in der Überlappungszone sitzt!"}
+        ]
+      },
+      {
+        title:"Phase 3 – Augen und Federbusch (kleine Kreise + Dreiecke)",
+        steps:[
+          {tt:"tt-z", label:"Zirkel",
+           text:"Linkes Auge: Stelle den Zirkel auf 0,3 cm (= 3 mm) ein. Setze die Spitze in M_L = (−0,6|4,1) und zeichne einen kleinen Kreis.",
+           tip:"Sehr kleiner Radius – stelle den Zirkel an der Millimeterskala des Geodreiecks ein!"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Rechtes Auge: Spiegle M_L an der y-Achse → M_R = (0,6|4,1). Zeichne dasselbe Auge (r = 0,3 cm). Die beiden Kreise sind kongruent und symmetrisch.",
+           tip:"Beim Spiegeln an der y-Achse ändert sich nur das Vorzeichen der x-Koordinate: −0,6 → +0,6. Die y-Koordinate bleibt gleich.",
+           info:"spiegelung"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Federbusch: Zeichne auf dem Kopf (bei y ≈ 5,0 bis 6,0 cm) drei kleine spitze Dreiecke nebeneinander. Jedes Dreieck hat eine Basis von ca. 0,5 cm und eine Höhe von ca. 1,0 cm. Das mittlere sitzt auf der y-Achse.",
+           tip:"Kleine, spitze Dreiecke wirken am besten. Zeichne die Basis waagerecht und den Scheitelpunkt genau nach oben."}
+        ]
+      },
+      {
+        title:"Phase 4 – Flügel (zwei Dreiecke, gespiegelt)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Linker Flügel: Markiere D = (−2,5|0,8), E = (−1,5|2,2), F = (−1,5|−2,2). Verbinde die drei Punkte zu einem Dreieck. Es liegt links neben dem Rumpfkreis.",
+           tip:"Punkt D ragt am weitesten nach links (die Flügelspitze). E liegt oben auf Schulterhöhe, F unten auf Hüfthöhe.",
+           info:"sss"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Rechter Flügel (Spiegelbild): Spiegle jeden Punkt des linken Flügels an der y-Achse. D' = (2,5|0,8), E' = (1,5|2,2), F' = (1,5|−2,2). Verbinde D'–E'–F'.",
+           tip:"Überprüfe: Beide Flügelsdreiecke müssen kongruent sein – miss die Seiten nach! Ein Lineal oder Zirkel bestätigt die gleichen Längen.",
+           info:"spiegelung"}
+        ]
+      },
+      {
+        title:"Phase 5 – Füße (Strecken)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Linker Fuß: Zeichne vom Punkt G = (−0,8|−2,5) eine schräge Strecke nach links-unten zu H = (−1,0|−3,8). Von H aus zeichne eine waagerechte Strecke nach links zu I = (−2,0|−3,8). Das ist das linke Bein mit dem Fuß.",
+           tip:"G liegt auf dem Rand des Rumpfkreises unten-links. Die Zehe I liegt 1 cm links von der Ferse H."},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Rechter Fuß (Spiegelbild): G' = (0,8|−2,5), H' = (1,0|−3,8), I' = (2,0|−3,8). Zeichne zwei Strecken G'–H' und H'–I'.",
+           tip:"Fertig! Wenn du alles genau gezeichnet hast, erkennst du dein Küken ganz klar. Optional: Schraffiere den Körper und Kopf gelb und den Schnabel orange."}
+        ]
+      }
+    ],
+    enthuellung:"🐣 Wunderschön! Dein Küken ist fertig – entstanden aus zwei Kreisen (Körper und Kopf), einem SSS-Dreieck (Schnabel), gespiegelten Dreiecken (Flügel) und einfachen Strecken (Füße). Geometrie kann richtig süß sein!"
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJEKT 2 – DER OSTERHASE
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id:2, title:"Der Osterhase", emoji:"🐰", diff:3, afb:"I–II",
+    badge:"Kreis + Rechtecke + Senkrechte + Spiegelung", color:"#FFB7C5", bg:"#fff5f8",
+    lernziel:"Einen Kreis mit Zirkel konstruieren, Rechtecke mit Geodreieck (Senkrechte + Parallele) aufbauen, die Achsenspiegelung auf Figuren anwenden und ein zusammengesetztes Bild aus geometrischen Formen konstruieren.",
+    gegeben:[
+      "Karopapier (1 Kästchen = 1 cm)","Koordinatensystem einzeichnen",
+      "Kopf: M = (0|0), r = 3 cm",
+      "Linkes Ohr: Rechteck mit Ecken (−2|3), (−0,6|3), (−0,6|8), (−2|8)",
+      "Rechtes Ohr: Spiegelbild des linken Ohrs an der y-Achse",
+      "Linkes Auge: M_L = (−1,2|0,5), r = 0,5 cm"
+    ],
+    svgKey:"hase",
+    phases:[
+      {
+        title:"Phase 1 – Kopf (großer Kreis)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Zeichne das Koordinatensystem. Der Ursprung (0|0) = Kopfmittelpunkt M. Platziere ihn so auf dem Blatt, dass du nach oben mindestens 9 cm Platz hast (für die Ohren) und nach unten 4 cm.",
+           tip:"Typisch: M liegt etwa 12 cm von der Blattunterkante entfernt.",
+           info:"kreis"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Stelle den Zirkel auf r = 3 cm ein. Setze die Spitze in M = (0|0) und zeichne den Kopfkreis.",
+           tip:"Halte den Zirkel ganz oben am Gelenk und führe ihn in einer gleichmäßigen Bewegung herum."}
+        ]
+      },
+      {
+        title:"Phase 2 – Linkes Ohr (Rechteck + Halbkreis)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Markiere die untere linke Ecke des Ohrs: P₁ = (−2|3). Zeichne von P₁ aus mit dem Geodreieck eine senkrechte Linie nach oben (die linke Ohrseite) bis zu Höhe y = 8 cm.",
+           tip:"Lege das Geodreieck so an, dass die 90°-Ecke an der x-Achse liegt. Die senkrechte Linie geht genau waagerecht nach oben.",
+           info:"senkrecht"},
+          {tt:"tt-g", label:"Geodreieck",
+           text:"Errichte vom Punkt P₁ = (−2|3) eine waagerechte Linie nach rechts zu P₂ = (−0,6|3). Das ist die untere Ohrkante (Breite = 1,4 cm).",
+           tip:"Waagerechte Linien verlaufen parallel zur x-Achse. Das Geodreieck anlegen und entlang der waagerechten Kante zeichnen.",
+           info:"parallel"},
+          {tt:"tt-g", label:"Geodreieck",
+           text:"Von P₂ = (−0,6|3) aus: Errichte wieder eine Senkrechte nach oben bis y = 8 cm. So entsteht die rechte Ohrseite parallel zur linken.",
+           tip:"Beide senkrechten Linien müssen exakt parallel und gleich hoch sein. Prüfe mit dem Lineal!",
+           info:"rechteck"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Verbinde die zwei Oberpunkte (−2|8) und (−0,6|8) waagerecht → das ist die Ohroberseite. Das Ohrrechteck ist fertig.",
+           tip:"Optional: Zeichne im Inneren des Rechtecks (leicht versetzt) ein etwas kleineres Rechteck für die Innenohrfärbung."},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Oberer Abschluss des Ohrs als Halbkreis: Mittelpunkt liegt auf der Verbindung der Oberpunkte, in der Mitte: M_Ohr = (−1,3|8). Radius = 0,7 cm. Zeichne einen Halbkreis nach oben (nur die obere Hälfte).",
+           tip:"Setze den Zirkel auf M_Ohr = (−1,3|8) und zeichne einen vollen Kreis mit r = 0,7 cm. Radiere dann die untere Hälfte weg, die innerhalb des Rechtecks liegt."}
+        ]
+      },
+      {
+        title:"Phase 3 – Rechtes Ohr (Achsenspiegelung)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Spiegle alle Punkte des linken Ohrs an der y-Achse (= Symmetrieachse). P₁' = (2|3), P₂' = (0,6|3), Oberpunkte: (2|8) und (0,6|8), M_Ohr' = (1,3|8).",
+           tip:"Beim Spiegeln an der y-Achse: x-Koordinate wechselt das Vorzeichen, y-Koordinate bleibt gleich. Aus −2 wird +2, aus −0,6 wird +0,6.",
+           info:"spiegelung"},
+          {tt:"tt-g", label:"Geodreieck",
+           text:"Konstruiere das rechte Ohr nach denselben Schritten wie das linke: Senkrechte bei x = 0,6 und x = 2, waagerechte Linien bei y = 3 und y = 8, Halbkreis oben.",
+           tip:"Wenn beide Ohren fertig sind, überprüfe: Sind sie wirklich symmetrisch zur y-Achse? Miss die Breiten und Höhen nach."},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Zeichne auch den rechten Halbkreis (M_Ohr' = (1,3|8), r = 0,7 cm).",
+           tip:"Tipp für Profis: Zeichne eine Verbindungslinie von einem Punkt des linken Ohrs zu seinem Spiegelpunkt – sie muss senkrecht auf der y-Achse stehen und von der y-Achse gleich weit entfernt sein."}
+        ]
+      },
+      {
+        title:"Phase 4 – Augen, Nase, Mund (Kreise + Dreieck + Strecken)",
+        steps:[
+          {tt:"tt-z", label:"Zirkel",
+           text:"Linkes Auge: Stelle den Zirkel auf 0,5 cm ein. Setze die Spitze in M_L = (−1,2|0,5) und zeichne einen Kreis.",
+           tip:"Das Auge liegt leicht links von der Mitte und knapp über dem Kopfmittelpunkt."},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Rechtes Auge (Spiegelbild): M_R = (1,2|0,5). Zeichne denselben Kreis (r = 0,5 cm).",
+           tip:"Die Augen sind symmetrisch zur y-Achse!",
+           info:"spiegelung"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Nase (kleines Dreieck): Markiere die Ecken N₁ = (−0,3|−0,9), N₂ = (0,3|−0,9), N₃ = (0|−1,5). Verbinde die drei Punkte – ein kleines, gleichschenkliges Dreieck nach unten spitzend.",
+           tip:"Die Nase sitzt unter dem Kopfmittelpunkt, auf der Symmetrieachse zentriert.",
+           info:"sss"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Mund: Zeichne zwei kurze Strecken von N₃ = (0|−1,5) schräg nach unten-links zu (−0,5|−2) und nach unten-rechts zu (0,5|−2). Das ergibt ein kleines W-förmiges Hasenlächeln.",
+           tip:"Je länger die Mundwinkel, desto breiter das Lächeln. Bleib symmetrisch zur y-Achse!"}
+        ]
+      },
+      {
+        title:"Phase 5 – Schnurrhaare und Wangen (Strecken + Kreise)",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Linke Schnurrhaare: Zeichne von (−0,4|−0,7) drei Strecken nach links: zur Kreisgrenze bei etwa (−3|−0,5), (−3|−0,8) und (−3|−1,1). Zeichne die Spiegelbilder für die rechten Schnurrhaare.",
+           tip:"Echte Schnurrhaare zeigen leicht nach außen und oben. Mach sie ruhig lang – das wirkt besser!"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Wangen (optional, aber schön): Zeichne zwei schwach schraffierte Kreise: W_L = (−1,5|−0,5) mit r = 0,6 cm und W_R = (1,5|−0,5) mit r = 0,6 cm. Das sind die rosigen Hasenbacken.",
+           tip:"Schraffiere die Kreise sehr leicht oder lasse sie offen – so wirken sie wie Röte auf den Wangen."},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Überprüfe die Achsensymmetrie: Lege das Geodreieck entlang der y-Achse und prüfe, ob alle Elemente links und rechts gleich weit entfernt sind. Korrigiere falls nötig!",
+           tip:"Ein exakt symmetrischer Hase sieht professionell aus. Kleine Abweichungen verraten, wo noch nachgearbeitet werden muss."}
+        ]
+      }
+    ],
+    enthuellung:"🐰 Ein Osterhase aus reinen Konstruktionen! Kopfkreis, Ohrrechtecke mit Halbkreisen, gespiegelte Augen – alles mit Zirkel, Geodreieck und Lineal. Der Hase ist achsensymmetrisch zur y-Achse, und du kannst es beweisen!"
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJEKT 3 – DIE OSTERBLUME
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id:3, title:"Die Osterblume", emoji:"🌸", diff:4, afb:"II–III",
+    badge:"Sechseck + 6 Dreiecke + Kreise + Rechteck", color:"#B5EAD7", bg:"#f0fff8",
+    lernziel:"Ein reguläres Sechseck mit Zirkel konstruieren, sechs kongruente gleichseitige Dreiecke als Blütenblätter aufbauen, Drehsymmetrie als Kongruenzprinzip erkennen und den Inkreis des Sechsecks konstruieren.",
+    gegeben:[
+      "Karopapier (1 Kästchen = 1 cm)","Koordinatensystem einzeichnen",
+      "Blütenmittelpunkt M = (0|4)","Hauptkreisradius r = 2 cm",
+      "Stiel: Rechteck von (−0,25|−5) bis (0,25|0)",
+      "Sechseckseite = r = 2 cm (gleichseitig!)"
+    ],
+    svgKey:"blume",
+    phases:[
+      {
+        title:"Phase 1 – Hauptkreis und Sechseck",
+        steps:[
+          {tt:"tt-b", label:"Bleistift",
+           text:"Zeichne das Koordinatensystem. Markiere M = (0|4), also 4 Kästchen über dem Ursprung. M ist der Mittelpunkt der Blüte.",
+           tip:"Lasse unter dem Ursprung ca. 6 Kästchen Platz für den Stiel und die Bodenline."},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Stelle den Zirkel auf r = 2 cm ein. Zeichne einen Kreis um M = (0|4). Das ist der Hauptkreis. Wähle einen Startpunkt P₁ auf dem Kreis, am besten oben: P₁ = (0|6).",
+           tip:"Der Hauptkreis ist das Gerüst für das gesamte Sechseck. Er wird am Ende nicht sichtbar sein – zeichne ihn deshalb hellgrau oder dünn.",
+           info:"sechseck"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Lasse den Zirkel auf r = 2 cm eingestellt! Setze die Spitze in P₁ und schlage einen Bogen, der den Hauptkreis schneidet → das ist P₂. Dann P₂ → P₃, P₃ → P₄, P₄ → P₅, P₅ → P₆. Du erhältst 6 gleichmäßig verteilte Punkte.",
+           tip:"Der Radius r = 2 cm passt genau 6-mal in den Kreisumfang! Das ist die besondere Eigenschaft des regulären Sechsecks. Überprüfe: P₆ → P₁ schließt den Kreis.",
+           info:"sechseck"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Verbinde P₁–P₂–P₃–P₄–P₅–P₆–P₁ mit dem Lineal. Das reguläre Sechseck ist fertig. Zeichne auch die 6 Radien M–P₁ bis M–P₆ als dünne Linien.",
+           tip:"Alle sechs Seiten sollten exakt 2 cm lang sein. Miss zur Kontrolle nach! Die 6 Innendreiecke sind alle gleichseitig."}
+        ]
+      },
+      {
+        title:"Phase 2 – Sechs gleichseitige Blütenblätter (SSS-Dreiecke)",
+        steps:[
+          {tt:"tt-z", label:"Zirkel",
+           text:"Erstes Blütenblatt (zwischen P₁ und P₂): Stelle den Zirkel auf r = 2 cm ein. Schlage einen Bogen um P₁ und einen Bogen um P₂ – ihr Schnittpunkt außerhalb des Sechsecks heißt X₁₂. Verbinde P₁–X₁₂ und P₂–X₁₂.",
+           tip:"X₁₂ liegt auf der Seite des Sechsecks gegenüber von M. Es gibt zwei Schnittpunkte der Bögen – nimm den, der weiter von M entfernt liegt.",
+           info:"gleichseitig"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Zweites Blütenblatt (P₂–P₃): Schlage Bögen um P₂ und P₃ mit r = 2 cm → Schnittpunkt X₂₃. Verbinde P₂–X₂₃ und P₃–X₂₃.",
+           tip:"Alle 6 Dreiecke haben dieselben Maße (SSS: alle Seiten = 2 cm), also sind sie alle kongruent!"},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Dritte bis sechste Blütenblätter: Wiederhole für die Paare P₃–P₄ (→X₃₄), P₄–P₅ (→X₄₅), P₅–P₆ (→X₅₆) und P₆–P₁ (→X₆₁).",
+           tip:"Nach jedem Blütenblatt: Überprüfe, ob das Dreieck gleichseitig ist (alle drei Seiten = 2 cm). Nur dann entsteht eine regelmäßige Blüte!",
+           info:"sss"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Prüfe die Drehsymmetrie: Wenn du die Blüte gedanklich um 60° drehst, sieht sie genauso aus. Das liegt daran, dass alle 6 Dreiecke kongruent sind. Beantworte schriftlich: Welche Drehwinkel lassen die Blüte unverändert?",
+           tip:"Die Blüte hat 6-zählige Drehsymmetrie: Drehungen um 60°, 120°, 180°, 240°, 300° und 360° lassen sie unverändert."}
+        ]
+      },
+      {
+        title:"Phase 3 – Inkreis des Sechsecks",
+        steps:[
+          {tt:"tt-z", label:"Zirkel",
+           text:"Der Inkreis des Sechsecks berührt alle sechs Seiten von innen. Sein Radius r_in = r · √3/2 ≈ 2 · 0,866 ≈ 1,73 cm. Setze den Zirkel auf 1,7 cm und zeichne den Inkreis um M = (0|4).",
+           tip:"Den genauen Radius kannst du auch konstruieren: Das Lot vom Mittelpunkt M auf eine Sechseckseite hat genau die Länge r_in. Miss diesen Abstand und nutze ihn als Zirkelradius."},
+          {tt:"tt-z", label:"Zirkel",
+           text:"Zeichne im Zentrum (um M) einen kleinen Kreis mit r = 0,4 cm als dekorativen Blütenkern. Dieser Kreis symbolisiert den Pollen.",
+           tip:"Optional: Zeichne 6 winzige Dreiecke innerhalb des Sechsecks (Verbindungen M zu den Seitenmitten) – das ergibt ein Schneeflockenmuster!"}
+        ]
+      },
+      {
+        title:"Phase 4 – Stiel und Blätter (Rechteck + Dreiecke)",
+        steps:[
+          {tt:"tt-g", label:"Geodreieck",
+           text:"Stiel (Rechteck): Zeichne zwei senkrechte parallele Linien bei x = −0,25 und x = 0,25, von y = 0 bis y = −5. Verbinde die Enden waagerecht oben und unten.",
+           tip:"Der Stiel ist 0,5 cm breit und 5 cm lang. Er führt vom Sechseckunterrand (y ≈ 2) bis zur Grundlinie (y = −5).",
+           info:"rechteck"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Linkes Blatt: Markiere L₁ = (−0,25|−2), L₂ = (−2,5|−2,5), L₃ = (−0,25|−3,5). Verbinde die drei Punkte zum Blattdreieck. Das Blatt zeigt schräg nach links-unten.",
+           tip:"Das Blatt ist ein gleichschenkliges Dreieck, das seitlich am Stiel sitzt.",
+           info:"sss"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Rechtes Blatt (Spiegelbild): R₁ = (0,25|−2), R₂ = (2,5|−2,5), R₃ = (0,25|−3,5). Verbinde. Das Blatt ist das Spiegelbild des linken Blatts.",
+           tip:"Beide Blätter sind kongruent und symmetrisch zum Stiel (= zur y-Achse).",
+           info:"spiegelung"},
+          {tt:"tt-b", label:"Bleistift",
+           text:"Abschluss: Zeichne eine waagerechte Grundlinie bei y = −5 von x = −3 bis x = 3. Die Osterblume sitzt auf dem Boden. Optional: Färbe die Blütenblätter abwechselnd bunt.",
+           tip:"Fertig! Deine Osterblume besteht aus: 1 Hauptkreis (Führung), 1 regulärem Sechseck, 6 gleichseitigen Dreiecken (SSS), 2 Kreisen (Inkreis + Kern), 1 Rechteck (Stiel) und 2 Dreiecken (Blätter). Zähle alles durch!"}
+        ]
+      }
+    ],
+    enthuellung:"🌸 Großartig! Deine Osterblume ist ein Meisterstück der Geometrie: Das reguläre Sechseck und 6 kongruente SSS-Dreiecke ergeben eine 6-zählig drehsymmetrische Blüte. Inkreis, Stiel und Blätter vollenden das Bild. Mathematik in voller Blüte!"
+  }
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let cur = 0;
+let state = {};
+
+function sKey(pi, si){ return `p${pi}_s${si}`; }
+function loadState(){ try{ const s=localStorage.getItem('oster_v2'); if(s) state=JSON.parse(s); }catch(e){} }
+function saveState(){ try{ localStorage.setItem('oster_v2',JSON.stringify(state)); }catch(e){} }
+
+function countSteps(pi){
+  let done=0, total=0;
+  P[pi].phases.forEach(ph => ph.steps.forEach((_,si_offset) => {
+    if(state[sKey(pi, total)]) done++;
+    total++;
+  }));
+  return {done,total};
+}
+function isDone(pi){ const{done,total}=countSteps(pi); return total>0 && done===total; }
+
+// ── SIDEBAR ────────────────────────────────────────────────────────────────
+function renderSidebar(){
+  let h='';
+  P.forEach((p,i)=>{
+    const {done,total}=countSteps(i);
+    const pct=total?Math.round(done/total*100):0;
+    const stars='★'.repeat(p.diff)+'<span class="off">'+'☆'.repeat(5-p.diff)+'</span>';
+    const cls=(i===cur?'active':'')+(isDone(i)?' done':'');
+    h+=`<button class="pb ${cls}" onclick="switchProject(${i})">
+      <div class="pb-row">
+        <span class="pb-em">${p.emoji}</span>
+        <div>
+          <div class="pb-name">${p.title}</div>
+          <div class="pb-meta"><span class="pb-stars">${stars}</span><span class="pb-pct">${done}/${total}</span></div>
+        </div>
+      </div>
+      <div class="mini-bar"><div class="mini-fill" style="width:${pct}%"></div></div>
+    </button>`;
+  });
+  document.getElementById('sb').innerHTML=h;
+}
+
+// ── ILLUSTRATION ───────────────────────────────────────────────────────────
+function renderIllus(pi){
+  const p=P[pi];
+  const card=document.getElementById('illustCard');
+  const layer=document.getElementById('svgLayer');
+  const fog=document.getElementById('fog');
+  const lock=document.getElementById('lockLbl');
+  const {done,total}=countSteps(pi);
+  const pct=total?Math.round(done/total*100):0;
+  const rev=isDone(pi);
+
+  layer.innerHTML=SVGs[p.svgKey];
+
+  if(rev){
+    layer.classList.add('revealed');
+    fog.classList.add('gone');
+    card.classList.add('revealed');
+    lock.textContent='✅ Enthüllt!';
+  } else {
+    layer.classList.remove('revealed');
+    fog.classList.remove('gone');
+    card.classList.remove('revealed');
+    lock.textContent='🔒 Alle Schritte abhaken';
+  }
+
+  document.getElementById('stepsBar').style.width=pct+'%';
+  document.getElementById('stepsLbl').textContent=`${done} / ${total} Schritte`;
+}
+
+// ── PROJECT RENDER ─────────────────────────────────────────────────────────
+function renderProject(pi){
+  const p=P[pi];
+  const {done,total}=countSteps(pi);
+  const pct=total?Math.round(done/total*100):0;
+  const stars='★'.repeat(p.diff)+'<span class="off">'+'☆'.repeat(5-p.diff)+'</span>';
+
+  let globalSi=0;
+  let phasesHtml='';
+  p.phases.forEach(ph=>{
+    phasesHtml+=`<div class="phase-hdr"><span class="phase-title">${ph.title}</span><div class="phase-line"></div></div><div class="steps">`;
+    ph.steps.forEach(st=>{
+      const k=sKey(pi,globalSi);
+      const chk=state[k]?'checked':'';
+      const doneCls=state[k]?'done-step':'';
+      const si=globalSi;
+      let btns='';
+      if(st.tip) btns+=`<button class="tip-btn" onclick="toggleTip(${pi},${si})">💡 Tipp</button>`;
+      if(st.info) btns+=`<button class="inf-btn" onclick="showInfo('${st.info}')">ℹ️ Info</button>`;
+      phasesHtml+=`<div class="step ${doneCls}" id="step-${pi}-${si}">
+        <input type="checkbox" class="step-cb" ${chk} onchange="handleCheck(${pi},${si},this)">
+        <div class="step-num">${si+1}</div>
+        <div class="step-body">
+          <span class="tool-tag ${st.tt}">${st.label}</span>
+          <div class="step-txt">${st.text}</div>
+          <div class="step-btns">${btns}</div>
+          <div class="tip-text" id="tip-${pi}-${si}">${st.tip||''}</div>
+        </div>
+      </div>`;
+      globalSi++;
+    });
+    phasesHtml+=`</div>`;
+  });
+
+  const gegebenHtml=p.gegeben.map(g=>`<li>${g}</li>`).join('');
+
+  document.getElementById('left').innerHTML=`
+  <div class="card">
+    <div class="ph" style="background:${p.bg}">
+      <div class="ph-bg">${p.emoji}</div>
+      <div class="pnum">Projekt ${p.id} von ${P.length}</div>
+      <div class="ptitle">${p.emoji} ${p.title}</div>
+      <div class="pmeta">
+        <span class="stars-big">${stars}</span>
+        <span class="badge bg">${p.badge}</span>
+        <span class="badge bp">AFB ${p.afb}</span>
+        <span class="badge bb">${done}/${total} · ${pct}%</span>
+      </div>
+    </div>
+    <div class="lz">
+      <div class="lz-lbl">🎯 Lernziel</div>
+      <div class="lz-txt">${p.lernziel}</div>
+    </div>
+    <div class="gg">
+      <div class="gg-block">
+        <div class="gg-lbl">📋 Gegeben</div>
+        <ul class="gg-list">${gegebenHtml}</ul>
+      </div>
+      <div class="gg-block" style="background:linear-gradient(135deg,#fff9e6,#fffde8);">
+        <div class="gg-lbl">📐 Werkzeuge</div>
+        <ul class="gg-list">
+          <li>Karopapier (1 cm)</li>
+          <li>Bleistift &amp; Radiergummi</li>
+          <li>Zirkel</li>
+          <li>Geodreieck</li>
+          <li>Lineal / Maßstab</li>
+        </ul>
+      </div>
+    </div>
+    ${phasesHtml}
+    <div class="done-card ${isDone(pi)?'vis':''}" id="doneBox-${pi}">
+      <div class="done-emoji">${p.emoji}</div>
+      <div class="done-h">Ausgezeichnet! Projekt abgeschlossen.</div>
+      <div class="done-txt">${p.enthuellung}</div>
+    </div>
+    <button class="reset-btn" onclick="resetProj(${pi})">↩ Zurücksetzen</button>
+  </div>`;
+
+  renderIllus(pi);
+}
+
+// ── INTERACTIONS ───────────────────────────────────────────────────────────
+function handleCheck(pi,si,el){
+  state[sKey(pi,si)]=el.checked;
+  saveState();
+  const stepEl=document.getElementById(`step-${pi}-${si}`);
+  stepEl.classList.toggle('done-step',el.checked);
+  const num=stepEl.querySelector('.step-num');
+  num.style.background=el.checked?'#27ae60':'';
+  num.style.color=el.checked?'#fff':'';
+  renderIllus(pi);
+  renderSidebar();
+  updateOverall();
+  if(el.checked && isDone(pi)){
+    const box=document.getElementById(`doneBox-${pi}`);
+    if(box) box.classList.add('vis');
+  }
+}
+
+function toggleTip(pi,si){
+  document.getElementById(`tip-${pi}-${si}`).classList.toggle('vis');
+}
+
+function resetProj(pi){
+  if(!confirm('Fortschritt dieses Projekts zurücksetzen?')) return;
+  const {total}=countSteps(pi);
+  for(let i=0;i<total;i++) delete state[sKey(pi,i)];
+  saveState();
+  renderProject(pi);
+  renderSidebar();
+  updateOverall();
+}
+
+function switchProject(i){
+  cur=i;
+  renderProject(i);
+  renderSidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateOverall(){
+  const done=P.filter((_,i)=>isDone(i)).length;
+  document.getElementById('gFill').style.width=(done/P.length*100)+'%';
+  document.getElementById('gLbl').textContent=`${done} / ${P.length}`;
+}
+
+function showInfo(key){
+  const inf=INFO[key];
+  if(!inf) return;
+  document.getElementById('mH').textContent=inf.h;
+  document.getElementById('mT').textContent=inf.t;
+  document.getElementById('modal').classList.add('vis');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('vis'); }
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+loadState();
+renderSidebar();
+renderProject(0);
+updateOverall();
+</script>
+</body>
+</html>
