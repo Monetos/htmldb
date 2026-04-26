@@ -197,6 +197,17 @@ select{background:var(--bg);color:var(--text);border:1px solid var(--border);pad
     <div class="field" id="f-url-wrap">
       <label>URL</label>
       <input type="url" id="f-url" placeholder="https://claude.ai/public/artifacts/...">
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap">
+        <span class="hint" style="margin:0">oder</span>
+        <button type="button" class="btn ghost" style="padding:6px 14px;font-size:.82rem" onclick="document.getElementById('f-file').click()">
+          📁 HTML-Datei hochladen
+        </button>
+        <span class="hint" id="upload-status" style="margin:0;flex:1;min-width:160px"></span>
+      </div>
+      <input type="file" id="f-file" accept=".html,.htm" style="display:none" onchange="handleFileUpload(event)">
+      <div id="drop-zone" style="margin-top:10px;border:2px dashed var(--border);border-radius:var(--r);padding:14px;text-align:center;color:var(--muted);font-size:.82rem;transition:all .15s;cursor:pointer" onclick="document.getElementById('f-file').click()">
+        oder Datei hierher ziehen
+      </div>
     </div>
     <div class="field hide" id="f-code-wrap">
       <label>HTML-Code</label>
@@ -605,10 +616,12 @@ function openModal() {
   document.getElementById('f-url').value = '';
   document.getElementById('f-code').value = '';
   document.getElementById('f-tags').value = '';
+  document.getElementById('upload-status').textContent = '';
   document.getElementById('f-del').classList.add('hide');
   onTypeChange();
   renderColors();
   document.getElementById('modal').classList.remove('hide');
+  setupDropZone();
   setTimeout(() => document.getElementById('f-title').focus(), 50);
 }
 function editItem(id) {
@@ -621,10 +634,12 @@ function editItem(id) {
   document.getElementById('f-url').value = i.type === 'url' ? i.html : '';
   document.getElementById('f-code').value = i.type === 'code' ? i.html : '';
   document.getElementById('f-tags').value = (i.tags || []).join(', ');
+  document.getElementById('upload-status').textContent = '';
   document.getElementById('f-del').classList.remove('hide');
   onTypeChange();
   renderColors();
   document.getElementById('modal').classList.remove('hide');
+  setupDropZone();
 }
 function closeModal() {
   document.getElementById('modal').classList.add('hide');
@@ -640,6 +655,81 @@ function renderColors() {
   ).join('');
 }
 function pickColor(c) { curColor = c; renderColors(); }
+
+// ── FILE UPLOAD (HTML-Dateien ins Repo hochladen) ──────────────────────────────
+function slugify(str) {
+  return String(str).toLowerCase()
+    .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60) || 'datei';
+}
+
+async function uploadHTMLFile(file) {
+  const status = document.getElementById('upload-status');
+  status.textContent = '⏳ Lade hoch…';
+  status.style.color = 'var(--muted)';
+
+  try {
+    const text = await file.text();
+    const sizeKB = Math.round(file.size / 1024);
+    if (file.size > 1024 * 1024) throw new Error(`Datei zu groß (${sizeKB} KB) – max. 1 MB`);
+
+    const titleField = document.getElementById('f-title');
+    const baseName = titleField.value.trim() || file.name.replace(/\.html?$/i, '');
+    const slug = slugify(baseName) + '-' + Date.now().toString(36).slice(-5);
+    const path = 'htmls/' + slug + '.html';
+
+    const r = await ghFetch(path, {
+      method: 'PUT',
+      body: {
+        message: `Upload ${file.name}`,
+        content: btoa(unescape(encodeURIComponent(text))),
+        branch: cfg.branch
+      }
+    });
+    if (!r.ok) throw new Error(`Upload fehlgeschlagen: HTTP ${r.status}`);
+
+    const url = `https://${cfg.user}.github.io/${cfg.repo}/${path}`;
+    document.getElementById('f-url').value = url;
+    if (!titleField.value.trim()) titleField.value = baseName;
+
+    status.innerHTML = `✓ Hochgeladen (${sizeKB} KB) – <span style="color:var(--muted)">URL ist nach ~30s live</span>`;
+    status.style.color = 'var(--ok)';
+  } catch (e) {
+    console.error(e);
+    status.textContent = '❌ ' + e.message;
+    status.style.color = 'var(--err)';
+  }
+}
+
+function handleFileUpload(ev) {
+  const file = ev.target.files[0];
+  ev.target.value = '';
+  if (file) uploadHTMLFile(file);
+}
+
+// Drag & Drop auf der Drop-Zone
+function setupDropZone() {
+  const dz = document.getElementById('drop-zone');
+  if (!dz || dz.dataset.bound) return;
+  dz.dataset.bound = '1';
+  ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => {
+    ev.preventDefault(); ev.stopPropagation();
+    dz.style.borderColor = 'var(--accent)';
+    dz.style.color = 'var(--accent)';
+  }));
+  ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => {
+    ev.preventDefault(); ev.stopPropagation();
+    dz.style.borderColor = 'var(--border)';
+    dz.style.color = 'var(--muted)';
+  }));
+  dz.addEventListener('drop', ev => {
+    const file = ev.dataTransfer.files[0];
+    if (file && /\.html?$/i.test(file.name)) uploadHTMLFile(file);
+    else toast('Bitte eine .html-Datei nutzen', 'err');
+  });
+}
 
 function saveItem() {
   const title = document.getElementById('f-title').value.trim();
