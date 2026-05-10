@@ -1,0 +1,59 @@
+import Dexie, { type Table } from 'dexie';
+import {
+  type BodyMetric,
+  type Exercise,
+  type Food,
+  type FoodLogEntry,
+  type ProgressPhoto,
+  type Routine,
+  type SetEntry,
+  type Settings,
+  type WaterLogEntry,
+  type Workout,
+  DEFAULT_DAILY_TARGETS,
+} from './schema';
+
+export class FitnessDatabase extends Dexie {
+  exercises!: Table<Exercise, string>;
+  routines!: Table<Routine, string>;
+  workouts!: Table<Workout, string>;
+  sets!: Table<SetEntry, string>;
+  bodyMetrics!: Table<BodyMetric, string>;
+  progressPhotos!: Table<ProgressPhoto, string>;
+  foods!: Table<Food, string>;
+  foodLog!: Table<FoodLogEntry, string>;
+  waterLog!: Table<WaterLogEntry, string>;
+  settings!: Table<Settings, 'singleton'>;
+
+  constructor() {
+    super('fitness');
+
+    this.version(1).stores({
+      exercises: 'id, name, *primaryMuscles, equipment, isCustom',
+      routines: 'id, name, createdAt',
+      workouts: 'id, date, startedAt',
+      sets: 'id, workoutId, exerciseId, completedAt',
+      bodyMetrics: 'id, date',
+      progressPhotos: 'id, date',
+      foods: 'id, name, isCustom',
+      foodLog: 'id, date, mealType',
+      waterLog: 'id, date',
+      settings: 'id',
+    });
+  }
+}
+
+export const db = new FitnessDatabase();
+
+export async function ensureSettings(): Promise<Settings> {
+  const existing = await db.settings.get('singleton');
+  if (existing) return existing;
+  const initial: Settings = {
+    id: 'singleton',
+    dailyTargets: { ...DEFAULT_DAILY_TARGETS },
+    theme: 'dark',
+    updatedAt: Date.now(),
+  };
+  await db.settings.put(initial);
+  return initial;
+}
