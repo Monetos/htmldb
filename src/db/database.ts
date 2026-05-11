@@ -13,6 +13,7 @@ import {
   DEFAULT_DAILY_TARGETS,
 } from './schema';
 import { SEED_EXERCISES } from './seedExercises';
+import { SEED_FOODS } from './seedFoods';
 
 export class FitnessDatabase extends Dexie {
   exercises!: Table<Exercise, string>;
@@ -61,13 +62,30 @@ export async function ensureSettings(): Promise<Settings> {
 
 /**
  * Insert the seed exercise library if (and only if) the user has no exercises
- * yet. Subsequent calls are no-ops, so this is safe to invoke on every boot.
+ * yet. Wrapped in a transaction so concurrent calls (e.g. React strict-mode
+ * double-mount, multiple parallel test renders) can't both insert.
  */
 export async function seedExercisesIfEmpty(): Promise<number> {
-  const count = await db.exercises.count();
-  if (count > 0) return 0;
-  const now = Date.now();
-  const rows = SEED_EXERCISES.map((e) => ({ ...e, createdAt: now }));
-  await db.exercises.bulkAdd(rows);
-  return rows.length;
+  return await db.transaction('rw', db.exercises, async () => {
+    const count = await db.exercises.count();
+    if (count > 0) return 0;
+    const now = Date.now();
+    const rows = SEED_EXERCISES.map((e) => ({ ...e, createdAt: now }));
+    await db.exercises.bulkAdd(rows);
+    return rows.length;
+  });
+}
+
+/**
+ * Same idempotent contract as seedExercisesIfEmpty but for the foods table.
+ */
+export async function seedFoodsIfEmpty(): Promise<number> {
+  return await db.transaction('rw', db.foods, async () => {
+    const count = await db.foods.count();
+    if (count > 0) return 0;
+    const now = Date.now();
+    const rows = SEED_FOODS.map((f) => ({ ...f, createdAt: now }));
+    await db.foods.bulkAdd(rows);
+    return rows.length;
+  });
 }

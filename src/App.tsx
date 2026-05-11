@@ -15,7 +15,11 @@ import { BodyPhotosTab } from './features/body/BodyPhotosTab';
 import { BodyMetricFormPage } from './features/body/BodyMetricFormPage';
 import { PhotoFormPage } from './features/body/PhotoFormPage';
 import { PhotoComparePage } from './features/body/PhotoComparePage';
-import { NutritionPage } from './pages/NutritionPage';
+import { NutritionPage } from './features/nutrition/NutritionPage';
+import { TodayTab } from './features/nutrition/TodayTab';
+import { WeekTab } from './features/nutrition/WeekTab';
+import { FoodsTab } from './features/nutrition/FoodsTab';
+import { FoodFormPage } from './features/nutrition/FoodFormPage';
 import { useTheme } from './hooks/useTheme';
 import { useBootstrap } from './hooks/useBootstrap';
 
@@ -48,7 +52,14 @@ export default function App() {
           <Route path="/koerper/messung/:id/bearbeiten" element={<BodyMetricFormPage />} />
           <Route path="/koerper/foto/neu" element={<PhotoFormPage />} />
           <Route path="/koerper/foto/vergleich" element={<PhotoComparePage />} />
-          <Route path="/ernaehrung" element={<NutritionPage />} />
+          <Route path="/ernaehrung" element={<NutritionPage />}>
+            <Route index element={<Navigate to="/ernaehrung/heute" replace />} />
+            <Route path="heute" element={<TodayTab />} />
+            <Route path="woche" element={<WeekTab />} />
+            <Route path="lebensmittel" element={<FoodsTab />} />
+          </Route>
+          <Route path="/ernaehrung/lebensmittel/neu" element={<FoodFormPage />} />
+          <Route path="/ernaehrung/lebensmittel/:id/bearbeiten" element={<FoodFormPage />} />
           <Route path="/einstellungen" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/training" replace />} />
         </Routes>
