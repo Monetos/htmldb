@@ -165,6 +165,8 @@ export interface Settings {
   dailyTargets: DailyTargets;
   theme: ThemeMode;
   updatedAt: number;
+  /** Wall-clock timestamp of the last successful JSON backup export. */
+  lastBackupAt?: number;
 }
 
 export const DEFAULT_DAILY_TARGETS: DailyTargets = {

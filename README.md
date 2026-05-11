@@ -78,7 +78,7 @@ Test-Fixtures in `src/test/`. Setup wipet IndexedDB-Tabellen zwischen Tests.
 - [x] **Phase 3** – PRs mit "Neuer PR!"-Hint im Training, sortierbare PR-Übersicht, Wochenvolumen-Ampel pro Muskelgruppe (4-Wochen-Mittel), 12-Wochen-Trend, Streak, Trainings-Kalender, Charts pro Übung
 - [x] **Phase 4** – Körperdaten (Gewicht, KFA, alle Maße, Notizen) + Verlaufs-Charts (1M/3M/6M/1J/Alle), Fortschrittsfotos mit clientseitiger Kompression auf 1600px, Galerie pro View, Vorher/Nachher-Vergleich
 - [x] **Phase 5** – Ernährung: 32 Seed-Lebensmittel + eigene anlegen, Makro-Ringe + 4 Mahlzeiten-Sektionen, Wasser-Tracker mit Quick-Buttons, Wochen-Charts (kcal/Protein/Wasser + Donut), Tagesziele in den Einstellungen
-- [ ] **Phase 6** – PWA-Feinschliff
+- [x] **Phase 6** – PWA-Feinschliff: PNG-Icons (192/512/maskable + Apple-Touch), Workbox-Precache + Runtime-Cache (Fonts/Images), Update-Toast bei neuer Version, Backup-Alter „vor X Tagen" mit Warnung > 14 Tage, lazy-loading der Chart-Routen, Bundle-Splitting (`charts` / `db` / `router` / `icons`), Android-Install-Anleitung
 - [ ] **Phase 2** – Routinen
 - [ ] **Phase 3** – Progression + Muskelgruppen-Heatmap
 - [ ] **Phase 4** – Körperdaten + Fotos
@@ -87,7 +87,14 @@ Test-Fixtures in `src/test/`. Setup wipet IndexedDB-Tabellen zwischen Tests.
 
 ## Installation auf Android-Homescreen
 
-Wird in Phase 6 dokumentiert.
+Die App ist eine PWA: ein einmal aufgerufener Tab im Chrome / Edge / Samsung-Browser bietet „Zur Startseite hinzufügen" an. Schritt-für-Schritt:
+
+1. Build hochladen (`npm run build`) und unter HTTPS ausliefern (lokal reicht `npm run preview` mit einem Tunnel wie Tailscale Funnel oder `ngrok http 4173`). Service-Worker und „Add to Home Screen" funktionieren nicht über `http://` ausser auf `localhost`.
+2. Auf dem Android-Gerät die URL öffnen.
+3. Chrome zeigt nach wenigen Sekunden einen Installations-Banner. Alternativ: Drei-Punkte-Menü → **App installieren** (oder **Zum Startbildschirm hinzufügen**).
+4. Nach der Installation erscheint die App als eigenständiges Icon mit dem Hantel-Symbol. Beim Start ohne Adressleiste (`display: standalone`).
+
+Beim ersten Offline-Start ist alles bereits aus dem Service-Worker-Cache verfügbar (App-Shell, Icons, IndexedDB-Daten). Beim nächsten Update zeigt die App unten einen „Neue Version verfügbar"-Toast – Tap auf **Aktualisieren** lädt den frischen Build.
 
 ## Hinweise
 

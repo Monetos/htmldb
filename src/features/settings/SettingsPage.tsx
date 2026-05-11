@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowLeft, Download, Upload } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Download, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import {
   BackupParseError,
   backupFilename,
@@ -12,6 +13,7 @@ import { db, ensureSettings } from '../../db/database';
 import type { DailyTargets } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { AppHeader } from '../../components/AppHeader';
+import { describeBackupAge } from './backupAge';
 
 export function SettingsPage() {
   const [status, setStatus] = useState<{ kind: 'idle' | 'ok' | 'error'; message: string }>({
@@ -19,6 +21,9 @@ export function SettingsPage() {
     message: '',
   });
   const fileInput = useRef<HTMLInputElement>(null);
+
+  const settings = useLiveQuery(() => db.settings.get('singleton'), []);
+  const backupAge = describeBackupAge(settings?.lastBackupAt, Date.now());
 
   const onExport = async () => {
     try {
@@ -30,6 +35,7 @@ export function SettingsPage() {
       a.download = backupFilename();
       a.click();
       URL.revokeObjectURL(url);
+      await db.settings.update('singleton', { lastBackupAt: Date.now(), updatedAt: Date.now() });
       setStatus({ kind: 'ok', message: 'Backup heruntergeladen.' });
     } catch (e) {
       setStatus({ kind: 'error', message: `Export fehlgeschlagen: ${(e as Error).message}` });
@@ -77,6 +83,15 @@ export function SettingsPage() {
             Exportiere alle Daten als JSON-Datei. Lege die Datei regelmäßig in einen
             Cloud-Ordner – IndexedDB ist robust, aber ein versehentliches „App-Daten löschen"
             ist sonst Endgame. Hinweis: Fotos werden derzeit nicht im JSON-Backup gespeichert.
+          </p>
+          <p
+            role="status"
+            className={`mb-3 inline-flex items-center gap-1 text-xs ${
+              backupAge.warn ? 'text-amber-700 dark:text-amber-300' : 'text-slate-500'
+            }`}
+          >
+            {backupAge.warn ? <AlertTriangle className="h-3 w-3" /> : null}
+            Letztes Backup: {backupAge.text}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button onClick={onExport}>
