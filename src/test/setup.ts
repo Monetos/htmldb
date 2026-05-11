@@ -4,6 +4,15 @@ import { afterEach, beforeEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { db } from '../db/database';
 
+// jsdom lacks ResizeObserver, which Recharts depends on for ResponsiveContainer.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class ResizeObserverMock {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+}
+
 // Reset strategy: unmount React first (so no useEffect promises are still in
 // flight), then clear every Dexie table. We deliberately do not delete the
 // database itself — the shared `db` singleton stays open across tests, which

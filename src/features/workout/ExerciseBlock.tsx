@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Trash2 } from 'lucide-react';
+import { ExternalLink, Trash2, Trophy } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Exercise, RoutineExercise, SetEntry } from '../../db/schema';
@@ -10,6 +10,7 @@ import { SetDraftRow, type DraftSet } from './SetRow';
 import { Button } from '../../components/Button';
 import { MuscleChip } from '../../components/MuscleChip';
 import { formatWeight } from '../../lib/format';
+import { emptyPr, newPrCategories, type PrBest } from '../../lib/progression';
 
 interface Props {
   workoutId: string;
@@ -34,6 +35,38 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
     () => lastWorkoutSetsForExercise(exercise.id, workoutId),
     [exercise.id, workoutId],
   );
+
+  // All historical sets for this exercise (any workout), ordered chronologically.
+  // Used to flag PR-breaking sets logged during the current workout.
+  const historicalSetsQuery = useLiveQuery(
+    () => db.sets.where('exerciseId').equals(exercise.id).sortBy('completedAt'),
+    [exercise.id],
+  );
+  const prByCurrentSetId = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof newPrCategories>>();
+    if (!historicalSetsQuery) return map;
+    let running: PrBest = emptyPr();
+    for (const past of historicalSetsQuery) {
+      const broke = newPrCategories(running, past);
+      if (past.workoutId === workoutId && broke.length > 0) {
+        map.set(past.id, broke);
+      }
+      // Roll the running best forward to include this set.
+      if (!past.isWarmup && past.weightKg > 0 && past.reps > 0) {
+        if (running.heaviestKg === null || past.weightKg > running.heaviestKg) {
+          running = { ...running, heaviestKg: past.weightKg };
+        }
+        if (past.reps >= 5 && (running.heaviestFor5Kg === null || past.weightKg > running.heaviestFor5Kg)) {
+          running = { ...running, heaviestFor5Kg: past.weightKg };
+        }
+        const e1rm = past.weightKg * (1 + past.reps / 30);
+        if (running.best1Rm === null || e1rm > running.best1Rm) {
+          running = { ...running, best1Rm: e1rm };
+        }
+      }
+    }
+    return map;
+  }, [historicalSetsQuery, workoutId]);
 
   const [showDraft, setShowDraft] = useState(sets.length === 0);
   const startRest = useRestTimer((s) => s.start);
@@ -117,6 +150,11 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
           „{routineTarget.note}"
         </p>
       ) : null}
+      {prByCurrentSetId.size > 0 ? (
+        <p className="mb-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+          <Trophy className="h-3 w-3" /> Neuer PR!
+        </p>
+      ) : null}
       {targetSets !== undefined && showDraft ? (
         <p
           className={`mb-2 text-xs ${
@@ -162,29 +200,43 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
           </tr>
         </thead>
         <tbody>
-          {sets.map((s) => (
-            <tr key={s.id} className="border-t border-slate-200 dark:border-slate-700">
-              <td className="px-1 py-2 text-center text-xs font-medium text-slate-500">
-                {s.setNumber}
-              </td>
-              <td className="px-1 py-2 text-center tabular-nums">{formatWeight(s.weightKg)}</td>
-              <td className="px-1 py-2 text-center tabular-nums">{s.reps}</td>
-              <td className="px-1 py-2 text-center tabular-nums text-slate-500">
-                {s.rpe ?? '–'}
-              </td>
-              <td className="px-1 py-2 text-center">{s.isWarmup ? '✓' : ''}</td>
-              <td className="px-1 py-2">
-                <button
-                  type="button"
-                  aria-label={`Satz ${s.setNumber} löschen`}
-                  onClick={() => deleteSet(s.id)}
-                  className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-rose-600 dark:hover:bg-slate-800"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </td>
-            </tr>
-          ))}
+          {sets.map((s) => {
+            const broke = prByCurrentSetId.get(s.id) ?? [];
+            return (
+              <tr key={s.id} className="border-t border-slate-200 dark:border-slate-700">
+                <td className="px-1 py-2 text-center text-xs font-medium text-slate-500">
+                  <div className="flex items-center justify-center gap-1">
+                    <span>{s.setNumber}</span>
+                    {broke.length > 0 ? (
+                      <span
+                        aria-label="Neuer Personal Record"
+                        title={`Neuer PR: ${broke.join(', ')}`}
+                        className="inline-flex h-4 items-center"
+                      >
+                        <Trophy className="h-3 w-3 text-amber-500" />
+                      </span>
+                    ) : null}
+                  </div>
+                </td>
+                <td className="px-1 py-2 text-center tabular-nums">{formatWeight(s.weightKg)}</td>
+                <td className="px-1 py-2 text-center tabular-nums">{s.reps}</td>
+                <td className="px-1 py-2 text-center tabular-nums text-slate-500">
+                  {s.rpe ?? '–'}
+                </td>
+                <td className="px-1 py-2 text-center">{s.isWarmup ? '✓' : ''}</td>
+                <td className="px-1 py-2">
+                  <button
+                    type="button"
+                    aria-label={`Satz ${s.setNumber} löschen`}
+                    onClick={() => deleteSet(s.id)}
+                    className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-rose-600 dark:hover:bg-slate-800"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
           {showDraft ? (
             <SetDraftRow
               setNumber={sets.length + 1}

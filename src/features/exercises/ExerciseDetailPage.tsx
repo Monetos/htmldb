@@ -5,6 +5,7 @@ import { db } from '../../db/database';
 import { EQUIPMENT_LABELS } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { MuscleChip } from '../../components/MuscleChip';
+import { ExerciseTrendCharts } from '../progress/ExerciseTrendCharts';
 
 export function ExerciseDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -116,6 +117,10 @@ export function ExerciseDetailPage() {
           ))}
         </ul>
       </section>
+
+      <div className="mb-4">
+        <ExerciseTrendCharts exerciseId={exercise.id} />
+      </div>
 
       {exercise.isCustom ? (
         <div className="flex gap-2">
