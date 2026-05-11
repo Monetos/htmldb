@@ -20,6 +20,9 @@ Dann im Browser `http://localhost:5173` öffnen.
 | `npm run preview` | Production-Build lokal vorschauen |
 | `npm run lint` | ESLint über das Projekt |
 | `npm run format` | Prettier-Formatierung |
+| `npm run test` | Vitest einmalig (CI-Modus) |
+| `npm run test:watch` | Vitest im Watch-Mode für lokale Entwicklung |
+| `npm run check` | **Quality-Gate**: Typecheck + Lint + Tests + Build |
 
 ## Tech-Stack
 
@@ -56,9 +59,20 @@ Definiert in `src/db/schema.ts`. Tabellen werden in `src/db/database.ts` (Dexie)
 - `foods`, `foodLog`, `waterLog`
 - `settings` (Singleton mit Tageszielen + Theme)
 
+## Selbst-Test-Strategie
+
+Damit jede Phase mit hoher Zuverlässigkeit landet, läuft vor jedem Commit `npm run check` (Quality-Gate). Drei Ebenen:
+
+1. **Unit-Tests (Vitest)** — reine Logik. Sub-Sekunden-Lauf.
+2. **DB- & Komponenten-Tests (Vitest + Testing Library + fake-indexeddb)** — Dexie-Operationen gegen In-Memory-IndexedDB, React-Komponenten gegen jsdom. Aktuell: Singleton-Settings, Schema-Indizes, Bottom-Nav-Routing, Theme-Toggle + Persistenz.
+3. **E2E + Screenshots (Playwright)** — kommt mit Phase 3 (Volumen-Heatmap), wo visuelle Verifikation den größten Mehrwert hat.
+
+Test-Fixtures in `src/test/`. Setup wipet IndexedDB-Tabellen zwischen Tests.
+
 ## Roadmap-Status
 
 - [x] **Phase 0** – Setup, Schema, leere Navigation
+- [x] **Phase 0.5** – Vitest, Testing Library, fake-indexeddb, `npm run check`
 - [ ] **Phase 1** – Workout-Logging + Übungsbibliothek
 - [ ] **Phase 2** – Routinen
 - [ ] **Phase 3** – Progression + Muskelgruppen-Heatmap
