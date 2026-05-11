@@ -73,7 +73,8 @@ Test-Fixtures in `src/test/`. Setup wipet IndexedDB-Tabellen zwischen Tests.
 
 - [x] **Phase 0** – Setup, Schema, leere Navigation
 - [x] **Phase 0.5** – Vitest, Testing Library, fake-indexeddb, `npm run check`
-- [ ] **Phase 1** – Workout-Logging + Übungsbibliothek
+- [x] **Phase 1** – Übungsbibliothek (55 Seed-Übungen), aktives Workout-Logging, Satzpausen-Timer, Statistik-Liste, JSON-Backup
+- [ ] **Phase 2** – Routinen
 - [ ] **Phase 2** – Routinen
 - [ ] **Phase 3** – Progression + Muskelgruppen-Heatmap
 - [ ] **Phase 4** – Körperdaten + Fotos

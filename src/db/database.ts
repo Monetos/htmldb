@@ -12,6 +12,7 @@ import {
   type Workout,
   DEFAULT_DAILY_TARGETS,
 } from './schema';
+import { SEED_EXERCISES } from './seedExercises';
 
 export class FitnessDatabase extends Dexie {
   exercises!: Table<Exercise, string>;
@@ -56,4 +57,17 @@ export async function ensureSettings(): Promise<Settings> {
   };
   await db.settings.put(initial);
   return initial;
+}
+
+/**
+ * Insert the seed exercise library if (and only if) the user has no exercises
+ * yet. Subsequent calls are no-ops, so this is safe to invoke on every boot.
+ */
+export async function seedExercisesIfEmpty(): Promise<number> {
+  const count = await db.exercises.count();
+  if (count > 0) return 0;
+  const now = Date.now();
+  const rows = SEED_EXERCISES.map((e) => ({ ...e, createdAt: now }));
+  await db.exercises.bulkAdd(rows);
+  return rows.length;
 }

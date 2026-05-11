@@ -1,4 +1,5 @@
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Settings, Sun } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 
 export function AppHeader({ title }: { title: string }) {
@@ -9,14 +10,23 @@ export function AppHeader({ title }: { title: string }) {
       style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
     >
       <h1 className="text-lg font-semibold">{title}</h1>
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}
-        className="rounded-full p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-      >
-        {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-      </button>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}
+          className="rounded-full p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
+        <Link
+          to="/einstellungen"
+          aria-label="Einstellungen"
+          className="rounded-full p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <Settings className="h-5 w-5" />
+        </Link>
+      </div>
     </header>
   );
 }
