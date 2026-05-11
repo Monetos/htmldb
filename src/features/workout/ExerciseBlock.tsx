@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink, Trash2 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
-import type { Exercise, SetEntry } from '../../db/schema';
+import type { Exercise, RoutineExercise, SetEntry } from '../../db/schema';
 import { useRestTimer } from '../../store/restTimer';
 import { addSet, deleteSet, lastWorkoutSetsForExercise } from './workoutLib';
 import { SetDraftRow, type DraftSet } from './SetRow';
@@ -14,9 +14,11 @@ import { formatWeight } from '../../lib/format';
 interface Props {
   workoutId: string;
   exercise: Exercise;
+  /** When provided, ExerciseBlock surfaces target sets / reps from the routine. */
+  routineTarget?: RoutineExercise;
 }
 
-export function ExerciseBlock({ workoutId, exercise }: Props) {
+export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
   const sets =
     useLiveQuery(
       () =>
@@ -40,6 +42,15 @@ export function ExerciseBlock({ workoutId, exercise }: Props) {
   const lastPrev = lastReference?.sets;
   const previousSet: SetEntry | undefined =
     sets[sets.length - 1] ?? (lastPrev && lastPrev.length > 0 ? lastPrev[lastPrev.length - 1] : undefined);
+
+  // Routine workouts pre-fill reps with the upper end of the target range when
+  // we have no prior set to copy from.
+  const draftRepsFromTarget = routineTarget?.targetRepsMax;
+  const restSecondsForTimer = routineTarget?.targetRestSeconds ?? exercise.defaultRestSeconds;
+  const targetSets = routineTarget?.targetSets;
+  const nextSetNumber = sets.length + 1;
+  const isLastTargetSet = targetSets !== undefined && nextSetNumber === targetSets;
+  const exceededTargetSets = targetSets !== undefined && nextSetNumber > targetSets;
   const draftInitial: DraftSet | undefined = previousSet
     ? {
         weightKg: previousSet.weightKg,
@@ -47,7 +58,9 @@ export function ExerciseBlock({ workoutId, exercise }: Props) {
         rpe: '',
         isWarmup: false,
       }
-    : undefined;
+    : draftRepsFromTarget !== undefined
+      ? { weightKg: '', reps: draftRepsFromTarget, rpe: '', isWarmup: false }
+      : undefined;
 
   const handleComplete = async (input: {
     weightKg: number;
@@ -57,7 +70,7 @@ export function ExerciseBlock({ workoutId, exercise }: Props) {
   }) => {
     await addSet({ workoutId, exerciseId: exercise.id, ...input });
     if (!input.isWarmup) {
-      startRest(exercise.defaultRestSeconds);
+      startRest(restSecondsForTimer);
     }
     setShowDraft(false);
   };
@@ -86,9 +99,39 @@ export function ExerciseBlock({ workoutId, exercise }: Props) {
           </div>
         </div>
         <div className="text-right text-xs text-slate-500">
-          Pause {exercise.defaultRestSeconds}s
+          {routineTarget ? (
+            <>
+              <div className="font-medium text-slate-700 dark:text-slate-200">
+                {routineTarget.targetSets} × {routineTarget.targetRepsMin}–
+                {routineTarget.targetRepsMax}
+              </div>
+              <div>Pause {routineTarget.targetRestSeconds}s</div>
+            </>
+          ) : (
+            <>Pause {exercise.defaultRestSeconds}s</>
+          )}
         </div>
       </header>
+      {routineTarget?.note ? (
+        <p className="mb-2 rounded-xl bg-slate-50 px-3 py-1 text-xs italic text-slate-600 dark:bg-slate-900/50 dark:text-slate-300">
+          „{routineTarget.note}"
+        </p>
+      ) : null}
+      {targetSets !== undefined && showDraft ? (
+        <p
+          className={`mb-2 text-xs ${
+            isLastTargetSet
+              ? 'font-semibold text-amber-600 dark:text-amber-400'
+              : exceededTargetSets
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-500'
+          }`}
+        >
+          {exceededTargetSets
+            ? 'Über dem Zielbereich — Bonus-Satz'
+            : `Satz ${nextSetNumber} von ${targetSets}${isLastTargetSet ? ' — Letzter Satz!' : ''}`}
+        </p>
+      ) : null}
 
       {lastReference ? (
         <details className="mb-2 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:bg-slate-900/50 dark:text-slate-300">

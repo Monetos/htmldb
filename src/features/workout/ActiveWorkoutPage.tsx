@@ -1,13 +1,76 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Square } from 'lucide-react';
 import { db } from '../../db/database';
-import type { SetEntry } from '../../db/schema';
+import type { Routine, RoutineExercise, SetEntry } from '../../db/schema';
 import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
+import { lastPerformedMap } from '../routines/routinesLib';
 
 const EMPTY_SETS: SetEntry[] = [];
+const EMPTY_ROUTINES: Routine[] = [];
+
+function RoutinesEmptyStateSection() {
+  const routinesQuery = useLiveQuery(() => db.routines.orderBy('name').toArray(), []);
+  const routines = routinesQuery ?? EMPTY_ROUTINES;
+  const ids = useMemo(() => routines.map((r) => r.id), [routines]);
+  const lastMap = useLiveQuery(() => lastPerformedMap(ids), [ids.join(',')]);
+
+  return (
+    <section className="mt-6">
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Meine Routinen
+        </h2>
+        <Link
+          to="/routinen/neu"
+          className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-400"
+        >
+          + Neue Routine
+        </Link>
+      </div>
+      {routines.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          Noch keine Routinen.{' '}
+          <Link to="/routinen/neu" className="text-brand-600 hover:underline">
+            Erste anlegen →
+          </Link>
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {routines.map((r) => {
+            const lastTs = lastMap?.get(r.id);
+            return (
+              <li key={r.id}>
+                <Link
+                  to={`/routinen/${r.id}`}
+                  className="block rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-brand-500"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-medium">{r.name}</div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {r.exercises.length}{' '}
+                        {r.exercises.length === 1 ? 'Übung' : 'Übungen'}
+                        {' · '}
+                        Zuletzt:{' '}
+                        {lastTs ? new Date(lastTs).toLocaleDateString('de-DE') : '–'}
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-700/30 dark:text-brand-300">
+                      Tap zum Starten
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
 import {
   exerciseOrderFromSets,
   finishWorkout,
@@ -39,12 +102,32 @@ export function ActiveWorkoutPage() {
   );
   const sets = setsQuery ?? EMPTY_SETS;
 
+  const routine = useLiveQuery(
+    async () => (workout?.routineId ? await db.routines.get(workout.routineId) : undefined),
+    [workout?.routineId],
+  );
+
   const orderedFromSets = useMemo(() => exerciseOrderFromSets(sets), [sets]);
   const exerciseIds = useMemo(() => {
-    const all = [...orderedFromSets];
+    const all: string[] = [];
+    // 1. Start with the routine's exercises in their saved order.
+    if (routine) {
+      const ordered = routine.exercises.slice().sort((a, b) => a.order - b.order);
+      for (const re of ordered) if (!all.includes(re.exerciseId)) all.push(re.exerciseId);
+    }
+    // 2. Append anything that already has sets but isn't in the routine.
+    for (const id of orderedFromSets) if (!all.includes(id)) all.push(id);
+    // 3. Append manually-added extras last.
     for (const id of extraExerciseIds) if (!all.includes(id)) all.push(id);
     return all;
-  }, [orderedFromSets, extraExerciseIds]);
+  }, [routine, orderedFromSets, extraExerciseIds]);
+
+  const routineTargetByExerciseId = useMemo(() => {
+    const map = new Map<string, RoutineExercise>();
+    if (!routine) return map;
+    for (const re of routine.exercises) map.set(re.exerciseId, re);
+    return map;
+  }, [routine]);
 
   const exerciseMap = useLiveQuery(() => getExerciseMap(exerciseIds), [exerciseIds.join(',')]);
 
@@ -82,7 +165,7 @@ export function ActiveWorkoutPage() {
     return (
       <div className="flex min-h-full flex-col">
         <AppHeader title="Training" />
-        <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 pb-24 pt-6">
+        <main className="mx-auto w-full max-w-xl flex-1 px-4 pb-24 pt-6">
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800/40">
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Kein Workout aktiv. Leg los, wenn du im Studio bist.
@@ -91,6 +174,7 @@ export function ActiveWorkoutPage() {
               <Plus className="h-4 w-4" /> Freies Workout starten
             </Button>
           </div>
+          <RoutinesEmptyStateSection />
         </main>
       </div>
     );
@@ -102,7 +186,12 @@ export function ActiveWorkoutPage() {
       <main className="mx-auto w-full max-w-xl flex-1 px-4 pb-28 pt-2">
         <RestTimerBar />
 
-        <div className="my-3 flex items-center justify-between">
+        <div className="my-3">
+          {workout.routineName ? (
+            <div className="mb-1 text-sm font-semibold text-brand-600 dark:text-brand-400">
+              {workout.routineName}
+            </div>
+          ) : null}
           <div className="text-xs uppercase tracking-wide text-slate-500">
             Läuft seit {new Date(workout.startedAt).toLocaleTimeString('de-DE', {
               hour: '2-digit',
@@ -117,7 +206,14 @@ export function ActiveWorkoutPage() {
           {exerciseIds.map((id) => {
             const ex = exerciseMap?.get(id);
             if (!ex) return null;
-            return <ExerciseBlock key={id} workoutId={workout.id} exercise={ex} />;
+            return (
+              <ExerciseBlock
+                key={id}
+                workoutId={workout.id}
+                exercise={ex}
+                routineTarget={routineTargetByExerciseId.get(id)}
+              />
+            );
           })}
         </div>
 
