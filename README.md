@@ -76,7 +76,8 @@ Test-Fixtures in `src/test/`. Setup wipet IndexedDB-Tabellen zwischen Tests.
 - [x] **Phase 1** – Übungsbibliothek (55 Seed-Übungen), aktives Workout-Logging, Satzpausen-Timer, Statistik-Liste, JSON-Backup
 - [x] **Phase 2** – Routinen (Editor mit Reorder & Targets, Start aus Routine, Satz-X-von-Y + „Letzter Satz!"-Hint, Reps-Vorbelegung aus Target)
 - [x] **Phase 3** – PRs mit "Neuer PR!"-Hint im Training, sortierbare PR-Übersicht, Wochenvolumen-Ampel pro Muskelgruppe (4-Wochen-Mittel), 12-Wochen-Trend, Streak, Trainings-Kalender, Charts pro Übung
-- [ ] **Phase 4** – Körperdaten + Fotos
+- [x] **Phase 4** – Körperdaten (Gewicht, KFA, alle Maße, Notizen) + Verlaufs-Charts (1M/3M/6M/1J/Alle), Fortschrittsfotos mit clientseitiger Kompression auf 1600px, Galerie pro View, Vorher/Nachher-Vergleich
+- [ ] **Phase 5** – Ernährung
 - [ ] **Phase 2** – Routinen
 - [ ] **Phase 3** – Progression + Muskelgruppen-Heatmap
 - [ ] **Phase 4** – Körperdaten + Fotos

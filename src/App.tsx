@@ -9,7 +9,12 @@ import { RoutinesPage } from './features/routines/RoutinesPage';
 import { RoutineDetailPage } from './features/routines/RoutineDetailPage';
 import { RoutineFormPage } from './features/routines/RoutineFormPage';
 import { SettingsPage } from './features/settings/SettingsPage';
-import { BodyPage } from './pages/BodyPage';
+import { BodyPage } from './features/body/BodyPage';
+import { BodyHistoryTab } from './features/body/BodyHistoryTab';
+import { BodyPhotosTab } from './features/body/BodyPhotosTab';
+import { BodyMetricFormPage } from './features/body/BodyMetricFormPage';
+import { PhotoFormPage } from './features/body/PhotoFormPage';
+import { PhotoComparePage } from './features/body/PhotoComparePage';
 import { NutritionPage } from './pages/NutritionPage';
 import { useTheme } from './hooks/useTheme';
 import { useBootstrap } from './hooks/useBootstrap';
@@ -34,7 +39,15 @@ export default function App() {
           <Route path="/routinen/:id" element={<RoutineDetailPage />} />
           <Route path="/routinen/:id/bearbeiten" element={<RoutineFormPage />} />
           <Route path="/statistik" element={<ProgressPage />} />
-          <Route path="/koerper" element={<BodyPage />} />
+          <Route path="/koerper" element={<BodyPage />}>
+            <Route index element={<Navigate to="/koerper/verlauf" replace />} />
+            <Route path="verlauf" element={<BodyHistoryTab />} />
+            <Route path="fotos" element={<BodyPhotosTab />} />
+          </Route>
+          <Route path="/koerper/messung/neu" element={<BodyMetricFormPage />} />
+          <Route path="/koerper/messung/:id/bearbeiten" element={<BodyMetricFormPage />} />
+          <Route path="/koerper/foto/neu" element={<PhotoFormPage />} />
+          <Route path="/koerper/foto/vergleich" element={<PhotoComparePage />} />
           <Route path="/ernaehrung" element={<NutritionPage />} />
           <Route path="/einstellungen" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/training" replace />} />
