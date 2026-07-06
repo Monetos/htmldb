@@ -170,6 +170,8 @@ export interface DailyTargets {
 
 export type ThemeMode = 'light' | 'dark';
 
+export type WeightUnit = 'kg' | 'lbs';
+
 export interface Settings {
   id: 'singleton';
   dailyTargets: DailyTargets;
@@ -179,6 +181,8 @@ export interface Settings {
   lastBackupAt?: number;
   /** Anthropic API key for the AI food estimation features (stored locally only). */
   anthropicApiKey?: string;
+  /** Display/input unit preference. Storage is always kg regardless of this value. */
+  weightUnit?: WeightUnit;
 }
 
 export const DEFAULT_DAILY_TARGETS: DailyTargets = {

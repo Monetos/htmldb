@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
-import type { BodyMetric } from '../../db/schema';
+import type { BodyMetric, WeightUnit } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
+import { formatWeightInUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 import { deleteBodyMetric } from './bodyLib';
 import { BodyTrendCharts } from './BodyTrendCharts';
 
@@ -13,6 +15,7 @@ const EMPTY: BodyMetric[] = [];
 export function BodyHistoryTab() {
   const metricsQuery = useLiveQuery(() => db.bodyMetrics.orderBy('date').reverse().toArray(), []);
   const metrics = metricsQuery ?? EMPTY;
+  const { unit } = useWeightUnit();
 
   return (
     <div className="space-y-4">
@@ -51,7 +54,7 @@ export function BodyHistoryTab() {
                         year: 'numeric',
                       })}
                     </div>
-                    <MetricSummary metric={m} />
+                    <MetricSummary metric={m} unit={unit} />
                   </div>
                   <div className="flex items-center gap-1">
                     <Link
@@ -86,9 +89,11 @@ export function BodyHistoryTab() {
   );
 }
 
-function MetricSummary({ metric }: { metric: BodyMetric }) {
+function MetricSummary({ metric, unit }: { metric: BodyMetric; unit: WeightUnit }) {
   const bits: string[] = [];
-  if (metric.weightKg !== undefined) bits.push(`${metric.weightKg} kg`);
+  if (metric.weightKg !== undefined) {
+    bits.push(`${formatWeightInUnit(metric.weightKg, unit)} ${unit}`);
+  }
   if (metric.bodyFatPercent !== undefined) bits.push(`${metric.bodyFatPercent}% KFA`);
   if (metric.measurements) {
     if (metric.measurements.waistCm !== undefined) bits.push(`Taille ${metric.measurements.waistCm} cm`);

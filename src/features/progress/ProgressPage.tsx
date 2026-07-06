@@ -5,6 +5,8 @@ import { db } from '../../db/database';
 import { AppHeader } from '../../components/AppHeader';
 import { Card } from '../../components/Card';
 import { formatWorkoutLength } from '../../lib/format';
+import { kgToUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 import { totalVolumeKg } from '../workout/workoutLib';
 import type { SetEntry, Workout } from '../../db/schema';
 import { StreakBanner } from './StreakBanner';
@@ -40,6 +42,7 @@ async function loadRecentWorkoutStats(limit: number): Promise<WorkoutWithStats[]
 
 export function ProgressPage() {
   const entries = useLiveQuery(() => loadRecentWorkoutStats(10), []) ?? [];
+  const { unit } = useWeightUnit();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -94,7 +97,7 @@ export function ProgressPage() {
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
                     <Stat label="Sätze" value={String(setCount)} />
-                    <Stat label="Volumen" value={`${Math.round(volumeKg)} kg`} />
+                    <Stat label="Volumen" value={`${Math.round(kgToUnit(volumeKg, unit))} ${unit}`} />
                   </div>
                 </Card>
               ))}

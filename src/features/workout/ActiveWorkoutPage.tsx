@@ -16,6 +16,8 @@ import {
   reorderForContiguousGroup,
 } from '../../lib/exerciseGrouping';
 import { newId } from '../../lib/id';
+import { kgToUnit, parseWeightInput } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 import { lastPerformedMap } from '../routines/routinesLib';
 
 const EMPTY_SETS: SetEntry[] = [];
@@ -98,6 +100,7 @@ import { useRestTimer } from '../../store/restTimer';
 export function ActiveWorkoutPage() {
   const navigate = useNavigate();
   const workout = useLiveQuery(() => getActiveWorkout(), []);
+  const { unit } = useWeightUnit();
 
   // Track exercise order locally (allows adding exercises before any sets exist).
   const [extraExerciseIds, setExtraExerciseIds] = useState<string[]>([]);
@@ -204,9 +207,9 @@ export function ActiveWorkoutPage() {
 
   const onFinish = async () => {
     if (!workout) return;
-    const bw = bodyweight ? Number(bodyweight) : undefined;
+    const bw = parseWeightInput(bodyweight, unit);
     await finishWorkout(workout.id, {
-      bodyweightKg: Number.isFinite(bw) && bw && bw > 0 ? bw : undefined,
+      bodyweightKg: bw && bw > 0 ? bw : undefined,
       notes: notes.trim() || undefined,
     });
     skipTimer();
@@ -264,7 +267,7 @@ export function ActiveWorkoutPage() {
               minute: '2-digit',
             })}
             {' · '}
-            {sets.length} Sätze · {Math.round(totalVolumeKg(sets))} kg Volumen
+            {sets.length} Sätze · {Math.round(kgToUnit(totalVolumeKg(sets), unit))} {unit} Volumen
           </div>
         </div>
 
@@ -390,12 +393,12 @@ export function ActiveWorkoutPage() {
         >
           <h2 className="mb-1 text-lg font-semibold">Workout beenden</h2>
           <p className="mb-3 text-sm text-slate-500">
-            {sets.length} Sätze · {Math.round(totalVolumeKg(sets))} kg Volumen ·{' '}
+            {sets.length} Sätze · {Math.round(kgToUnit(totalVolumeKg(sets), unit))} {unit} Volumen ·{' '}
             {formatWorkoutLength(workout.startedAt, Date.now())}
           </p>
           <label className="mb-3 block">
             <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-              Körpergewicht (kg, optional)
+              Körpergewicht ({unit}, optional)
             </span>
             <input
               inputMode="decimal"

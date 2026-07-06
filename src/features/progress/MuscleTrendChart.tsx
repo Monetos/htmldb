@@ -5,6 +5,8 @@ import { db } from '../../db/database';
 import { weeklyMuscleVolume } from '../../lib/progression';
 import { MUSCLE_GROUP_LABELS, type Exercise, type MuscleGroup, type SetEntry } from '../../db/schema';
 import { Card } from '../../components/Card';
+import { kgToUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 
 const EMPTY_SETS: SetEntry[] = [];
 const EMPTY_EXERCISES: Exercise[] = [];
@@ -15,6 +17,7 @@ const MUSCLE_OPTIONS: MuscleGroup[] = Object.keys(MUSCLE_GROUP_LABELS) as Muscle
 
 export function MuscleTrendChart() {
   const [muscle, setMuscle] = useState<MuscleGroup>(DEFAULT_MUSCLE);
+  const { unit } = useWeightUnit();
   const setsQuery = useLiveQuery(() => db.sets.toArray(), []);
   const exercisesQuery = useLiveQuery(() => db.exercises.toArray(), []);
   const sets = setsQuery ?? EMPTY_SETS;
@@ -30,10 +33,10 @@ export function MuscleTrendChart() {
     const buckets = weeklyMuscleVolume(sets, exMap, Date.now(), WEEKS);
     return buckets.map((b) => ({
       week: new Date(b.weekStart).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
-      volume: Math.round(b.volume[muscle] ?? 0),
+      volume: Math.round(kgToUnit(b.volume[muscle] ?? 0, unit)),
       sets: b.setCount[muscle] ?? 0,
     }));
-  }, [sets, exMap, muscle]);
+  }, [sets, exMap, muscle, unit]);
 
   const totalVolume = data.reduce((acc, d) => acc + d.volume, 0);
 
@@ -42,7 +45,9 @@ export function MuscleTrendChart() {
       <div className="mb-3 flex items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold">12-Wochen-Trend</h3>
-          <p className="text-xs text-slate-500">Volumen pro Woche · {totalVolume} kg gesamt</p>
+          <p className="text-xs text-slate-500">
+            Volumen pro Woche · {totalVolume} {unit} gesamt
+          </p>
         </div>
         <select
           value={muscle}
@@ -65,7 +70,7 @@ export function MuscleTrendChart() {
             <Tooltip
               cursor={{ fill: 'rgba(99, 102, 241, 0.08)' }}
               contentStyle={{ fontSize: 12, borderRadius: 8 }}
-              formatter={(value: number) => [`${value} kg`, 'Volumen']}
+              formatter={(value: number) => [`${value} ${unit}`, 'Volumen']}
               labelFormatter={(label: string) => `KW ${label}`}
             />
             <Bar dataKey="volume" fill="#6366f1" radius={[4, 4, 0, 0]} />

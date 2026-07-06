@@ -5,6 +5,8 @@ import { db } from '../../db/database';
 import { filterByTimeRange, perWorkoutExerciseStats, type TimeRange } from '../../lib/progression';
 import type { SetEntry, Workout } from '../../db/schema';
 import { Card } from '../../components/Card';
+import { kgToUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 
 const EMPTY_SETS: SetEntry[] = [];
 
@@ -22,6 +24,7 @@ interface Props {
 
 export function ExerciseTrendCharts({ exerciseId }: Props) {
   const [range, setRange] = useState<TimeRange>('3m');
+  const { unit } = useWeightUnit();
 
   const setsQuery = useLiveQuery(
     () => db.sets.where('exerciseId').equals(exerciseId).toArray(),
@@ -48,9 +51,11 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
     const all = perWorkoutExerciseStats(sets, workoutsMap);
     return filterByTimeRange(all, range, Date.now()).map((p) => ({
       ...p,
+      topWeightKg: Math.round(kgToUnit(p.topWeightKg, unit) * 10) / 10,
+      volumeKg: Math.round(kgToUnit(p.volumeKg, unit)),
       date: new Date(p.startedAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
     }));
-  }, [sets, workoutsMap, range]);
+  }, [sets, workoutsMap, range, unit]);
 
   if (points.length === 0) {
     return (
@@ -82,7 +87,7 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
               <YAxis fontSize={10} tickLine={false} axisLine={false} width={40} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                formatter={(v: number) => [`${v} kg`, 'Top']}
+                formatter={(v: number) => [`${v} ${unit}`, 'Top']}
               />
               <Line
                 dataKey="topWeightKg"
@@ -106,7 +111,7 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
               <YAxis fontSize={10} tickLine={false} axisLine={false} width={50} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                formatter={(v: number) => [`${Math.round(v)} kg`, 'Volumen']}
+                formatter={(v: number) => [`${Math.round(v)} ${unit}`, 'Volumen']}
               />
               <Line
                 dataKey="volumeKg"

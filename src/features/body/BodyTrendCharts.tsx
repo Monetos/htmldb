@@ -3,6 +3,8 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { filterByTimeRange, type TimeRange } from '../../lib/progression';
 import type { BodyMetric } from '../../db/schema';
 import { Card } from '../../components/Card';
+import { kgToUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 
 const RANGES: { value: TimeRange; label: string }[] = [
   { value: '1m', label: '1M' },
@@ -26,17 +28,18 @@ interface Point {
 
 export function BodyTrendCharts({ metrics }: Props) {
   const [range, setRange] = useState<TimeRange>('3m');
+  const { unit } = useWeightUnit();
 
   const points = useMemo<Point[]>(() => {
     const sorted = metrics.slice().sort((a, b) => a.date - b.date);
     return sorted.map((m) => ({
       startedAt: m.date,
       date: new Date(m.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }),
-      weightKg: m.weightKg,
+      weightKg: m.weightKg !== undefined ? Math.round(kgToUnit(m.weightKg, unit) * 10) / 10 : undefined,
       bodyFatPercent: m.bodyFatPercent,
       waistCm: m.measurements?.waistCm,
     }));
-  }, [metrics]);
+  }, [metrics, unit]);
 
   const filtered = useMemo(
     () => filterByTimeRange(points, range, Date.now()),
@@ -75,7 +78,13 @@ export function BodyTrendCharts({ metrics }: Props) {
 
       <div className="space-y-2">
         {hasWeight ? (
-          <Chart label="Gewicht (kg)" stroke="#4f46e5" data={filtered} dataKey="weightKg" suffix="kg" />
+          <Chart
+            label={`Gewicht (${unit})`}
+            stroke="#4f46e5"
+            data={filtered}
+            dataKey="weightKg"
+            suffix={unit}
+          />
         ) : null}
         {hasBodyFat ? (
           <Chart label="Körperfett (%)" stroke="#f59e0b" data={filtered} dataKey="bodyFatPercent" suffix="%" />

@@ -8,6 +8,8 @@ import {
 } from '../../lib/progression';
 import { MUSCLE_GROUP_LABELS, type Exercise, type MuscleGroup, type SetEntry } from '../../db/schema';
 import { Card } from '../../components/Card';
+import { kgToUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 
 const EMPTY_SETS: SetEntry[] = [];
 const EMPTY_EXERCISES: Exercise[] = [];
@@ -22,6 +24,7 @@ const STATUS_STYLES: Record<AmpelStatus, { dot: string; label: string }> = {
 };
 
 export function MuscleVolumeAmpel() {
+  const { unit } = useWeightUnit();
   const setsQuery = useLiveQuery(() => db.sets.toArray(), []);
   const exercisesQuery = useLiveQuery(() => db.exercises.toArray(), []);
   const sets = setsQuery ?? EMPTY_SETS;
@@ -107,7 +110,7 @@ export function MuscleVolumeAmpel() {
                   />
                 </div>
                 <span className="text-right text-xs tabular-nums text-slate-500">
-                  {row.currentSets}× · {Math.round(row.currentVolume)} kg
+                  {row.currentSets}× · {Math.round(kgToUnit(row.currentVolume, unit))} {unit}
                 </span>
               </li>
             );

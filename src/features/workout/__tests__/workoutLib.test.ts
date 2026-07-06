@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addSet,
+  bulkAddWarmupSets,
   exerciseOrderFromSets,
   finishWorkout,
   getActiveWorkout,
@@ -110,6 +111,29 @@ describe('addSet', () => {
     expect(untagged.isDropSet).toBe(false);
     expect(untagged.toFailure).toBe(false);
     expect(untagged.unilateralSide).toBeUndefined();
+  });
+});
+
+describe('bulkAddWarmupSets', () => {
+  it('inserts sets marked isWarmup, appending after already-logged sets', async () => {
+    await db.exercises.add(benchExercise);
+    const w = await startFreeWorkout();
+
+    // A working set is already logged before generating warmups.
+    await addSet({ workoutId: w.id, exerciseId: benchExercise.id, weightKg: 100, reps: 5, isWarmup: false });
+
+    const created = await bulkAddWarmupSets(w.id, benchExercise.id, [
+      { weightKg: 40 },
+      { weightKg: 60 },
+      { weightKg: 80 },
+    ]);
+
+    expect(created.map((s) => s.weightKg)).toEqual([40, 60, 80]);
+    expect(created.every((s) => s.isWarmup)).toBe(true);
+    expect(created.map((s) => s.setNumber)).toEqual([2, 3, 4]);
+
+    const all = await db.sets.where('workoutId').equals(w.id).sortBy('setNumber');
+    expect(all).toHaveLength(4);
   });
 });
 

@@ -10,12 +10,13 @@ import {
   restoreBackup,
 } from '../../db/backup';
 import { db, ensureSettings } from '../../db/database';
-import type { DailyTargets } from '../../db/schema';
+import type { DailyTargets, WeightUnit } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { AppHeader } from '../../components/AppHeader';
 import { describeBackupAge } from './backupAge';
 import { useAppUpdate, type UpdateCheckStatus } from '../../store/appUpdate';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 
 export function SettingsPage() {
   const [status, setStatus] = useState<{ kind: 'idle' | 'ok' | 'error'; message: string }>({
@@ -76,6 +77,8 @@ export function SettingsPage() {
         </Link>
 
         <DailyTargetsCard />
+
+        <WeightUnitCard />
 
         <AiKeyCard />
 
@@ -322,5 +325,50 @@ function TargetField({
         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
       />
     </label>
+  );
+}
+
+function WeightUnitCard() {
+  const { unit, setWeightUnit } = useWeightUnit();
+
+  return (
+    <Card as="section" className="p-4">
+      <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Gewichtseinheit
+      </h2>
+      <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+        Gilt für alle Gewichtsanzeigen und -eingaben in der App. Gespeichert wird intern immer in
+        kg.
+      </p>
+      <div className="inline-flex overflow-hidden rounded-full border border-slate-200 dark:border-slate-700">
+        <UnitButton label="kg" active={unit === 'kg'} onClick={() => void setWeightUnit('kg')} />
+        <UnitButton label="lbs" active={unit === 'lbs'} onClick={() => void setWeightUnit('lbs')} />
+      </div>
+    </Card>
+  );
+}
+
+function UnitButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: WeightUnit;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`px-4 py-1.5 text-sm font-medium ${
+        active
+          ? 'bg-brand-500 text-white'
+          : 'bg-white text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
