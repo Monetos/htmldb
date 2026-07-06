@@ -1,14 +1,21 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Plus, Square } from 'lucide-react';
+import { Link2, Plus, Square } from 'lucide-react';
 import { db } from '../../db/database';
 import type { Routine, RoutineExercise, SetEntry } from '../../db/schema';
 import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Modal } from '../../components/Modal';
+import { SupersetGroup } from '../../components/SupersetGroup';
 import { cardClassName } from '../../lib/cardStyles';
+import {
+  groupOrderedIds,
+  nextActiveExerciseInGroup,
+  reorderForContiguousGroup,
+} from '../../lib/exerciseGrouping';
+import { newId } from '../../lib/id';
 import { lastPerformedMap } from '../routines/routinesLib';
 
 const EMPTY_SETS: SetEntry[] = [];
@@ -98,6 +105,11 @@ export function ActiveWorkoutPage() {
   const [showFinish, setShowFinish] = useState(false);
   const [bodyweight, setBodyweight] = useState('');
   const [notes, setNotes] = useState('');
+  // Ad-hoc superset grouping for manually-added exercises — session-local only,
+  // exactly like extraExerciseIds (not persisted anywhere).
+  const [adHocGroups, setAdHocGroups] = useState<Record<string, string>>({});
+  const [showGroupPicker, setShowGroupPicker] = useState(false);
+  const [groupSelection, setGroupSelection] = useState<string[]>([]);
 
   const setsQuery = useLiveQuery(
     () => (workout ? db.sets.where('workoutId').equals(workout.id).toArray() : []),
@@ -111,7 +123,7 @@ export function ActiveWorkoutPage() {
   );
 
   const orderedFromSets = useMemo(() => exerciseOrderFromSets(sets), [sets]);
-  const exerciseIds = useMemo(() => {
+  const exerciseIdsRaw = useMemo(() => {
     const all: string[] = [];
     // 1. Start with the routine's exercises in their saved order.
     if (routine) {
@@ -132,7 +144,57 @@ export function ActiveWorkoutPage() {
     return map;
   }, [routine]);
 
+  const groupIdByExerciseId = useMemo(() => {
+    const map = new Map<string, string | undefined>();
+    if (routine) for (const re of routine.exercises) if (re.groupId) map.set(re.exerciseId, re.groupId);
+    for (const [exerciseId, groupId] of Object.entries(adHocGroups)) map.set(exerciseId, groupId);
+    return map;
+  }, [routine, adHocGroups]);
+
+  // A group member may log its first set before its groupmate, which would
+  // otherwise sandwich an unrelated exercise inside the group — normalize.
+  const exerciseIds = useMemo(() => {
+    let ids = exerciseIdsRaw;
+    const seenGroups = new Set<string>();
+    for (const id of exerciseIdsRaw) {
+      const gid = groupIdByExerciseId.get(id);
+      if (!gid || seenGroups.has(gid)) continue;
+      seenGroups.add(gid);
+      const members = exerciseIdsRaw.filter((x) => groupIdByExerciseId.get(x) === gid);
+      ids = reorderForContiguousGroup(ids, members);
+    }
+    return ids;
+  }, [exerciseIdsRaw, groupIdByExerciseId]);
+
   const exerciseMap = useLiveQuery(() => getExerciseMap(exerciseIds), [exerciseIds.join(',')]);
+
+  const completedCountByExerciseId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const s of sets) map.set(s.exerciseId, (map.get(s.exerciseId) ?? 0) + 1);
+    return map;
+  }, [sets]);
+
+  const orderedItems = useMemo(
+    () => groupOrderedIds(exerciseIds, groupIdByExerciseId),
+    [exerciseIds, groupIdByExerciseId],
+  );
+
+  const groupableExtras = useMemo(
+    () => extraExerciseIds.filter((id) => !groupIdByExerciseId.get(id)),
+    [extraExerciseIds, groupIdByExerciseId],
+  );
+
+  const onConfirmGrouping = () => {
+    if (groupSelection.length < 2) return;
+    const groupId = newId();
+    setAdHocGroups((prev) => {
+      const next = { ...prev };
+      for (const id of groupSelection) next[id] = groupId;
+      return next;
+    });
+    setShowGroupPicker(false);
+    setGroupSelection([]);
+  };
 
   const skipTimer = useRestTimer((s) => s.skip);
 
@@ -150,6 +212,7 @@ export function ActiveWorkoutPage() {
     skipTimer();
     setShowFinish(false);
     setExtraExerciseIds([]);
+    setAdHocGroups({});
     setBodyweight('');
     setNotes('');
     navigate('/statistik');
@@ -206,16 +269,41 @@ export function ActiveWorkoutPage() {
         </div>
 
         <div className="space-y-3">
-          {exerciseIds.map((id) => {
-            const ex = exerciseMap?.get(id);
-            if (!ex) return null;
+          {orderedItems.map((item) => {
+            if (item.type === 'single') {
+              const ex = exerciseMap?.get(item.exerciseId);
+              if (!ex) return null;
+              return (
+                <ExerciseBlock
+                  key={item.exerciseId}
+                  workoutId={workout.id}
+                  exercise={ex}
+                  routineTarget={routineTargetByExerciseId.get(item.exerciseId)}
+                />
+              );
+            }
+            const activeId = nextActiveExerciseInGroup(item.exerciseIds, completedCountByExerciseId);
             return (
-              <ExerciseBlock
-                key={id}
-                workoutId={workout.id}
-                exercise={ex}
-                routineTarget={routineTargetByExerciseId.get(id)}
-              />
+              <SupersetGroup key={item.groupId} label={`Superset (${item.exerciseIds.length} Übungen)`}>
+                {item.exerciseIds.map((id, memberIndex) => {
+                  const ex = exerciseMap?.get(id);
+                  if (!ex) return null;
+                  return (
+                    <ExerciseBlock
+                      key={id}
+                      workoutId={workout.id}
+                      exercise={ex}
+                      routineTarget={routineTargetByExerciseId.get(id)}
+                      group={{
+                        groupId: item.groupId,
+                        memberIndex,
+                        memberCount: item.exerciseIds.length,
+                        isActive: activeId === id,
+                      }}
+                    />
+                  );
+                })}
+              </SupersetGroup>
             );
           })}
         </div>
@@ -224,6 +312,11 @@ export function ActiveWorkoutPage() {
           <Button variant="secondary" className="flex-1" onClick={() => setShowPicker(true)}>
             <Plus className="h-4 w-4" /> Übung hinzufügen
           </Button>
+          {groupableExtras.length >= 2 ? (
+            <Button variant="secondary" onClick={() => setShowGroupPicker(true)}>
+              <Link2 className="h-4 w-4" /> Gruppieren
+            </Button>
+          ) : null}
           <Button variant="danger" onClick={() => setShowFinish(true)}>
             <Square className="h-4 w-4" /> Beenden
           </Button>
@@ -238,6 +331,56 @@ export function ActiveWorkoutPage() {
             setShowPicker(false);
           }}
         />
+
+        <Modal
+          open={showGroupPicker}
+          onClose={() => {
+            setShowGroupPicker(false);
+            setGroupSelection([]);
+          }}
+          title="Übungen gruppieren"
+          size="compact"
+        >
+          <h2 className="mb-1 text-lg font-semibold">Superset gruppieren</h2>
+          <p className="mb-3 text-sm text-slate-500">
+            Wähle mindestens zwei Übungen, die im Wechsel ohne Pause absolviert werden sollen.
+          </p>
+          <ul className="mb-4 space-y-2">
+            {groupableExtras.map((id) => {
+              const ex = exerciseMap?.get(id);
+              const checked = groupSelection.includes(id);
+              return (
+                <li key={id}>
+                  <label
+                    className={cardClassName({
+                      interactive: true,
+                      className: 'flex items-center gap-2 p-3',
+                    })}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) =>
+                        setGroupSelection((prev) =>
+                          e.target.checked ? [...prev, id] : prev.filter((x) => x !== id),
+                        )
+                      }
+                      className="h-4 w-4"
+                    />
+                    {ex?.name ?? id}
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+          <Button
+            onClick={onConfirmGrouping}
+            disabled={groupSelection.length < 2}
+            className="w-full"
+          >
+            Gruppieren ({groupSelection.length})
+          </Button>
+        </Modal>
 
         <Modal
           open={showFinish}

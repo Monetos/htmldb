@@ -1,4 +1,4 @@
-import type { ElementType, HTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
 import { cardClassName, type CardElevation } from '../lib/cardStyles';
 
 interface CardProps extends HTMLAttributes<HTMLElement> {
@@ -15,20 +15,17 @@ interface CardProps extends HTMLAttributes<HTMLElement> {
  * hand-repeated across every feature. `as="section"` is used where a test
  * locates the card via `closest('section')`.
  */
-export function Card({
-  as: Component = 'div',
-  elevation = 'flat',
-  interactive = false,
-  className = '',
-  children,
-  ...rest
-}: CardProps) {
+export const Card = forwardRef<HTMLElement, CardProps>(function Card(
+  { as: Component = 'div', elevation = 'flat', interactive = false, className = '', children, ...rest },
+  ref,
+) {
   return (
     <Component
+      ref={ref}
       className={cardClassName({ elevation, interactive, className: `p-3 ${className}` })}
       {...rest}
     >
       {children}
     </Component>
   );
-}
+});

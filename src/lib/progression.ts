@@ -22,15 +22,17 @@ export function emptyPr(): PrBest {
 }
 
 /**
- * Reduces a list of sets (any order) to the best PR values. Warmup sets are
- * ignored. Returns nulls when there is no qualifying data.
+ * Reduces a list of sets (any order) to the best PR values. Warmup and
+ * drop-sets are ignored — a drop-set follows a fatigued top set at reduced
+ * weight and would otherwise corrupt "true max" tracking. Returns nulls when
+ * there is no qualifying data.
  */
 export function bestPrFromSets(sets: SetEntry[]): PrBest {
   let heaviestKg: number | null = null;
   let heaviestFor5Kg: number | null = null;
   let best1Rm: number | null = null;
   for (const s of sets) {
-    if (s.isWarmup) continue;
+    if (s.isWarmup || s.isDropSet) continue;
     if (s.reps <= 0 || s.weightKg <= 0) continue;
     if (heaviestKg === null || s.weightKg > heaviestKg) heaviestKg = s.weightKg;
     if (s.reps >= 5 && (heaviestFor5Kg === null || s.weightKg > heaviestFor5Kg)) {
@@ -49,7 +51,7 @@ export type PrCategory = 'heaviest' | 'heaviestFor5' | 'best1Rm';
  * `prior` PR state. Useful for showing "Neuer PR!" badges during workouts.
  */
 export function newPrCategories(prior: PrBest, candidate: SetEntry): PrCategory[] {
-  if (candidate.isWarmup) return [];
+  if (candidate.isWarmup || candidate.isDropSet) return [];
   if (candidate.reps <= 0 || candidate.weightKg <= 0) return [];
   const broken: PrCategory[] = [];
   if (prior.heaviestKg === null || candidate.weightKg > prior.heaviestKg) {

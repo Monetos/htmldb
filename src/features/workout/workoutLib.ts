@@ -1,5 +1,5 @@
 import { db } from '../../db/database';
-import type { Exercise, SetEntry, Workout } from '../../db/schema';
+import type { Exercise, SetEntry, UnilateralSide, Workout } from '../../db/schema';
 import { newId } from '../../lib/id';
 
 /**
@@ -43,6 +43,9 @@ export async function addSet(input: {
   reps: number;
   rpe?: number;
   isWarmup: boolean;
+  isDropSet?: boolean;
+  toFailure?: boolean;
+  unilateralSide?: UnilateralSide;
 }): Promise<SetEntry> {
   // Determine next set number for this (workout, exercise).
   const existing = await db.sets
@@ -59,6 +62,9 @@ export async function addSet(input: {
     reps: input.reps,
     rpe: input.rpe,
     isWarmup: input.isWarmup,
+    isDropSet: input.isDropSet ?? false,
+    toFailure: input.toFailure ?? false,
+    unilateralSide: input.unilateralSide,
     completedAt: Date.now(),
   };
   await db.sets.add(set);

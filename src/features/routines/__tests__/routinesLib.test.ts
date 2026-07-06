@@ -33,6 +33,22 @@ describe('saveRoutine', () => {
     expect(r.exercises.map((e) => e.order)).toEqual([0, 1, 2]);
   });
 
+  it('preserves groupId on grouped exercises through order renumbering', async () => {
+    const r = await saveRoutine({
+      name: 'Superset Day',
+      exercises: [
+        { ...makeExercise('A', 3), groupId: 'g1' },
+        { ...makeExercise('B', 4), groupId: 'g1' },
+        makeExercise('C', 1),
+      ],
+    });
+    expect(r.exercises.map((e) => e.exerciseId)).toEqual(['C', 'A', 'B']);
+    expect(r.exercises.map((e) => e.order)).toEqual([0, 1, 2]);
+    expect(r.exercises.find((e) => e.exerciseId === 'A')?.groupId).toBe('g1');
+    expect(r.exercises.find((e) => e.exerciseId === 'B')?.groupId).toBe('g1');
+    expect(r.exercises.find((e) => e.exerciseId === 'C')?.groupId).toBeUndefined();
+  });
+
   it('updates an existing routine in place', async () => {
     const r = await saveRoutine({ name: 'Pull', exercises: [makeExercise('A', 0)] });
     const updated = await saveRoutine({

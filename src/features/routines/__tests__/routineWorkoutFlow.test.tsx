@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../../../App';
 import { db, seedExercisesIfEmpty } from '../../../db/database';
 import { saveRoutine } from '../routinesLib';
+import { useRestTimer } from '../../../store/restTimer';
 
 async function setup(initialEntries: string[] = ['/training']) {
   await seedExercisesIfEmpty();
@@ -14,6 +15,12 @@ async function setup(initialEntries: string[] = ['/training']) {
     </MemoryRouter>,
   );
 }
+
+beforeEach(() => {
+  // The rest timer is a global singleton — a set completed in an earlier
+  // test within this file would otherwise leave a banner showing here.
+  useRestTimer.getState().skip();
+});
 
 describe('routine workout flow', () => {
   it('starts a routine from its detail page and pre-populates the exercises in order', async () => {
@@ -109,5 +116,62 @@ describe('routine workout flow', () => {
     // Set 2 is the last target set → "Letzter Satz!" hint must show.
     await user.click(await within(block).findByRole('button', { name: /Satz hinzufügen/ }));
     expect(await within(block).findByText(/Letzter Satz!/)).toBeInTheDocument();
+  });
+
+  it('renders a persistent superset group from the routine and follows the same round rules', async () => {
+    await setup();
+    const bench = (await db.exercises.where('name').equals('Bankdrücken Langhantel').first())!;
+    const row = (await db.exercises.where('name').equals('Rudern mit Langhantel (vorgebeugt)').first())!;
+
+    await saveRoutine({
+      name: 'Superset Push/Pull',
+      exercises: [
+        {
+          exerciseId: bench.id,
+          order: 0,
+          targetSets: 3,
+          targetRepsMin: 6,
+          targetRepsMax: 10,
+          targetRestSeconds: 180,
+          groupId: 'g1',
+        },
+        {
+          exerciseId: row.id,
+          order: 1,
+          targetSets: 3,
+          targetRepsMin: 6,
+          targetRepsMax: 10,
+          targetRestSeconds: 120,
+          groupId: 'g1',
+        },
+      ],
+    });
+
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('link', { name: /Superset Push\/Pull/ }));
+    await user.click(await screen.findByRole('button', { name: /Starten/ }));
+
+    expect(await screen.findByText('Superset (2 Übungen)')).toBeInTheDocument();
+
+    const benchBlock = await screen.findByRole('region', { name: /Bankdrücken Langhantel/ });
+    const rowBlock = await screen.findByRole('region', { name: /Rudern mit Langhantel/ });
+
+    expect(within(benchBlock).getByLabelText(/Gewicht für Satz 1/)).toBeInTheDocument();
+    expect(within(rowBlock).queryByLabelText(/Gewicht für Satz 1/)).not.toBeInTheDocument();
+
+    await user.type(within(benchBlock).getByLabelText(/Gewicht für Satz 1/), '60');
+    await user.click(within(benchBlock).getByRole('button', { name: /Satz abschließen/ }));
+
+    await waitFor(() => {
+      expect(within(rowBlock).getByLabelText(/Gewicht für Satz 1/)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('status', { name: 'Satzpause' })).not.toBeInTheDocument();
+
+    await user.type(within(rowBlock).getByLabelText(/Gewicht für Satz 1/), '70');
+    await user.click(within(rowBlock).getByRole('button', { name: /Satz abschließen/ }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('status', { name: 'Satzpause' })).toBeInTheDocument();
+    });
   });
 });
