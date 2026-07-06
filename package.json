@@ -14,6 +14,7 @@
     "check": "tsc -b && eslint . && vitest run && vite build"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
     "date-fns": "^3.6.0",
     "dexie": "^4.0.8",
     "dexie-react-hooks": "^1.1.7",

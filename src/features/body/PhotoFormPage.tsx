@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Trash2 } from 'lucide-react';
+import { ArrowLeft, Camera, Images, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { compressImageBlob, savePhoto } from './bodyLib';
+import { usePhotoDraft } from '../../store/photoDraft';
 import type { PhotoView } from '../../db/schema';
 
 const VIEW_OPTIONS: { value: PhotoView; label: string }[] = [
@@ -23,21 +24,26 @@ function parseDateIso(s: string): number {
 
 export function PhotoFormPage() {
   const navigate = useNavigate();
-  const [view, setView] = useState<PhotoView>('front');
-  const [dateInput, setDateInput] = useState(todayIso());
-  const [notes, setNotes] = useState('');
-  const [pickedBlob, setPickedBlob] = useState<Blob | null>(null);
+  // Draft lives in a global store so it survives tab switches / navigation.
+  const draft = usePhotoDraft();
+  const dateInput = draft.dateInput || todayIso();
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [compressing, setCompressing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const galleryInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+    if (!draft.blob) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(draft.blob);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [draft.blob]);
 
   const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -47,9 +53,7 @@ export function PhotoFormPage() {
     setCompressing(true);
     try {
       const compressed = await compressImageBlob(file, { maxDimensionPx: 1600 });
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPickedBlob(compressed);
-      setPreviewUrl(URL.createObjectURL(compressed));
+      draft.setBlob(compressed);
     } catch (err) {
       setError(`Bild konnte nicht verarbeitet werden: ${(err as Error).message}`);
     } finally {
@@ -57,16 +61,10 @@ export function PhotoFormPage() {
     }
   };
 
-  const removePicked = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPickedBlob(null);
-    setPreviewUrl(null);
-  };
-
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!pickedBlob) {
+    if (!draft.blob) {
       setError('Bitte ein Bild auswählen.');
       return;
     }
@@ -74,10 +72,11 @@ export function PhotoFormPage() {
     try {
       await savePhoto({
         date: parseDateIso(dateInput),
-        imageBlob: pickedBlob,
-        view,
-        notes,
+        imageBlob: draft.blob,
+        view: draft.view,
+        notes: draft.notes,
       });
+      draft.clear();
       navigate('/koerper/fotos');
     } catch (err) {
       setError(`Speichern fehlgeschlagen: ${(err as Error).message}`);
@@ -93,7 +92,10 @@ export function PhotoFormPage() {
       >
         <ArrowLeft className="h-4 w-4" /> Zurück
       </Link>
-      <h1 className="mb-4 text-xl font-semibold">Neues Foto</h1>
+      <h1 className="mb-1 text-xl font-semibold">Neues Foto</h1>
+      <p className="mb-4 text-xs text-slate-500">
+        Dein Entwurf bleibt erhalten, auch wenn du kurz in einen anderen Tab wechselst.
+      </p>
 
       <form onSubmit={submit} className="space-y-4">
         <div>
@@ -105,9 +107,9 @@ export function PhotoFormPage() {
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setView(opt.value)}
+                onClick={() => draft.setView(opt.value)}
                 className={`rounded-lg px-3 py-1.5 text-sm ${
-                  view === opt.value
+                  draft.view === opt.value
                     ? 'bg-white text-slate-800 shadow dark:bg-slate-900 dark:text-slate-100'
                     : 'text-slate-500'
                 }`}
@@ -125,7 +127,7 @@ export function PhotoFormPage() {
           <input
             type="date"
             value={dateInput}
-            onChange={(e) => setDateInput(e.target.value)}
+            onChange={(e) => draft.setDateInput(e.target.value)}
             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
           />
         </label>
@@ -142,7 +144,7 @@ export function PhotoFormPage() {
               <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={removePicked}
+                  onClick={() => draft.setBlob(null)}
                   className="inline-flex items-center gap-1 text-xs text-rose-600 hover:underline"
                 >
                   <Trash2 className="h-3 w-3" /> Entfernen
@@ -150,21 +152,37 @@ export function PhotoFormPage() {
               </div>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => fileInput.current?.click()}
-              className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/40"
-            >
-              <Camera className="h-6 w-6" />
-              {compressing ? 'Verarbeite Bild…' : 'Foto aufnehmen oder auswählen'}
-              <span className="text-xs text-slate-400">JPEG/PNG · max 1600 px</span>
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => cameraInput.current?.click()}
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500 hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/40"
+              >
+                <Camera className="h-6 w-6" />
+                {compressing ? 'Verarbeite…' : 'Foto aufnehmen'}
+              </button>
+              <button
+                type="button"
+                onClick={() => galleryInput.current?.click()}
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 bg-white p-5 text-sm text-slate-500 hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/40"
+              >
+                <Images className="h-6 w-6" />
+                Aus Galerie
+              </button>
+            </div>
           )}
           <input
-            ref={fileInput}
+            ref={cameraInput}
             type="file"
             accept="image/*"
             capture="environment"
+            className="hidden"
+            onChange={onFile}
+          />
+          <input
+            ref={galleryInput}
+            type="file"
+            accept="image/*"
             className="hidden"
             onChange={onFile}
           />
@@ -175,8 +193,8 @@ export function PhotoFormPage() {
             Notiz (optional)
           </span>
           <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            value={draft.notes}
+            onChange={(e) => draft.setNotes(e.target.value)}
             className="min-h-[60px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
           />
         </label>
@@ -184,11 +202,18 @@ export function PhotoFormPage() {
         {error ? <p className="text-sm text-rose-600">{error}</p> : null}
 
         <div className="flex gap-2">
-          <Button type="submit" disabled={saving || compressing || !pickedBlob} className="flex-1">
+          <Button type="submit" disabled={saving || compressing || !draft.blob} className="flex-1">
             {saving ? 'Speichern…' : 'Speichern'}
           </Button>
-          <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
-            Abbrechen
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              draft.clear();
+              navigate(-1);
+            }}
+          >
+            Verwerfen
           </Button>
         </div>
       </form>

@@ -75,6 +75,8 @@ export function SettingsPage() {
 
         <DailyTargetsCard />
 
+        <AiKeyCard />
+
         <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
           <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
             Backup
@@ -125,6 +127,80 @@ export function SettingsPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+function AiKeyCard() {
+  const [key, setKey] = useState('');
+  const [loaded, setLoaded] = useState(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    ensureSettings().then((s) => {
+      if (cancelled) return;
+      setKey(s.anthropicApiKey ?? '');
+      setLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    await db.settings.update('singleton', {
+      anthropicApiKey: key.trim() || undefined,
+      updatedAt: Date.now(),
+    });
+    setSavedAt(Date.now());
+  };
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+      <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        KI-Funktionen (Claude)
+      </h2>
+      <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+        Für die Nährwert-Schätzung per Foto oder Textbeschreibung wird das Modell{' '}
+        <b>Claude Sonnet 5</b> genutzt. Du brauchst einen eigenen API-Key von{' '}
+        <a
+          href="https://console.anthropic.com"
+          target="_blank"
+          rel="noreferrer"
+          className="text-brand-600 underline dark:text-brand-400"
+        >
+          console.anthropic.com
+        </a>
+        . Der Key wird nur lokal auf diesem Gerät gespeichert und ausschließlich an Anthropic
+        gesendet. Kosten: wenige Cent pro Schätzung.
+      </p>
+      {!loaded ? (
+        <p className="text-sm text-slate-500">Lade…</p>
+      ) : (
+        <form onSubmit={submit} className="space-y-3">
+          <div className="flex gap-2">
+            <input
+              type={visible ? 'text' : 'password'}
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="sk-ant-…"
+              aria-label="Anthropic API-Key"
+              autoComplete="off"
+              className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono text-sm dark:border-slate-700 dark:bg-slate-800"
+            />
+            <Button type="button" variant="ghost" onClick={() => setVisible((v) => !v)}>
+              {visible ? 'Verbergen' : 'Zeigen'}
+            </Button>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button type="submit">Speichern</Button>
+            {savedAt ? <span className="text-xs text-emerald-600">Gespeichert.</span> : null}
+          </div>
+        </form>
+      )}
+    </section>
   );
 }
 
