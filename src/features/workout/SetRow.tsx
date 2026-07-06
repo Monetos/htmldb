@@ -9,6 +9,9 @@ export interface DraftSet {
   isWarmup: boolean;
 }
 
+/** Shared column layout so header, set rows, and the draft row stay aligned. */
+export const SET_ROW_GRID_COLS = 'grid grid-cols-[2rem_1fr_1fr_3.5rem_2.5rem_5rem] items-center';
+
 interface Props {
   setNumber: number;
   initial?: DraftSet;
@@ -39,9 +42,11 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
   };
 
   return (
-    <tr className="border-t border-slate-200 dark:border-slate-700">
-      <td className="px-1 py-2 text-center text-xs font-medium text-slate-500">{setNumber}</td>
-      <td className="px-1 py-1">
+    <div role="row" className={`${SET_ROW_GRID_COLS} border-t border-slate-200 py-1 dark:border-slate-700`}>
+      <div role="cell" className="px-1 py-1 text-center text-xs font-medium text-slate-500">
+        {setNumber}
+      </div>
+      <div role="cell" className="px-1 py-1">
         <input
           inputMode="decimal"
           aria-label={`Gewicht für Satz ${setNumber}`}
@@ -54,8 +59,8 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
           }
           className={inputCls}
         />
-      </td>
-      <td className="px-1 py-1">
+      </div>
+      <div role="cell" className="px-1 py-1">
         <input
           inputMode="numeric"
           aria-label={`Wiederholungen für Satz ${setNumber}`}
@@ -65,8 +70,8 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
           }
           className={inputCls}
         />
-      </td>
-      <td className="px-1 py-1">
+      </div>
+      <div role="cell" className="px-1 py-1">
         <input
           inputMode="numeric"
           aria-label={`RPE für Satz ${setNumber}`}
@@ -77,8 +82,8 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
           }
           className={inputCls}
         />
-      </td>
-      <td className="px-1 py-1 text-center">
+      </div>
+      <div role="cell" className="px-1 py-1 text-center">
         <input
           type="checkbox"
           aria-label={`Warmup-Satz ${setNumber}`}
@@ -86,8 +91,8 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
           onChange={(e) => setDraft((d) => ({ ...d, isWarmup: e.target.checked }))}
           className="h-4 w-4"
         />
-      </td>
-      <td className="flex items-center gap-1 px-1 py-1">
+      </div>
+      <div role="cell" className="flex items-center gap-1 px-1 py-1">
         <Button size="sm" onClick={submit} aria-label="Satz abschließen">
           <Check className="h-4 w-4" />
         </Button>
@@ -101,7 +106,7 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
             <Trash2 className="h-4 w-4" />
           </button>
         ) : null}
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }

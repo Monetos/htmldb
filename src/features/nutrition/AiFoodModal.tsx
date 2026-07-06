@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Food } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Modal } from '../../components/Modal';
 import { compressImageBlob } from '../body/bodyLib';
 import { saveFood } from './nutritionLib';
 import { AiError, estimateFoodFromImage, estimateFoodFromText, type FoodEstimate } from './aiLib';
@@ -104,38 +105,26 @@ export function AiFoodModal({ open, onClose, onFoodReady }: Props) {
     onFoodReady(food, estimate.suggestedPortionG);
   };
 
-  if (!open) return null;
-
   const canRun =
     !busy && (mode === 'text' ? description.trim().length >= 3 : photoBlob !== null);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="KI-Schätzung"
-      className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92vh] w-full max-w-xl flex-col overflow-y-auto rounded-t-2xl bg-white p-4 dark:bg-slate-900 sm:rounded-2xl"
-      >
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
-            <Sparkles className="h-5 w-5 text-brand-500" /> KI-Schätzung
-          </h2>
-          <button
-            type="button"
-            aria-label="Schließen"
-            onClick={onClose}
-            className="rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <Modal open={open} onClose={onClose} title="KI-Schätzung" stacked>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
+          <Sparkles className="h-5 w-5 text-brand-500" /> KI-Schätzung
+        </h2>
+        <button
+          type="button"
+          aria-label="Schließen"
+          onClick={onClose}
+          className="rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        {!apiKey ? (
+      {!apiKey ? (
           <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
             Für die KI-Schätzung brauchst du einen Anthropic-API-Key.{' '}
             <Link to="/einstellungen" onClick={onClose} className="font-medium underline">
@@ -289,8 +278,7 @@ export function AiFoodModal({ open, onClose, onFoodReady }: Props) {
             )}
           </>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }
 

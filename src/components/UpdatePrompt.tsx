@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { Button } from './Button';
+import { Toast } from './Toast';
 import { PERIODIC_UPDATE_CHECK_MS, useAppUpdate } from '../store/appUpdate';
 
 export function UpdatePrompt() {
@@ -105,35 +106,4 @@ export function UpdatePrompt() {
   }
 
   return null;
-}
-
-function Toast({
-  children,
-  role,
-  onDismiss,
-}: {
-  children: ReactNode;
-  role?: string;
-  onDismiss?: () => void;
-}) {
-  return (
-    <div
-      role={role}
-      className="fixed bottom-20 left-1/2 z-30 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-900"
-    >
-      <div className="flex items-center gap-2">
-        {children}
-        {onDismiss ? (
-          <button
-            type="button"
-            aria-label="Schließen"
-            onClick={onDismiss}
-            className="ml-1 text-slate-400 hover:text-slate-700"
-          >
-            ×
-          </button>
-        ) : null}
-      </div>
-    </div>
-  );
 }

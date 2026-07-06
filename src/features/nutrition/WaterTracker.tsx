@@ -4,6 +4,7 @@ import { GlassWater } from 'lucide-react';
 import { db } from '../../db/database';
 import type { WaterLogEntry } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { dayAnchor, logWater, deleteWaterEntry } from './nutritionLib';
 
 const EMPTY: WaterLogEntry[] = [];
@@ -33,7 +34,7 @@ export function WaterTracker({ date, targetMl }: Props) {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card as="section">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
           <GlassWater className="h-4 w-4" /> Wasser
@@ -97,6 +98,6 @@ export function WaterTracker({ date, targetMl }: Props) {
           ))}
         </ul>
       ) : null}
-    </section>
+    </Card>
   );
 }

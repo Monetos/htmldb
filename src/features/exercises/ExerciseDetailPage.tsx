@@ -4,6 +4,7 @@ import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { db } from '../../db/database';
 import { EQUIPMENT_LABELS } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
 import { ExerciseTrendCharts } from '../progress/ExerciseTrendCharts';
 
@@ -82,21 +83,21 @@ export function ExerciseDetailPage() {
         ) : null}
       </section>
 
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+      <Card as="section" className="mb-4 p-4">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
           Setup
         </h2>
         <p className="text-sm">{exercise.execution.setup}</p>
-      </section>
+      </Card>
 
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+      <Card as="section" className="mb-4 p-4">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
           Bewegung
         </h2>
         <p className="text-sm">{exercise.execution.movement}</p>
-      </section>
+      </Card>
 
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+      <Card as="section" className="mb-4 p-4">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
           Cues
         </h2>
@@ -105,9 +106,9 @@ export function ExerciseDetailPage() {
             <li key={c}>{c}</li>
           ))}
         </ul>
-      </section>
+      </Card>
 
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+      <Card as="section" className="mb-4 p-4">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
           Häufige Fehler
         </h2>
@@ -116,7 +117,7 @@ export function ExerciseDetailPage() {
             <li key={c}>{c}</li>
           ))}
         </ul>
-      </section>
+      </Card>
 
       <div className="mb-4">
         <ExerciseTrendCharts exerciseId={exercise.id} />

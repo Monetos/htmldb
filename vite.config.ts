@@ -74,6 +74,13 @@ export default defineConfig({
             if (id.includes('dexie')) return 'db';
             if (id.includes('react-router')) return 'router';
             if (id.includes('lucide-react')) return 'icons';
+            if (
+              id.includes('/motion/') ||
+              id.includes('motion-dom') ||
+              id.includes('motion-utils')
+            ) {
+              return 'motion';
+            }
           }
         },
       },

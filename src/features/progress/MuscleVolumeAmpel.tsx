@@ -7,6 +7,7 @@ import {
   weeklyMuscleVolume,
 } from '../../lib/progression';
 import { MUSCLE_GROUP_LABELS, type Exercise, type MuscleGroup, type SetEntry } from '../../db/schema';
+import { Card } from '../../components/Card';
 
 const EMPTY_SETS: SetEntry[] = [];
 const EMPTY_EXERCISES: Exercise[] = [];
@@ -52,7 +53,7 @@ export function MuscleVolumeAmpel() {
   const hasActivity = ampel.some((a) => a.currentSets > 0 || a.currentVolume > 0);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card>
       <div className="mb-3 flex items-end justify-between">
         <div>
           <h3 className="text-sm font-semibold">Diese Woche</h3>
@@ -113,7 +114,7 @@ export function MuscleVolumeAmpel() {
           })}
         </ul>
       )}
-    </div>
+    </Card>
   );
 }
 

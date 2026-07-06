@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../../db/database';
 import { isoDayKey } from '../../lib/progression';
 import type { Workout } from '../../db/schema';
+import { Card } from '../../components/Card';
 
 const EMPTY_WORKOUTS: Workout[] = [];
 
@@ -61,7 +62,7 @@ export function WorkoutCalendar() {
   const todayKey = isoDayKey(Date.now());
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card>
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
@@ -108,6 +109,6 @@ export function WorkoutCalendar() {
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

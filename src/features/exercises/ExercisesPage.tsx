@@ -14,7 +14,9 @@ import {
 const EMPTY_EXERCISES: Exercise[] = [];
 import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
+import { cardClassName } from '../../lib/cardStyles';
 
 const MUSCLE_OPTIONS: MuscleGroup[] = Object.keys(MUSCLE_GROUP_LABELS) as MuscleGroup[];
 const EQUIPMENT_OPTIONS: Equipment[] = Object.keys(EQUIPMENT_LABELS) as Equipment[];
@@ -125,16 +127,16 @@ export function ExercisesPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          <Card className="border-dashed p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Keine Übungen mit diesen Filtern.
-          </div>
+          </Card>
         ) : (
           <ul className="space-y-2">
             {filtered.map((ex) => (
               <li key={ex.id}>
                 <Link
                   to={`/uebungen/${ex.id}`}
-                  className="block rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-brand-500"
+                  className={cardClassName({ interactive: true, className: 'block p-3' })}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="font-medium">{ex.name}</div>

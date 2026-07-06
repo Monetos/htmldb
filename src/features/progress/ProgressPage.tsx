@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Link } from 'react-router-dom';
 import { db } from '../../db/database';
 import { AppHeader } from '../../components/AppHeader';
+import { Card } from '../../components/Card';
 import { formatWorkoutLength } from '../../lib/format';
 import { totalVolumeKg } from '../workout/workoutLib';
 import type { SetEntry, Workout } from '../../db/schema';
@@ -55,21 +56,18 @@ export function ProgressPage() {
         </Section>
         <Section title="Letzte Workouts">
           {entries.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700">
+            <Card className="border-dashed p-6 text-center text-sm text-slate-500">
               Noch keine abgeschlossenen Workouts.
               <div className="mt-3">
                 <Link to="/training" className="text-brand-600 hover:underline">
                   Erstes Workout starten →
                 </Link>
               </div>
-            </div>
+            </Card>
           ) : (
             <ul className="space-y-2">
               {entries.map(({ workout, setCount, volumeKg }) => (
-                <li
-                  key={workout.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40"
-                >
+                <Card as="li" key={workout.id}>
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="text-sm font-medium">
@@ -98,7 +96,7 @@ export function ProgressPage() {
                     <Stat label="Sätze" value={String(setCount)} />
                     <Stat label="Volumen" value={`${Math.round(volumeKg)} kg`} />
                   </div>
-                </li>
+                </Card>
               ))}
             </ul>
           )}

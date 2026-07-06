@@ -6,6 +6,8 @@ import { db } from '../../db/database';
 import type { DailyTargets, Food, FoodLogEntry, MealType, WaterLogEntry } from '../../db/schema';
 import { DEFAULT_DAILY_TARGETS } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { cardClassName } from '../../lib/cardStyles';
 import { dayAnchor, deleteFoodLogEntry, macrosForAmount, totalsFromEntries } from './nutritionLib';
 import { FoodPickerModal } from './FoodPickerModal';
 import { MacroRings } from './MacroRings';
@@ -76,7 +78,7 @@ export function TodayTab() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+      <Card as="section">
         <div className="mb-2 flex items-baseline justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             {new Date(anchor).toLocaleDateString('de-DE', {
@@ -90,7 +92,7 @@ export function TodayTab() {
           </Link>
         </div>
         <MacroRings macros={totals.macros} targets={targets} />
-      </section>
+      </Card>
 
       <WaterTracker date={now} targetMl={targets.waterMl} />
 
@@ -141,7 +143,7 @@ function MealSection({
   }, [entries, foodsById]);
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/40">
+    <section className={cardClassName()}>
       <header className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-700/60">
         <div>
           <h2 className="text-sm font-semibold">{MEAL_LABELS[meal]}</h2>

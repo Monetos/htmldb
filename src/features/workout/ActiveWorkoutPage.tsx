@@ -6,6 +6,9 @@ import { db } from '../../db/database';
 import type { Routine, RoutineExercise, SetEntry } from '../../db/schema';
 import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { Modal } from '../../components/Modal';
+import { cardClassName } from '../../lib/cardStyles';
 import { lastPerformedMap } from '../routines/routinesLib';
 
 const EMPTY_SETS: SetEntry[] = [];
@@ -45,7 +48,7 @@ function RoutinesEmptyStateSection() {
               <li key={r.id}>
                 <Link
                   to={`/routinen/${r.id}`}
-                  className="block rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-brand-500"
+                  className={cardClassName({ interactive: true, className: 'block p-3' })}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -166,14 +169,14 @@ export function ActiveWorkoutPage() {
       <div className="flex min-h-full flex-col">
         <AppHeader title="Training" />
         <main className="mx-auto w-full max-w-xl flex-1 px-4 pb-24 pt-6">
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800/40">
+          <Card className="border-dashed p-6 text-center">
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Kein Workout aktiv. Leg los, wenn du im Studio bist.
             </p>
             <Button onClick={onStart} className="mt-4">
               <Plus className="h-4 w-4" /> Freies Workout starten
             </Button>
-          </div>
+          </Card>
           <RoutinesEmptyStateSection />
         </main>
       </div>
@@ -236,55 +239,47 @@ export function ActiveWorkoutPage() {
           }}
         />
 
-        {showFinish ? (
-          <div
-            role="dialog"
-            aria-label="Workout beenden"
-            aria-modal="true"
-            className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
-            onClick={() => setShowFinish(false)}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-xl rounded-t-2xl bg-white p-4 dark:bg-slate-900 sm:rounded-2xl"
-            >
-              <h2 className="mb-1 text-lg font-semibold">Workout beenden</h2>
-              <p className="mb-3 text-sm text-slate-500">
-                {sets.length} Sätze · {Math.round(totalVolumeKg(sets))} kg Volumen ·{' '}
-                {formatWorkoutLength(workout.startedAt, Date.now())}
-              </p>
-              <label className="mb-3 block">
-                <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Körpergewicht (kg, optional)
-                </span>
-                <input
-                  inputMode="decimal"
-                  value={bodyweight}
-                  onChange={(e) => setBodyweight(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
-                />
-              </label>
-              <label className="mb-4 block">
-                <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Notizen
-                </span>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
-                />
-              </label>
-              <div className="flex gap-2">
-                <Button variant="ghost" onClick={() => setShowFinish(false)}>
-                  Abbrechen
-                </Button>
-                <Button variant="primary" className="flex-1" onClick={onFinish}>
-                  Beenden & speichern
-                </Button>
-              </div>
-            </div>
+        <Modal
+          open={showFinish}
+          onClose={() => setShowFinish(false)}
+          title="Workout beenden"
+          size="compact"
+        >
+          <h2 className="mb-1 text-lg font-semibold">Workout beenden</h2>
+          <p className="mb-3 text-sm text-slate-500">
+            {sets.length} Sätze · {Math.round(totalVolumeKg(sets))} kg Volumen ·{' '}
+            {formatWorkoutLength(workout.startedAt, Date.now())}
+          </p>
+          <label className="mb-3 block">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Körpergewicht (kg, optional)
+            </span>
+            <input
+              inputMode="decimal"
+              value={bodyweight}
+              onChange={(e) => setBodyweight(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
+            />
+          </label>
+          <label className="mb-4 block">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+              Notizen
+            </span>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
+            />
+          </label>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => setShowFinish(false)}>
+              Abbrechen
+            </Button>
+            <Button variant="primary" className="flex-1" onClick={onFinish}>
+              Beenden & speichern
+            </Button>
           </div>
-        ) : null}
+        </Modal>
       </main>
     </div>
   );

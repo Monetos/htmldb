@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { filterByTimeRange, type TimeRange } from '../../lib/progression';
 import type { BodyMetric } from '../../db/schema';
+import { Card } from '../../components/Card';
 
 const RANGES: { value: TimeRange; label: string }[] = [
   { value: '1m', label: '1M' },
@@ -101,7 +102,7 @@ function Chart({
   suffix: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card>
       <p className="mb-1 text-xs text-slate-500">{label}</p>
       <div className="h-40 w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -124,6 +125,6 @@ function Chart({
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </Card>
   );
 }

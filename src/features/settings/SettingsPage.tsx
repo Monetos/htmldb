@@ -12,6 +12,7 @@ import {
 import { db, ensureSettings } from '../../db/database';
 import type { DailyTargets } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { AppHeader } from '../../components/AppHeader';
 import { describeBackupAge } from './backupAge';
 import { useAppUpdate, type UpdateCheckStatus } from '../../store/appUpdate';
@@ -78,7 +79,7 @@ export function SettingsPage() {
 
         <AiKeyCard />
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+        <Card as="section" className="p-4">
           <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
             Backup
           </h2>
@@ -125,7 +126,7 @@ export function SettingsPage() {
               {status.message}
             </p>
           ) : null}
-        </section>
+        </Card>
 
         <UpdateCheckCard />
       </main>
@@ -147,7 +148,7 @@ function UpdateCheckCard() {
   const checkForUpdates = useAppUpdate((s) => s.checkForUpdates);
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card as="section" className="p-4">
       <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
         App-Updates
       </h2>
@@ -163,7 +164,7 @@ function UpdateCheckCard() {
           {UPDATE_STATUS_TEXT[checkStatus]}
         </p>
       ) : null}
-    </section>
+    </Card>
   );
 }
 
@@ -195,7 +196,7 @@ function AiKeyCard() {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card as="section" className="p-4">
       <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
         KI-Funktionen (Claude)
       </h2>
@@ -237,7 +238,7 @@ function AiKeyCard() {
           </div>
         </form>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -269,14 +270,14 @@ function DailyTargetsCard() {
 
   if (!targets) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+      <Card as="section" className="p-4">
         <p className="text-sm text-slate-500">Lade Tagesziele…</p>
-      </section>
+      </Card>
     );
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card as="section" className="p-4">
       <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
         Tagesziele
       </h2>
@@ -296,7 +297,7 @@ function DailyTargetsCard() {
           {savedAt ? <span className="text-xs text-emerald-600">Gespeichert.</span> : null}
         </div>
       </form>
-    </section>
+    </Card>
   );
 }
 
