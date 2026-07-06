@@ -58,3 +58,22 @@ describe('ExerciseDetailPage video card', () => {
     expect(screen.queryByRole('button', { name: /Video laden/ })).not.toBeInTheDocument();
   });
 });
+
+describe('ExerciseDetailPage movement-pattern card', () => {
+  it('shows the animation and German label when a movementPattern is set', async () => {
+    const withPattern: Exercise = { ...withVideo, id: 'ex-pattern', movementPattern: 'squat' };
+    await db.exercises.add(withPattern);
+    await renderDetail(withPattern.id);
+
+    await screen.findByText('Bewegungsmuster');
+    expect(screen.getByText('Kniebeuge')).toBeInTheDocument();
+  });
+
+  it('shows no movement-pattern card when movementPattern is unset', async () => {
+    await db.exercises.add(withoutVideo);
+    await renderDetail(withoutVideo.id);
+
+    await screen.findByText('Bankdrücken Langhantel');
+    expect(screen.queryByText('Bewegungsmuster')).not.toBeInTheDocument();
+  });
+});

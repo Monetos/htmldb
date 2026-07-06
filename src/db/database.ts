@@ -100,6 +100,29 @@ export async function reconcileSeedExerciseVideos(): Promise<number> {
 }
 
 /**
+ * Backfills movementPattern on already-seeded exercise rows (matched by id)
+ * whenever it drifts from the current SEED_EXERCISES content — e.g. after a
+ * pattern gets classified/corrected post-install for an existing user.
+ * Idempotent: a matching row is left untouched.
+ */
+export async function reconcileSeedExerciseMovementPatterns(): Promise<number> {
+  return await db.transaction('rw', db.exercises, async () => {
+    const seedIds = SEED_EXERCISES.map((e) => e.id);
+    const existingRows = await db.exercises.bulkGet(seedIds);
+    let patched = 0;
+    for (let i = 0; i < SEED_EXERCISES.length; i++) {
+      const seed = SEED_EXERCISES[i];
+      const existing = existingRows[i];
+      if (!existing) continue;
+      if (existing.movementPattern === seed.movementPattern) continue;
+      await db.exercises.update(existing.id, { movementPattern: seed.movementPattern });
+      patched++;
+    }
+    return patched;
+  });
+}
+
+/**
  * Same idempotent contract as seedExercisesIfEmpty but for the foods table.
  */
 export async function seedFoodsIfEmpty(): Promise<number> {

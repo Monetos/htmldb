@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { db, ensureSettings, reconcileSeedExerciseVideos, seedExercisesIfEmpty } from '../database';
+import {
+  db,
+  ensureSettings,
+  reconcileSeedExerciseMovementPatterns,
+  reconcileSeedExerciseVideos,
+  seedExercisesIfEmpty,
+} from '../database';
 import { SEED_EXERCISES } from '../seedExercises';
 import { DEFAULT_DAILY_TARGETS } from '../schema';
 
@@ -72,6 +78,27 @@ describe('reconcileSeedExerciseVideos', () => {
     await seedExercisesIfEmpty();
     await reconcileSeedExerciseVideos();
     const second = await reconcileSeedExerciseVideos();
+    expect(second).toBe(0);
+  });
+});
+
+describe('reconcileSeedExerciseMovementPatterns', () => {
+  it('patches a drifted movementPattern back to the current SEED_EXERCISES content', async () => {
+    await seedExercisesIfEmpty();
+    const first = SEED_EXERCISES[0];
+    await db.exercises.update(first.id, { movementPattern: undefined });
+
+    const patched = await reconcileSeedExerciseMovementPatterns();
+    expect(patched).toBeGreaterThanOrEqual(1);
+
+    const reloaded = await db.exercises.get(first.id);
+    expect(reloaded?.movementPattern).toBe(first.movementPattern);
+  });
+
+  it('is idempotent: a second call patches nothing once already in sync', async () => {
+    await seedExercisesIfEmpty();
+    await reconcileSeedExerciseMovementPatterns();
+    const second = await reconcileSeedExerciseMovementPatterns();
     expect(second).toBe(0);
   });
 });

@@ -16,6 +16,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest'],
     secondaryMuscles: ['shoulders_front', 'triceps'],
     equipment: 'barbell',
+    movementPattern: 'horizontal_push',
     defaultRestSeconds: 180,
     execution: {
       setup:
@@ -43,6 +44,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest'],
     secondaryMuscles: ['shoulders_front', 'triceps'],
     equipment: 'dumbbell',
+    movementPattern: 'horizontal_push',
     defaultRestSeconds: 150,
     execution: {
       setup: 'Flachbank, KHs auf den Oberschenkeln balancieren, mit dem Zurücklehnen nach oben kicken.',
@@ -63,6 +65,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest', 'shoulders_front'],
     secondaryMuscles: ['triceps'],
     equipment: 'barbell',
+    movementPattern: 'horizontal_push',
     defaultRestSeconds: 180,
     execution: {
       setup: 'Bank auf 30-45° einstellen, Schulterblätter zusammen, Stange über den Augen.',
@@ -79,6 +82,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest'],
     secondaryMuscles: [],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 90,
     execution: {
       setup: 'Sitz so einstellen, dass Ellbogen auf Schulterhöhe sind, Rücken fest an die Lehne.',
@@ -95,6 +99,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest', 'triceps'],
     secondaryMuscles: ['shoulders_front'],
     equipment: 'bodyweight',
+    movementPattern: 'horizontal_push',
     defaultRestSeconds: 150,
     execution: {
       setup: 'Schultern fixiert, Körper leicht nach vorne geneigt für mehr Brust.',
@@ -111,6 +116,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest'],
     secondaryMuscles: ['shoulders_front'],
     equipment: 'dumbbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 90,
     execution: {
       setup: 'Flachbank, leichte Ellbogenbeugung halten (ca. 15°).',
@@ -127,6 +133,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['chest', 'triceps'],
     secondaryMuscles: ['shoulders_front', 'abs'],
     equipment: 'bodyweight',
+    movementPattern: 'horizontal_push',
     defaultRestSeconds: 90,
     execution: {
       setup: 'Hände schulterbreit, Körper gerade Linie von Kopf bis Ferse, Bauch fest.',
@@ -145,6 +152,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats'],
     secondaryMuscles: ['biceps', 'back_rhomboids'],
     equipment: 'bodyweight',
+    movementPattern: 'vertical_pull',
     defaultRestSeconds: 180,
     execution: {
       setup: 'Obergriff, etwas breiter als schulterbreit, Schultern nach unten ziehen.',
@@ -161,6 +169,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats'],
     secondaryMuscles: ['biceps', 'back_rhomboids'],
     equipment: 'cable',
+    movementPattern: 'vertical_pull',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Knie unter Polster fixieren, leichtes Hohlkreuz, Stange im Obergriff fassen.',
@@ -177,6 +186,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats'],
     secondaryMuscles: ['biceps'],
     equipment: 'cable',
+    movementPattern: 'vertical_pull',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Schulterbreiter Untergriff, Brust raus.',
@@ -193,6 +203,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats', 'back_rhomboids'],
     secondaryMuscles: ['biceps', 'shoulders_rear', 'lower_back'],
     equipment: 'barbell',
+    movementPattern: 'horizontal_pull',
     defaultRestSeconds: 150,
     execution: {
       setup: 'Hüftbreiter Stand, Hüfte nach hinten, Oberkörper ca. 45° vorgebeugt, neutrale Wirbelsäule.',
@@ -209,6 +220,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats'],
     secondaryMuscles: ['back_rhomboids', 'biceps'],
     equipment: 'dumbbell',
+    movementPattern: 'horizontal_pull',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Bank: ein Knie + eine Hand auflegen, Rücken parallel, KH in der freien Hand.',
@@ -225,6 +237,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats', 'back_rhomboids'],
     secondaryMuscles: ['biceps'],
     equipment: 'cable',
+    movementPattern: 'horizontal_pull',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Aufrechter Sitz, Beine leicht gebeugt, Brust raus.',
@@ -241,6 +254,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_lats', 'back_rhomboids'],
     secondaryMuscles: ['biceps'],
     equipment: 'machine',
+    movementPattern: 'horizontal_pull',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Brustpolster fest, Griffe in Schulterhöhe.',
@@ -257,6 +271,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['hamstrings', 'glutes', 'lower_back'],
     secondaryMuscles: ['back_lats', 'back_traps', 'quads', 'forearms'],
     equipment: 'barbell',
+    movementPattern: 'hinge',
     defaultRestSeconds: 240,
     execution: {
       setup: 'Hüftbreiter Stand, Stange über Mittelfuß, schulterbreiter Griff, Schienbein an der Stange.',
@@ -273,6 +288,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['hamstrings', 'glutes'],
     secondaryMuscles: ['lower_back'],
     equipment: 'barbell',
+    movementPattern: 'hinge',
     defaultRestSeconds: 180,
     execution: {
       setup: 'Stange auf Hüfthöhe, schulterbreiter Stand, leichte Knie.',
@@ -289,6 +305,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['lower_back', 'glutes'],
     secondaryMuscles: ['hamstrings'],
     equipment: 'bodyweight',
+    movementPattern: 'hinge',
     defaultRestSeconds: 90,
     execution: {
       setup: 'Hüfte auf Polster, Füße fest eingeklemmt.',
@@ -307,6 +324,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_front'],
     secondaryMuscles: ['shoulders_side', 'triceps', 'abs'],
     equipment: 'barbell',
+    movementPattern: 'vertical_push',
     defaultRestSeconds: 180,
     execution: {
       setup: 'Hüftbreiter Stand, Stange auf vorderen Schultern, Ellbogen leicht vor der Stange.',
@@ -323,6 +341,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_front'],
     secondaryMuscles: ['shoulders_side', 'triceps'],
     equipment: 'dumbbell',
+    movementPattern: 'vertical_push',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Aufrechte Bank, KHs auf Schulterhöhe, Handflächen nach vorne.',
@@ -339,6 +358,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_front', 'shoulders_side'],
     secondaryMuscles: ['triceps'],
     equipment: 'dumbbell',
+    movementPattern: 'vertical_push',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Start mit KHs vor der Brust, Handflächen zum Körper.',
@@ -355,6 +375,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_side'],
     secondaryMuscles: [],
     equipment: 'dumbbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Aufrechter Stand, leichte Ellbogenbeugung, KHs an den Seiten.',
@@ -371,6 +392,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_side'],
     secondaryMuscles: [],
     equipment: 'cable',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Seitlich zum Kabel stehen, Griff in der äußeren Hand.',
@@ -387,6 +409,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_rear'],
     secondaryMuscles: ['back_rhomboids'],
     equipment: 'dumbbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Hüfte gebeugt, Rücken neutral, leichte Ellbogenbeugung.',
@@ -407,6 +430,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['shoulders_rear'],
     secondaryMuscles: ['back_rhomboids', 'back_traps'],
     equipment: 'cable',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Seil auf Augenhöhe, beide Hände am Seil, leichte Rücklage.',
@@ -423,6 +447,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['back_traps'],
     secondaryMuscles: ['forearms'],
     equipment: 'barbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Aufrechter Stand, Stange schulterbreit greifen, Arme gestreckt.',
@@ -441,6 +466,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['quads', 'glutes'],
     secondaryMuscles: ['hamstrings', 'lower_back', 'abs'],
     equipment: 'barbell',
+    movementPattern: 'squat',
     defaultRestSeconds: 240,
     execution: {
       setup: 'Stange auf den oberen Trapezius, hüftbreiter Stand, Zehen leicht nach außen.',
@@ -457,6 +483,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['quads'],
     secondaryMuscles: ['glutes', 'abs', 'lower_back'],
     equipment: 'barbell',
+    movementPattern: 'squat',
     defaultRestSeconds: 180,
     execution: {
       setup: 'Stange auf vorderen Schultern, Ellbogen hoch, Front-Rack-Position.',
@@ -473,6 +500,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['quads', 'glutes'],
     secondaryMuscles: ['hamstrings'],
     equipment: 'machine',
+    movementPattern: 'squat',
     defaultRestSeconds: 150,
     execution: {
       setup: 'Sitz so einstellen, dass Knie in 90° kommen. Füße schulterbreit auf der Plattform.',
@@ -489,6 +517,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['quads', 'glutes'],
     secondaryMuscles: ['hamstrings', 'calves'],
     equipment: 'dumbbell',
+    movementPattern: 'lunge',
     defaultRestSeconds: 120,
     execution: {
       setup: 'KHs an den Seiten, aufrechter Oberkörper.',
@@ -505,6 +534,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['quads', 'glutes'],
     secondaryMuscles: ['hamstrings'],
     equipment: 'dumbbell',
+    movementPattern: 'lunge',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Hinterer Fuß auf Bank, vorderer Fuß ein großer Schritt nach vorne.',
@@ -521,6 +551,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['quads'],
     secondaryMuscles: [],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Polster auf Knöchelhöhe, Rücken fest an der Lehne.',
@@ -537,6 +568,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['hamstrings'],
     secondaryMuscles: [],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Bauchlage, Polster oberhalb der Ferse, Hüfte gegen das Polster drücken.',
@@ -553,6 +585,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['hamstrings'],
     secondaryMuscles: ['calves'],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Sitz einstellen, Rücken an der Lehne, Polster oberhalb der Ferse.',
@@ -569,6 +602,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['glutes'],
     secondaryMuscles: ['hamstrings'],
     equipment: 'barbell',
+    movementPattern: 'hinge',
     defaultRestSeconds: 120,
     execution: {
       setup: 'Schulterblätter auf Bank, Stange auf Hüfte (gepolstert), Füße flach.',
@@ -585,6 +619,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['calves'],
     secondaryMuscles: [],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Schultern unter Polster, Ballen auf der Stufe, Fersen frei.',
@@ -601,6 +636,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['calves'],
     secondaryMuscles: [],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Polster auf den Knien, Ballen auf der Stufe.',
@@ -619,6 +655,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['biceps'],
     secondaryMuscles: ['forearms'],
     equipment: 'barbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Aufrechter Stand, schulterbreiter Untergriff, Ellbogen an den Seiten.',
@@ -635,6 +672,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['biceps', 'forearms'],
     secondaryMuscles: [],
     equipment: 'dumbbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Aufrecht, KHs neutral (Daumen nach oben).',
@@ -651,6 +689,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['biceps'],
     secondaryMuscles: [],
     equipment: 'machine',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Oberarme fest auf das Polster, Sitz einstellen.',
@@ -667,6 +706,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['biceps'],
     secondaryMuscles: [],
     equipment: 'dumbbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Auf Bank sitzen, Ellbogen am Oberschenkel innen.',
@@ -683,6 +723,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['triceps'],
     secondaryMuscles: [],
     equipment: 'cable',
+    movementPattern: 'isolation',
     defaultRestSeconds: 75,
     execution: {
       setup: 'Kabel hoch, Seil oder gerade Stange, Ellbogen am Körper.',
@@ -699,6 +740,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['triceps'],
     secondaryMuscles: [],
     equipment: 'barbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 90,
     execution: {
       setup: 'Liegend auf Flachbank, Stange über der Stirn, Oberarme senkrecht.',
@@ -715,6 +757,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['triceps', 'chest'],
     secondaryMuscles: ['shoulders_front'],
     equipment: 'barbell',
+    movementPattern: 'horizontal_push',
     defaultRestSeconds: 150,
     execution: {
       setup: 'Wie normales Bankdrücken, aber Griff schulterbreit.',
@@ -731,6 +774,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['triceps'],
     secondaryMuscles: [],
     equipment: 'dumbbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Oberkörper vorgebeugt, Oberarm parallel zum Boden, fixiert.',
@@ -747,6 +791,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['forearms'],
     secondaryMuscles: ['biceps'],
     equipment: 'barbell',
+    movementPattern: 'isolation',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Aufrechter Stand, Obergriff, schulterbreit.',
@@ -765,6 +810,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['abs'],
     secondaryMuscles: ['lower_back'],
     equipment: 'bodyweight',
+    movementPattern: 'carry_core',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Unterarmstütz, Ellbogen unter Schulter, Körper gerade Linie.',
@@ -781,6 +827,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['abs'],
     secondaryMuscles: [],
     equipment: 'bodyweight',
+    movementPattern: 'carry_core',
     defaultRestSeconds: 45,
     execution: {
       setup: 'Rückenlage, Knie gebeugt, Hände an den Schläfen oder vor der Brust.',
@@ -797,6 +844,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['abs'],
     secondaryMuscles: [],
     equipment: 'bodyweight',
+    movementPattern: 'carry_core',
     defaultRestSeconds: 75,
     execution: {
       setup: 'An Klimmzugstange hängen, Schultern aktiv.',
@@ -813,6 +861,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['abs'],
     secondaryMuscles: [],
     equipment: 'cable',
+    movementPattern: 'carry_core',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Knieend vor dem Kabelzug, Seil hinter dem Kopf.',
@@ -829,6 +878,7 @@ const TEMPLATES: SeedTemplate[] = [
     primaryMuscles: ['abs'],
     secondaryMuscles: ['lower_back'],
     equipment: 'bodyweight',
+    movementPattern: 'carry_core',
     defaultRestSeconds: 60,
     execution: {
       setup: 'Sitzen, Knie angewinkelt, Oberkörper leicht zurückgelehnt.',
@@ -852,6 +902,7 @@ function buildExercise(t: SeedTemplate): Exercise {
     defaultRestSeconds: t.defaultRestSeconds,
     isCustom: false,
     createdAt: 0,
+    movementPattern: t.movementPattern,
   };
 }
 

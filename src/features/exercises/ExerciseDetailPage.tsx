@@ -3,11 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowLeft, PlayCircle, Pencil, Trash2 } from 'lucide-react';
 import { db } from '../../db/database';
-import { EQUIPMENT_LABELS, type MuscleGroup } from '../../db/schema';
+import { EQUIPMENT_LABELS, MOVEMENT_PATTERN_LABELS, type MuscleGroup } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
 import { BodyDiagram, BodyDiagramToggle } from '../../components/BodyDiagram';
+import { MovementPatternAnimation } from '../../components/MovementPatternAnimation';
 import {
   type BodyView,
   hasAnyRegionForView,
@@ -134,6 +135,20 @@ export function ExerciseDetailPage() {
           </div>
         ) : null}
       </section>
+
+      {exercise.movementPattern ? (
+        <Card as="section" className="mb-4 p-4">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Bewegungsmuster
+          </h2>
+          <div className="flex flex-col items-center gap-2">
+            <MovementPatternAnimation pattern={exercise.movementPattern} className="h-32 w-32" />
+            <span className="text-sm text-slate-600 dark:text-slate-300">
+              {MOVEMENT_PATTERN_LABELS[exercise.movementPattern]}
+            </span>
+          </div>
+        </Card>
+      ) : null}
 
       {exercise.videoUrl ? (
         <Card as="section" className="mb-4 p-4">

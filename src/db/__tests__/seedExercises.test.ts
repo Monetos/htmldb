@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { db, seedExercisesIfEmpty } from '../database';
 import { SEED_EXERCISES, SEED_EXERCISE_COUNT } from '../seedExercises';
-import { MUSCLE_GROUP_LABELS, type MuscleGroup } from '../schema';
+import { MOVEMENT_PATTERN_LABELS, MUSCLE_GROUP_LABELS, type MovementPattern, type MuscleGroup } from '../schema';
 
 describe('seedExercises content', () => {
   it('ships at least 50 curated exercises', () => {
@@ -35,6 +35,13 @@ describe('seedExercises content', () => {
       for (const m of [...ex.primaryMuscles, ...ex.secondaryMuscles]) {
         expect(validMuscles.has(m)).toBe(true);
       }
+    }
+  });
+
+  it('uses only declared movement patterns, when set', () => {
+    const validPatterns = new Set(Object.keys(MOVEMENT_PATTERN_LABELS) as MovementPattern[]);
+    for (const ex of SEED_EXERCISES) {
+      if (ex.movementPattern) expect(validPatterns.has(ex.movementPattern)).toBe(true);
     }
   });
 

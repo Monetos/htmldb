@@ -23,6 +23,17 @@ export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweig
 
 export type ExerciseCategory = 'compound' | 'isolation';
 
+export type MovementPattern =
+  | 'squat'
+  | 'hinge'
+  | 'horizontal_push'
+  | 'horizontal_pull'
+  | 'vertical_push'
+  | 'vertical_pull'
+  | 'lunge'
+  | 'carry_core'
+  | 'isolation';
+
 export interface ExerciseExecution {
   setup: string;
   movement: string;
@@ -43,6 +54,7 @@ export interface Exercise {
   isCustom: boolean;
   createdAt: number;
   isFavorite?: boolean;
+  movementPattern?: MovementPattern;
 }
 
 export interface RoutineExercise {
@@ -219,4 +231,16 @@ export const EQUIPMENT_LABELS: Record<Equipment, string> = {
   machine: 'Maschine',
   cable: 'Kabelzug',
   bodyweight: 'Körpergewicht',
+};
+
+export const MOVEMENT_PATTERN_LABELS: Record<MovementPattern, string> = {
+  squat: 'Kniebeuge',
+  hinge: 'Hüft-Hinge',
+  horizontal_push: 'Waagerechtes Drücken',
+  horizontal_pull: 'Waagerechtes Ziehen',
+  vertical_push: 'Senkrechtes Drücken',
+  vertical_pull: 'Senkrechtes Ziehen',
+  lunge: 'Ausfallschritt',
+  carry_core: 'Tragen/Rumpf',
+  isolation: 'Isolation',
 };

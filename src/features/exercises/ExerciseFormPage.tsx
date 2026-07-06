@@ -4,10 +4,12 @@ import { ArrowLeft } from 'lucide-react';
 import { db } from '../../db/database';
 import {
   EQUIPMENT_LABELS,
+  MOVEMENT_PATTERN_LABELS,
   MUSCLE_GROUP_LABELS,
   type Equipment,
   type Exercise,
   type ExerciseCategory,
+  type MovementPattern,
   type MuscleGroup,
 } from '../../db/schema';
 import { newId } from '../../lib/id';
@@ -15,11 +17,13 @@ import { Button } from '../../components/Button';
 
 const MUSCLES: MuscleGroup[] = Object.keys(MUSCLE_GROUP_LABELS) as MuscleGroup[];
 const EQUIPMENT: Equipment[] = Object.keys(EQUIPMENT_LABELS) as Equipment[];
+const MOVEMENT_PATTERNS: MovementPattern[] = Object.keys(MOVEMENT_PATTERN_LABELS) as MovementPattern[];
 
 interface FormState {
   name: string;
   category: ExerciseCategory;
   equipment: Equipment;
+  movementPattern: MovementPattern | '';
   primaryMuscles: MuscleGroup[];
   secondaryMuscles: MuscleGroup[];
   defaultRestSeconds: number;
@@ -34,6 +38,7 @@ function emptyForm(): FormState {
     name: '',
     category: 'compound',
     equipment: 'barbell',
+    movementPattern: '',
     primaryMuscles: [],
     secondaryMuscles: [],
     defaultRestSeconds: 120,
@@ -49,6 +54,7 @@ function fromExercise(e: Exercise): FormState {
     name: e.name,
     category: e.category,
     equipment: e.equipment,
+    movementPattern: e.movementPattern ?? '',
     primaryMuscles: [...e.primaryMuscles],
     secondaryMuscles: [...e.secondaryMuscles],
     defaultRestSeconds: e.defaultRestSeconds,
@@ -117,6 +123,7 @@ export function ExerciseFormPage() {
         name: form.name.trim(),
         category: form.category,
         equipment: form.equipment,
+        movementPattern: form.movementPattern || undefined,
         primaryMuscles: form.primaryMuscles,
         secondaryMuscles: form.secondaryMuscles,
         defaultRestSeconds: form.defaultRestSeconds,
@@ -134,6 +141,7 @@ export function ExerciseFormPage() {
         name: form.name.trim(),
         category: form.category,
         equipment: form.equipment,
+        movementPattern: form.movementPattern || undefined,
         primaryMuscles: form.primaryMuscles,
         secondaryMuscles: form.secondaryMuscles,
         defaultRestSeconds: form.defaultRestSeconds,
@@ -205,6 +213,22 @@ export function ExerciseFormPage() {
             </select>
           </Field>
         </div>
+        <Field label="Bewegungsmuster (optional)">
+          <select
+            value={form.movementPattern}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, movementPattern: e.target.value as MovementPattern | '' }))
+            }
+            className={inputCls}
+          >
+            <option value="">Kein Muster</option>
+            {MOVEMENT_PATTERNS.map((p) => (
+              <option key={p} value={p}>
+                {MOVEMENT_PATTERN_LABELS[p]}
+              </option>
+            ))}
+          </select>
+        </Field>
         <Field label="Standard-Pause (Sekunden)">
           <input
             type="number"
