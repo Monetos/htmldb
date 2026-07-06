@@ -42,6 +42,7 @@ export interface Exercise {
   defaultRestSeconds: number;
   isCustom: boolean;
   createdAt: number;
+  isFavorite?: boolean;
 }
 
 export interface RoutineExercise {

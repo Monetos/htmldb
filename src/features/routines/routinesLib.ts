@@ -1,5 +1,6 @@
 import { db } from '../../db/database';
 import type { Routine, RoutineExercise, Workout } from '../../db/schema';
+import type { RoutineTemplate } from '../../db/routineTemplates';
 import { newId } from '../../lib/id';
 import { getActiveWorkout } from '../workout/workoutLib';
 
@@ -36,6 +37,41 @@ export async function saveRoutine(input: {
 
 export async function deleteRoutine(id: string): Promise<void> {
   await db.routines.delete(id);
+}
+
+/**
+ * Instantiates a program template as one independently-saved Routine per
+ * split day. Exercise names are resolved against the current exercise
+ * library; days with no resolvable exercises (or exercises the user has
+ * deleted) are skipped rather than saved empty.
+ */
+export async function applyRoutineTemplate(template: RoutineTemplate): Promise<Routine[]> {
+  const allExercises = await db.exercises.toArray();
+  const idByName = new Map(allExercises.map((e) => [e.name, e.id]));
+
+  const created: Routine[] = [];
+  for (const day of template.days) {
+    const exercises: RoutineExercise[] = day.exercises
+      .map((te) => {
+        const exerciseId = idByName.get(te.exerciseName);
+        if (!exerciseId) return null;
+        const routineExercise: RoutineExercise = {
+          exerciseId,
+          order: 0,
+          targetSets: te.targetSets,
+          targetRepsMin: te.targetRepsMin,
+          targetRepsMax: te.targetRepsMax,
+          targetRestSeconds: te.targetRestSeconds,
+          groupId: te.groupId,
+        };
+        return routineExercise;
+      })
+      .filter((e): e is RoutineExercise => e !== null)
+      .map((e, i) => ({ ...e, order: i }));
+    if (exercises.length === 0) continue;
+    created.push(await saveRoutine({ name: day.name, exercises }));
+  }
+  return created;
 }
 
 export async function startRoutineWorkout(routine: Routine): Promise<Workout> {

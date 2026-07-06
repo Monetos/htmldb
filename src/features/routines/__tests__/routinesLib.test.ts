@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  applyRoutineTemplate,
   deleteRoutine,
   lastPerformedAt,
   lastPerformedMap,
@@ -8,7 +9,8 @@ import {
 } from '../routinesLib';
 import { db } from '../../../db/database';
 import { finishWorkout, getActiveWorkout } from '../../workout/workoutLib';
-import type { RoutineExercise } from '../../../db/schema';
+import type { Exercise, RoutineExercise } from '../../../db/schema';
+import type { RoutineTemplate } from '../../../db/routineTemplates';
 
 function makeExercise(exerciseId: string, order: number): RoutineExercise {
   return {
@@ -123,5 +125,82 @@ describe('lastPerformedAt / lastPerformedMap', () => {
     const map = await lastPerformedMap([a.id, b.id]);
     expect(map.has(a.id)).toBe(true);
     expect(map.has(b.id)).toBe(false);
+  });
+});
+
+function makeSeedExercise(name: string): Exercise {
+  return {
+    id: `ex-${name}`,
+    name,
+    category: 'compound',
+    primaryMuscles: ['chest'],
+    secondaryMuscles: [],
+    equipment: 'barbell',
+    execution: { setup: '.', movement: '.', cues: ['a', 'b'], commonMistakes: ['x'] },
+    defaultRestSeconds: 120,
+    isCustom: false,
+    createdAt: 0,
+  };
+}
+
+describe('applyRoutineTemplate', () => {
+  it('creates one routine per day, resolving exercise names to ids', async () => {
+    await db.exercises.bulkAdd([makeSeedExercise('Bench'), makeSeedExercise('Row')]);
+    const template: RoutineTemplate = {
+      id: 't1',
+      name: 'Test Template',
+      description: 'desc',
+      days: [
+        {
+          name: 'Day A',
+          exercises: [
+            { exerciseName: 'Bench', targetSets: 4, targetRepsMin: 6, targetRepsMax: 10, targetRestSeconds: 120 },
+          ],
+        },
+        {
+          name: 'Day B',
+          exercises: [
+            { exerciseName: 'Row', targetSets: 3, targetRepsMin: 8, targetRepsMax: 12, targetRestSeconds: 90 },
+          ],
+        },
+      ],
+    };
+
+    const created = await applyRoutineTemplate(template);
+    expect(created).toHaveLength(2);
+    expect(created[0].name).toBe('Day A');
+    expect(created[0].exercises[0].exerciseId).toBe('ex-Bench');
+    expect(created[1].name).toBe('Day B');
+    expect(created[1].exercises[0].exerciseId).toBe('ex-Row');
+
+    const stored = await db.routines.toArray();
+    expect(stored).toHaveLength(2);
+  });
+
+  it('skips a day entirely when none of its exercises resolve', async () => {
+    await db.exercises.add(makeSeedExercise('Bench'));
+    const template: RoutineTemplate = {
+      id: 't2',
+      name: 'Test Template 2',
+      description: 'desc',
+      days: [
+        {
+          name: 'Day A',
+          exercises: [
+            { exerciseName: 'Bench', targetSets: 4, targetRepsMin: 6, targetRepsMax: 10, targetRestSeconds: 120 },
+          ],
+        },
+        {
+          name: 'Day B (missing)',
+          exercises: [
+            { exerciseName: 'Deleted Exercise', targetSets: 3, targetRepsMin: 8, targetRepsMax: 12, targetRestSeconds: 90 },
+          ],
+        },
+      ],
+    };
+
+    const created = await applyRoutineTemplate(template);
+    expect(created).toHaveLength(1);
+    expect(created[0].name).toBe('Day A');
   });
 });

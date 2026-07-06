@@ -2,7 +2,7 @@ import type { Exercise } from './schema';
 
 // Deterministic IDs so seed rows can be reliably re-loaded / referenced.
 // Prefix `seed-` distinguishes them from custom-exercise UUIDs.
-type SeedTemplate = Omit<Exercise, 'id' | 'createdAt' | 'isCustom' | 'videoUrl'> & {
+type SeedTemplate = Omit<Exercise, 'id' | 'createdAt' | 'isCustom'> & {
   slug: string;
 };
 
@@ -798,6 +798,7 @@ function buildExercise(t: SeedTemplate): Exercise {
     secondaryMuscles: t.secondaryMuscles,
     equipment: t.equipment,
     execution: t.execution,
+    videoUrl: t.videoUrl,
     defaultRestSeconds: t.defaultRestSeconds,
     isCustom: false,
     createdAt: 0,

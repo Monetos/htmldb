@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ensureSettings, seedExercisesIfEmpty, seedFoodsIfEmpty } from '../db/database';
+import {
+  ensureSettings,
+  reconcileSeedExerciseVideos,
+  seedExercisesIfEmpty,
+  seedFoodsIfEmpty,
+} from '../db/database';
 
 /**
  * One-time DB initialisation on first render: make sure the settings row
@@ -14,6 +19,7 @@ export function useBootstrap() {
       await ensureSettings();
       await seedExercisesIfEmpty();
       await seedFoodsIfEmpty();
+      await reconcileSeedExerciseVideos();
       if (!cancelled) setReady(true);
     })();
     return () => {

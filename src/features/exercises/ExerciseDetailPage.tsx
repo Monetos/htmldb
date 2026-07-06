@@ -1,17 +1,20 @@
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Pencil, Trash2 } from 'lucide-react';
 import { db } from '../../db/database';
 import { EQUIPMENT_LABELS } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
+import { youtubeEmbedUrl } from '../../lib/youtube';
 import { ExerciseTrendCharts } from '../progress/ExerciseTrendCharts';
 
 export function ExerciseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const exercise = useLiveQuery(() => (id ? db.exercises.get(id) : undefined), [id]);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   if (!exercise) {
     return (
@@ -82,6 +85,33 @@ export function ExerciseDetailPage() {
           </div>
         ) : null}
       </section>
+
+      {exercise.videoUrl ? (
+        <Card as="section" className="mb-4 p-4">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Video
+          </h2>
+          {videoLoaded ? (
+            <div className="aspect-video overflow-hidden rounded-xl">
+              <iframe
+                src={youtubeEmbedUrl(exercise.videoUrl) ?? undefined}
+                title={`Video: ${exercise.name}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setVideoLoaded(true)}
+              className="flex aspect-video w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-sm text-slate-500 hover:border-brand-500 hover:text-brand-600 dark:border-slate-600 dark:text-slate-400"
+            >
+              <PlayCircle className="h-5 w-5" /> Video laden
+            </button>
+          )}
+        </Card>
+      ) : null}
 
       <Card as="section" className="mb-4 p-4">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { db, ensureSettings } from '../database';
+import { db, ensureSettings, reconcileSeedExerciseVideos, seedExercisesIfEmpty } from '../database';
+import { SEED_EXERCISES } from '../seedExercises';
 import { DEFAULT_DAILY_TARGETS } from '../schema';
 
 describe('ensureSettings', () => {
@@ -51,5 +52,26 @@ describe('FitnessDatabase schema', () => {
     expect(names).toEqual(expect.arrayContaining(['name', 'primaryMuscles', 'equipment', 'isCustom']));
     const primary = indexes.find((i) => i.name === 'primaryMuscles');
     expect(primary?.multi).toBe(true);
+  });
+});
+
+describe('reconcileSeedExerciseVideos', () => {
+  it('patches a drifted videoUrl back to the current SEED_EXERCISES content', async () => {
+    await seedExercisesIfEmpty();
+    const first = SEED_EXERCISES[0];
+    await db.exercises.update(first.id, { videoUrl: 'https://example.com/stale' });
+
+    const patched = await reconcileSeedExerciseVideos();
+    expect(patched).toBeGreaterThanOrEqual(1);
+
+    const reloaded = await db.exercises.get(first.id);
+    expect(reloaded?.videoUrl).toBe(first.videoUrl);
+  });
+
+  it('is idempotent: a second call patches nothing once already in sync', async () => {
+    await seedExercisesIfEmpty();
+    await reconcileSeedExerciseVideos();
+    const second = await reconcileSeedExerciseVideos();
+    expect(second).toBe(0);
   });
 });
