@@ -79,6 +79,14 @@ describe('bestPrFromSets', () => {
     expect(result.heaviestKg).toBe(80);
   });
 
+  it('ignores drop-sets', () => {
+    const result = bestPrFromSets([
+      s({ weightKg: 80, reps: 8 }),
+      s({ weightKg: 120, reps: 5, isDropSet: true }),
+    ]);
+    expect(result.heaviestKg).toBe(80);
+  });
+
   it('reports heaviest for 5 reps only when reps >= 5', () => {
     const result = bestPrFromSets([
       s({ weightKg: 100, reps: 3 }),
@@ -123,6 +131,14 @@ describe('newPrCategories', () => {
     );
     expect(cats).toEqual([]);
   });
+
+  it('returns empty for drop-sets, even at a new heaviest weight', () => {
+    const cats = newPrCategories(
+      { heaviestKg: 80, heaviestFor5Kg: 80, best1Rm: 100 },
+      s({ weightKg: 200, reps: 5, isDropSet: true }),
+    );
+    expect(cats).toEqual([]);
+  });
 });
 
 describe('volumePerMuscleGroup', () => {
@@ -143,6 +159,11 @@ describe('volumePerMuscleGroup', () => {
     const result = volumePerMuscleGroup([s({ exerciseId: 'unknown' })], exMap);
     expect(Object.keys(result)).toHaveLength(0);
   });
+
+  it('still counts drop-sets toward volume (unlike PR detection)', () => {
+    const result = volumePerMuscleGroup([s({ weightKg: 50, reps: 10, isDropSet: true })], exMap);
+    expect(result.chest).toBe(500);
+  });
 });
 
 describe('workingSetsPerMuscleGroup', () => {
@@ -157,6 +178,11 @@ describe('workingSetsPerMuscleGroup', () => {
     expect(result.chest).toBe(2);
     expect(result.back_lats).toBe(1);
     expect(result.triceps).toBeUndefined(); // triceps is secondary on bench
+  });
+
+  it('still counts drop-sets (unlike PR detection)', () => {
+    const sets = [s({ exerciseId: 'bench' }), s({ exerciseId: 'bench', isDropSet: true })];
+    expect(workingSetsPerMuscleGroup(sets, exMap).chest).toBe(2);
   });
 });
 

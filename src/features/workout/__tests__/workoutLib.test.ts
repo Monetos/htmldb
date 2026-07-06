@@ -81,6 +81,36 @@ describe('addSet', () => {
     // Row gets its own counter
     expect(rowSet.setNumber).toBe(1);
   });
+
+  it('persists drop-set/failure/unilateral tags, defaulting to false/undefined when omitted', async () => {
+    await db.exercises.add(benchExercise);
+    const w = await startFreeWorkout();
+
+    const tagged = await addSet({
+      workoutId: w.id,
+      exerciseId: benchExercise.id,
+      weightKg: 40,
+      reps: 12,
+      isWarmup: false,
+      isDropSet: true,
+      toFailure: true,
+      unilateralSide: 'left',
+    });
+    expect(tagged.isDropSet).toBe(true);
+    expect(tagged.toFailure).toBe(true);
+    expect(tagged.unilateralSide).toBe('left');
+
+    const untagged = await addSet({
+      workoutId: w.id,
+      exerciseId: benchExercise.id,
+      weightKg: 60,
+      reps: 8,
+      isWarmup: false,
+    });
+    expect(untagged.isDropSet).toBe(false);
+    expect(untagged.toFailure).toBe(false);
+    expect(untagged.unilateralSide).toBeUndefined();
+  });
 });
 
 describe('lastSetForExercise / lastWorkoutSetsForExercise', () => {

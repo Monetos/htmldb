@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Trash2, Trophy } from 'lucide-react';
+import { Circle, ExternalLink, Flame, Trash2, TrendingDown, Trophy } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
-import type { Exercise, RoutineExercise, SetEntry } from '../../db/schema';
+import type { Exercise, RoutineExercise, SetEntry, UnilateralSide } from '../../db/schema';
 import { useRestTimer } from '../../store/restTimer';
 import { addSet, deleteSet, lastWorkoutSetsForExercise } from './workoutLib';
 import { SetDraftRow, SET_ROW_GRID_COLS, type DraftSet } from './SetRow';
@@ -14,14 +14,26 @@ import { MuscleChip } from '../../components/MuscleChip';
 import { formatWeight } from '../../lib/format';
 import { emptyPr, newPrCategories, type PrBest } from '../../lib/progression';
 
+export interface GroupContext {
+  groupId: string;
+  /** 0-based position within the group's fixed exercise order. */
+  memberIndex: number;
+  memberCount: number;
+  /** Whether this exercise should have its draft open right now (its turn in the round). */
+  isActive: boolean;
+}
+
 interface Props {
   workoutId: string;
   exercise: Exercise;
   /** When provided, ExerciseBlock surfaces target sets / reps from the routine. */
   routineTarget?: RoutineExercise;
+  /** Present only for superset/circuit members — orchestrates turn-taking and shared rest. */
+  group?: GroupContext;
 }
 
-export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
+export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Props) {
+  const sectionRef = useRef<HTMLElement>(null);
   const sets =
     useLiveQuery(
       () =>
@@ -53,8 +65,9 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
       if (past.workoutId === workoutId && broke.length > 0) {
         map.set(past.id, broke);
       }
-      // Roll the running best forward to include this set.
-      if (!past.isWarmup && past.weightKg > 0 && past.reps > 0) {
+      // Roll the running best forward to include this set (drop-sets excluded,
+      // same rule as newPrCategories/bestPrFromSets in progression.ts).
+      if (!past.isWarmup && !past.isDropSet && past.weightKg > 0 && past.reps > 0) {
         if (running.heaviestKg === null || past.weightKg > running.heaviestKg) {
           running = { ...running, heaviestKg: past.weightKg };
         }
@@ -70,8 +83,17 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
     return map;
   }, [historicalSetsQuery, workoutId]);
 
-  const [showDraft, setShowDraft] = useState(sets.length === 0);
+  const [showDraftLocal, setShowDraftLocal] = useState(sets.length === 0);
+  // Grouped members' draft visibility is fully derived from round state — the
+  // user can't open/close it out of turn (round order is fixed for Phase 10).
+  const showDraft = group ? group.isActive : showDraftLocal;
   const startRest = useRestTimer((s) => s.start);
+
+  useEffect(() => {
+    if (group?.isActive) {
+      sectionRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }
+  }, [group?.isActive, group?.groupId]);
 
   // Pre-fill new set from the most recent set of this exercise in *any* workout
   const lastPrev = lastReference?.sets;
@@ -92,9 +114,20 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
         reps: previousSet.reps,
         rpe: '',
         isWarmup: false,
+        isDropSet: false,
+        toFailure: false,
+        unilateralSide: '',
       }
     : draftRepsFromTarget !== undefined
-      ? { weightKg: '', reps: draftRepsFromTarget, rpe: '', isWarmup: false }
+      ? {
+          weightKg: '',
+          reps: draftRepsFromTarget,
+          rpe: '',
+          isWarmup: false,
+          isDropSet: false,
+          toFailure: false,
+          unilateralSide: '',
+        }
       : undefined;
 
   const handleComplete = async (input: {
@@ -102,16 +135,21 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
     reps: number;
     rpe?: number;
     isWarmup: boolean;
+    isDropSet: boolean;
+    toFailure: boolean;
+    unilateralSide?: UnilateralSide;
   }) => {
     await addSet({ workoutId, exerciseId: exercise.id, ...input });
-    if (!input.isWarmup) {
+    // Within a superset round there's no rest between members — only after
+    // the last member's set does the shared rest timer start.
+    if (!input.isWarmup && (!group || group.memberIndex === group.memberCount - 1)) {
       startRest(restSecondsForTimer);
     }
-    setShowDraft(false);
+    if (!group) setShowDraftLocal(false);
   };
 
   return (
-    <Card as="section" aria-label={`Übung ${exercise.name}`}>
+    <ExerciseSurface grouped={Boolean(group)} sectionRef={sectionRef} ariaLabel={`Übung ${exercise.name}`}>
       <header className="mb-2 flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
@@ -203,7 +241,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
               RPE
             </span>
             <span role="columnheader" className="px-1 py-1 text-center">
-              W
+              Tags
             </span>
             <span role="columnheader" className="px-1 py-1"></span>
           </div>
@@ -237,8 +275,30 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
                   <div role="cell" className="px-1 py-2 text-center tabular-nums text-slate-500">
                     {s.rpe ?? '–'}
                   </div>
-                  <div role="cell" className="px-1 py-2 text-center">
-                    {s.isWarmup ? '✓' : ''}
+                  <div role="cell" className="flex flex-wrap items-center justify-center gap-0.5 px-1 py-2">
+                    {s.isWarmup ? (
+                      <span aria-label="Warmup" title="Warmup">
+                        <Circle className="h-3 w-3 text-slate-400" />
+                      </span>
+                    ) : null}
+                    {s.isDropSet ? (
+                      <span aria-label="Drop-Satz" title="Drop-Satz">
+                        <TrendingDown className="h-3 w-3 text-brand-500" />
+                      </span>
+                    ) : null}
+                    {s.toFailure ? (
+                      <span aria-label="Bis Muskelversagen" title="Bis Muskelversagen">
+                        <Flame className="h-3 w-3 text-brand-500" />
+                      </span>
+                    ) : null}
+                    {s.unilateralSide ? (
+                      <span
+                        aria-label={s.unilateralSide === 'left' ? 'Linke Seite' : 'Rechte Seite'}
+                        className="text-[10px] font-bold text-brand-500"
+                      >
+                        {s.unilateralSide === 'left' ? 'L' : 'R'}
+                      </span>
+                    ) : null}
                   </div>
                   <div role="cell" className="px-1 py-2">
                     <button
@@ -259,19 +319,47 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
               setNumber={sets.length + 1}
               initial={draftInitial}
               onComplete={handleComplete}
-              onCancel={sets.length > 0 ? () => setShowDraft(false) : undefined}
+              onCancel={!group && sets.length > 0 ? () => setShowDraftLocal(false) : undefined}
             />
           ) : null}
         </div>
       </div>
 
-      {!showDraft ? (
+      {!group && !showDraft ? (
         <div className="mt-2">
-          <Button size="sm" variant="secondary" onClick={() => setShowDraft(true)}>
+          <Button size="sm" variant="secondary" onClick={() => setShowDraftLocal(true)}>
             + Satz hinzufügen
           </Button>
         </div>
       ) : null}
+    </ExerciseSurface>
+  );
+}
+
+function ExerciseSurface({
+  grouped,
+  sectionRef,
+  ariaLabel,
+  children,
+}: {
+  grouped: boolean;
+  sectionRef: RefObject<HTMLElement>;
+  ariaLabel: string;
+  children: ReactNode;
+}) {
+  // Grouped members render as plain padded sections — the SupersetGroup
+  // wrapper around them already supplies the card chrome (border/shadow),
+  // separated by its own divide-y instead of nested card borders.
+  if (grouped) {
+    return (
+      <section ref={sectionRef} aria-label={ariaLabel} className="p-3">
+        {children}
+      </section>
+    );
+  }
+  return (
+    <Card as="section" ref={sectionRef} aria-label={ariaLabel}>
+      {children}
     </Card>
   );
 }

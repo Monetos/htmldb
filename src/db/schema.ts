@@ -52,6 +52,8 @@ export interface RoutineExercise {
   targetRepsMax: number;
   targetRestSeconds: number;
   note?: string;
+  /** Links this exercise to others in one superset/circuit round; members must stay contiguous by `order`. */
+  groupId?: string;
 }
 
 export interface Routine {
@@ -73,6 +75,8 @@ export interface Workout {
   bodyweightKg?: number;
 }
 
+export type UnilateralSide = 'left' | 'right';
+
 export interface SetEntry {
   id: string;
   workoutId: string;
@@ -82,6 +86,12 @@ export interface SetEntry {
   reps: number;
   rpe?: number;
   isWarmup: boolean;
+  /** Drop-set: excluded from PR detection, still counts toward volume. */
+  isDropSet?: boolean;
+  /** Taken to muscular failure. Purely informational — no PR/volume effect. */
+  toFailure?: boolean;
+  /** Which side of a unilateral exercise. Purely informational — no PR/volume effect. */
+  unilateralSide?: UnilateralSide;
   completedAt: number;
 }
 
