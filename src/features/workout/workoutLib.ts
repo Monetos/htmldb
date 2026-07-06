@@ -75,6 +75,23 @@ export async function deleteSet(id: string): Promise<void> {
   await db.sets.delete(id);
 }
 
+/**
+ * Bulk-inserts generated warmup sets, bypassing the single-row draft UI.
+ * Sequential await — addSet re-queries existing sets each call to compute
+ * setNumber, so this appends correctly after whatever is already logged.
+ */
+export async function bulkAddWarmupSets(
+  workoutId: string,
+  exerciseId: string,
+  steps: { weightKg: number }[],
+): Promise<SetEntry[]> {
+  const created: SetEntry[] = [];
+  for (const step of steps) {
+    created.push(await addSet({ workoutId, exerciseId, weightKg: step.weightKg, reps: 5, isWarmup: true }));
+  }
+  return created;
+}
+
 /** Most recent set across any workout for the given exercise. */
 export async function lastSetForExercise(
   exerciseId: string,

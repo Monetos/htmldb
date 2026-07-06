@@ -3,7 +3,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../../../App';
-import { db } from '../../../db/database';
+import { db, ensureSettings } from '../../../db/database';
 import { saveBodyMetric, savePhoto } from '../bodyLib';
 
 const NOW = new Date(2026, 4, 11, 12).getTime();
@@ -105,6 +105,29 @@ describe('Körper tab', () => {
     expect(within(nachher).getAllByRole('option')).toHaveLength(2);
     // Default "Abstand" reflects the 90-day gap.
     expect(screen.getByText(/Abstand: 90 Tage/)).toBeInTheDocument();
+  });
+
+  it('saves a new metric in lbs and displays it converted back to lbs', async () => {
+    await ensureSettings();
+    await db.settings.update('singleton', { weightUnit: 'lbs' });
+
+    render(
+      <MemoryRouter initialEntries={['/koerper/messung/neu']}>
+        <App />
+      </MemoryRouter>,
+    );
+    const user = userEvent.setup();
+    expect(await screen.findByText(/Gewicht \(lbs\)/)).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/Gewicht \(lbs\)/), '176');
+    await user.click(screen.getByRole('button', { name: /Anlegen/ }));
+
+    await waitFor(async () => {
+      expect(await db.bodyMetrics.count()).toBe(1);
+    });
+    // 176 lb round-trips through kg storage back to 176 lb on display.
+    expect(await screen.findByText(/176 lbs/)).toBeInTheDocument();
+    const stored = await db.bodyMetrics.toArray();
+    expect(stored[0].weightKg).toBeCloseTo(79.83, 1);
   });
 
   it('history tab plots weight + waist when measurements are populated', async () => {

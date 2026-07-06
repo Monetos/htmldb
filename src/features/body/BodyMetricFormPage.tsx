@@ -5,6 +5,8 @@ import { db } from '../../db/database';
 import type { BodyMeasurements } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { saveBodyMetric } from './bodyLib';
+import { kgToUnit, parseWeightInput } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 
 interface Form {
   dateInput: string; // YYYY-MM-DD
@@ -66,6 +68,7 @@ export function BodyMetricFormPage() {
   const { id } = useParams<{ id: string }>();
   const editing = Boolean(id);
   const navigate = useNavigate();
+  const { unit } = useWeightUnit();
   const [form, setForm] = useState<Form>(emptyForm);
   const [loaded, setLoaded] = useState(!editing);
   const [error, setError] = useState<string | null>(null);
@@ -80,9 +83,11 @@ export function BodyMetricFormPage() {
         setLoaded(true);
         return;
       }
+      const weightInUnit =
+        row.weightKg !== undefined ? Math.round(kgToUnit(row.weightKg, unit) * 10) / 10 : undefined;
       setForm({
         dateInput: isoFromTs(row.date),
-        weightKg: row.weightKg !== undefined ? String(row.weightKg) : '',
+        weightKg: weightInUnit !== undefined ? String(weightInUnit) : '',
         bodyFatPercent: row.bodyFatPercent !== undefined ? String(row.bodyFatPercent) : '',
         notes: row.notes ?? '',
         measurements: Object.fromEntries(
@@ -94,6 +99,9 @@ export function BodyMetricFormPage() {
     return () => {
       cancelled = true;
     };
+    // unit is intentionally excluded — only reload from the DB row when the
+    // edited entry itself changes, not on every unit toggle mid-edit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing, id]);
 
   const updateMeasure = (key: keyof BodyMeasurements, value: string) => {
@@ -116,7 +124,7 @@ export function BodyMetricFormPage() {
     await saveBodyMetric({
       id: editing ? id : undefined,
       date,
-      weightKg: num(form.weightKg),
+      weightKg: parseWeightInput(form.weightKg, unit),
       bodyFatPercent: num(form.bodyFatPercent),
       measurements: Object.keys(measurements).length > 0 ? measurements : undefined,
       notes: form.notes,
@@ -147,7 +155,7 @@ export function BodyMetricFormPage() {
         </Field>
 
         <div className="grid grid-cols-2 gap-2">
-          <Field label="Gewicht (kg)">
+          <Field label={`Gewicht (${unit})`}>
             <input
               inputMode="decimal"
               value={form.weightKg}

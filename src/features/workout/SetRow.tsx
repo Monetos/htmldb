@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Check, Flame, Trash2, TrendingDown } from 'lucide-react';
 import { Button } from '../../components/Button';
-import type { UnilateralSide } from '../../db/schema';
+import type { UnilateralSide, WeightUnit } from '../../db/schema';
+import { unitToKg } from '../../lib/units';
 
 export interface DraftSet {
+  /** In the currently active display unit (kg or lbs), not always kg — converted to kg on submit. */
   weightKg: number | '';
   reps: number | '';
   rpe: number | '';
@@ -19,6 +21,7 @@ export const SET_ROW_GRID_COLS = 'grid grid-cols-[2rem_1fr_1fr_3.5rem_2.5rem_5re
 interface Props {
   setNumber: number;
   initial?: DraftSet;
+  unit: WeightUnit;
   onComplete: (s: {
     weightKg: number;
     reps: number;
@@ -44,7 +47,7 @@ const EMPTY_DRAFT: DraftSet = {
   unilateralSide: '',
 };
 
-export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props) {
+export function SetDraftRow({ setNumber, initial, unit, onComplete, onCancel }: Props) {
   const [draft, setDraft] = useState<DraftSet>(initial ?? EMPTY_DRAFT);
 
   const submit = () => {
@@ -59,7 +62,7 @@ export function SetDraftRow({ setNumber, initial, onComplete, onCancel }: Props)
           ? draft.rpe
           : Number(draft.rpe);
     onComplete({
-      weightKg: w,
+      weightKg: unitToKg(w, unit),
       reps: r,
       rpe,
       isWarmup: draft.isWarmup,

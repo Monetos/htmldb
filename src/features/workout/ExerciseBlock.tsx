@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { Circle, ExternalLink, Flame, Trash2, TrendingDown, Trophy } from 'lucide-react';
+import { Calculator, Circle, ExternalLink, Flame, Trash2, TrendingDown, Trophy } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Exercise, RoutineExercise, SetEntry, UnilateralSide } from '../../db/schema';
 import { useRestTimer } from '../../store/restTimer';
 import { addSet, deleteSet, lastWorkoutSetsForExercise } from './workoutLib';
 import { SetDraftRow, SET_ROW_GRID_COLS, type DraftSet } from './SetRow';
+import { CalculatorModal } from './CalculatorModal';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { SwipeToDelete } from '../../components/SwipeToDelete';
 import { MuscleChip } from '../../components/MuscleChip';
-import { formatWeight } from '../../lib/format';
+import { formatWeightInUnit, kgToUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
 import { emptyPr, newPrCategories, type PrBest } from '../../lib/progression';
 
 export interface GroupContext {
@@ -34,6 +36,7 @@ interface Props {
 
 export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
+  const { unit } = useWeightUnit();
   const sets =
     useLiveQuery(
       () =>
@@ -84,6 +87,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
   }, [historicalSetsQuery, workoutId]);
 
   const [showDraftLocal, setShowDraftLocal] = useState(sets.length === 0);
+  const [showCalculator, setShowCalculator] = useState(false);
   // Grouped members' draft visibility is fully derived from round state — the
   // user can't open/close it out of turn (round order is fixed for Phase 10).
   const showDraft = group ? group.isActive : showDraftLocal;
@@ -108,9 +112,15 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
   const nextSetNumber = sets.length + 1;
   const isLastTargetSet = targetSets !== undefined && nextSetNumber === targetSets;
   const exceededTargetSets = targetSets !== undefined && nextSetNumber > targetSets;
+  // Prefill rounds to the same precision the read-only displays use, so the
+  // draft's starting value matches what the user just saw in "Letztes Mal".
+  const draftWeightPrefill =
+    unit === 'lbs'
+      ? Math.round(kgToUnit(previousSet?.weightKg ?? 0, unit))
+      : Math.round(kgToUnit(previousSet?.weightKg ?? 0, unit) * 10) / 10;
   const draftInitial: DraftSet | undefined = previousSet
     ? {
-        weightKg: previousSet.weightKg,
+        weightKg: draftWeightPrefill,
         reps: previousSet.reps,
         rpe: '',
         isWarmup: false,
@@ -161,6 +171,14 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
             >
               <ExternalLink className="h-4 w-4" />
             </Link>
+            <button
+              type="button"
+              aria-label="Rechner öffnen"
+              onClick={() => setShowCalculator(true)}
+              className="text-slate-400 hover:text-brand-500"
+            >
+              <Calculator className="h-4 w-4" />
+            </button>
           </div>
           <div className="mt-1 flex flex-wrap gap-1">
             {exercise.primaryMuscles.map((m) => (
@@ -216,7 +234,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
           <ul className="mt-1 list-inside list-decimal">
             {lastReference.sets.map((s) => (
               <li key={s.id}>
-                {formatWeight(s.weightKg)} kg × {s.reps}
+                {formatWeightInUnit(s.weightKg, unit)} {unit} × {s.reps}
                 {s.isWarmup ? ' (Warmup)' : ''}
                 {s.rpe ? ` @ RPE ${s.rpe}` : ''}
               </li>
@@ -232,7 +250,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
               #
             </span>
             <span role="columnheader" className="px-1 py-1 text-center">
-              kg
+              {unit}
             </span>
             <span role="columnheader" className="px-1 py-1 text-center">
               Wdh
@@ -267,7 +285,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
                     </div>
                   </div>
                   <div role="cell" className="px-1 py-2 text-center tabular-nums">
-                    {formatWeight(s.weightKg)}
+                    {formatWeightInUnit(s.weightKg, unit)}
                   </div>
                   <div role="cell" className="px-1 py-2 text-center tabular-nums">
                     {s.reps}
@@ -318,6 +336,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
             <SetDraftRow
               setNumber={sets.length + 1}
               initial={draftInitial}
+              unit={unit}
               onComplete={handleComplete}
               onCancel={!group && sets.length > 0 ? () => setShowDraftLocal(false) : undefined}
             />
@@ -332,6 +351,15 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
           </Button>
         </div>
       ) : null}
+
+      <CalculatorModal
+        open={showCalculator}
+        onClose={() => setShowCalculator(false)}
+        workoutId={workoutId}
+        exercise={exercise}
+        unit={unit}
+        initialWeightKg={previousSet?.weightKg}
+      />
     </ExerciseSurface>
   );
 }

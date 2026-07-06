@@ -4,8 +4,9 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import { bestPrFromSets } from '../../lib/progression';
-import { formatWeight } from '../../lib/format';
-import type { Exercise, SetEntry } from '../../db/schema';
+import { formatWeightInUnit } from '../../lib/units';
+import { useWeightUnit } from '../../hooks/useWeightUnit';
+import type { Exercise, SetEntry, WeightUnit } from '../../db/schema';
 import { Card } from '../../components/Card';
 import { cardClassName } from '../../lib/cardStyles';
 
@@ -24,6 +25,7 @@ const EMPTY_EXERCISES: Exercise[] = [];
 export function PrTable() {
   const [sortBy, setSortBy] = useState<SortKey>('best1Rm');
   const [direction, setDirection] = useState<'asc' | 'desc'>('desc');
+  const { unit } = useWeightUnit();
 
   const exercisesQuery = useLiveQuery(() => db.exercises.toArray(), []);
   const setsQuery = useLiveQuery(() => db.sets.toArray(), []);
@@ -106,9 +108,9 @@ export function PrTable() {
                   {row.exercise.name}
                 </Link>
               </td>
-              <Cell value={row.heaviestKg} suffix="kg" />
-              <Cell value={row.heaviestFor5Kg} suffix="kg" />
-              <Cell value={row.best1Rm} suffix="kg" />
+              <Cell value={row.heaviestKg} unit={unit} />
+              <Cell value={row.heaviestFor5Kg} unit={unit} />
+              <Cell value={row.best1Rm} unit={unit} />
             </tr>
           ))}
         </tbody>
@@ -152,14 +154,14 @@ function Th({
   );
 }
 
-function Cell({ value, suffix }: { value: number | null; suffix: string }) {
+function Cell({ value, unit }: { value: number | null; unit: WeightUnit }) {
   return (
     <td className="px-2 py-2 text-right tabular-nums">
       {value === null ? (
         <span className="text-slate-400">–</span>
       ) : (
         <>
-          {formatWeight(Math.round(value * 10) / 10)} {suffix}
+          {formatWeightInUnit(value, unit)} {unit}
         </>
       )}
     </td>
