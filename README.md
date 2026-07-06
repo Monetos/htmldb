@@ -80,10 +80,7 @@ Test-Fixtures in `src/test/`. Setup wipet IndexedDB-Tabellen zwischen Tests.
 - [x] **Phase 5** – Ernährung: 32 Seed-Lebensmittel + eigene anlegen, Makro-Ringe + 4 Mahlzeiten-Sektionen, Wasser-Tracker mit Quick-Buttons, Wochen-Charts (kcal/Protein/Wasser + Donut), Tagesziele in den Einstellungen
 - [x] **Phase 6** – PWA-Feinschliff: PNG-Icons (192/512/maskable + Apple-Touch), Workbox-Precache + Runtime-Cache (Fonts/Images), Update-Toast bei neuer Version, Backup-Alter „vor X Tagen" mit Warnung > 14 Tage, lazy-loading der Chart-Routen, Bundle-Splitting (`charts` / `db` / `router` / `icons`), Android-Install-Anleitung
 - [x] **Phase 7** – Smart Food Logging: Barcode-Scanner (Kamera via BarcodeDetector + manuelle EAN-Eingabe) mit Open-Food-Facts-Lookup (online), KI-Nährwert-Schätzung per Foto oder Textbeschreibung über Claude Sonnet 5 (eigener API-Key in den Einstellungen, lazy-loaded SDK), Mengen-Vorbelegung mit der zuletzt geloggten Menge pro Lebensmittel, Körperfotos aus der Galerie + Foto-Entwurf überlebt Tab-Wechsel
-- [ ] **Phase 2** – Routinen
-- [ ] **Phase 3** – Progression + Muskelgruppen-Heatmap
-- [ ] **Phase 4** – Körperdaten + Fotos
-- [ ] **Phase 5** – Ernährung
+- [x] **Phase 8** – Bugfix: zuverlässige PWA-Update-Erkennung (aktive Checks bei App-Wiederöffnen via `visibilitychange`/`focus`, periodischer Fallback alle 5 Min., manueller „Nach Updates suchen"-Button in den Einstellungen) — vorher wartete die App nur passiv auf den bis zu 24h gedrosselten nativen Browser-Check
 - [ ] **Phase 6** – PWA-Feinschliff
 
 ## Installation auf Android-Homescreen

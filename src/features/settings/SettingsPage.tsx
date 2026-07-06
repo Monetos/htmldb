@@ -14,6 +14,7 @@ import type { DailyTargets } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { AppHeader } from '../../components/AppHeader';
 import { describeBackupAge } from './backupAge';
+import { useAppUpdate, type UpdateCheckStatus } from '../../store/appUpdate';
 
 export function SettingsPage() {
   const [status, setStatus] = useState<{ kind: 'idle' | 'ok' | 'error'; message: string }>({
@@ -125,8 +126,44 @@ export function SettingsPage() {
             </p>
           ) : null}
         </section>
+
+        <UpdateCheckCard />
       </main>
     </div>
+  );
+}
+
+const UPDATE_STATUS_TEXT: Partial<Record<UpdateCheckStatus, string>> = {
+  checking: 'Suche…',
+  'up-to-date': 'Du hast bereits die neueste Version.',
+  'update-found':
+    'Eine neue Version wurde gefunden — bestätige den Hinweis am unteren Bildschirmrand, um zu aktualisieren.',
+  unsupported: 'Updates können auf diesem Gerät derzeit nicht geprüft werden.',
+  error: 'Prüfung fehlgeschlagen. Bitte später erneut versuchen.',
+};
+
+function UpdateCheckCard() {
+  const checkStatus = useAppUpdate((s) => s.checkStatus);
+  const checkForUpdates = useAppUpdate((s) => s.checkForUpdates);
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/40">
+      <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        App-Updates
+      </h2>
+      <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+        Neue Versionen werden automatisch erkannt, sobald du die App wieder öffnest. Du kannst
+        auch manuell prüfen.
+      </p>
+      <Button onClick={() => void checkForUpdates()} disabled={checkStatus === 'checking'}>
+        Nach Updates suchen
+      </Button>
+      {UPDATE_STATUS_TEXT[checkStatus] ? (
+        <p role="status" className="mt-3 text-sm text-slate-500">
+          {UPDATE_STATUS_TEXT[checkStatus]}
+        </p>
+      ) : null}
+    </section>
   );
 }
 
