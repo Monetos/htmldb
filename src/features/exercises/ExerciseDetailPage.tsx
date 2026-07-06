@@ -1,20 +1,46 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowLeft, PlayCircle, Pencil, Trash2 } from 'lucide-react';
 import { db } from '../../db/database';
-import { EQUIPMENT_LABELS } from '../../db/schema';
+import { EQUIPMENT_LABELS, type MuscleGroup } from '../../db/schema';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
+import { BodyDiagram, BodyDiagramToggle } from '../../components/BodyDiagram';
+import {
+  type BodyView,
+  hasAnyRegionForView,
+  regionMembershipForView,
+} from '../../lib/muscleDiagramMapping';
 import { youtubeEmbedUrl } from '../../lib/youtube';
 import { ExerciseTrendCharts } from '../progress/ExerciseTrendCharts';
+
+const MEMBERSHIP_HEX = { primary: '#5b5ef2', secondary: '#c6cdff' } as const;
+const EMPTY_MUSCLES: MuscleGroup[] = [];
 
 export function ExerciseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const exercise = useLiveQuery(() => (id ? db.exercises.get(id) : undefined), [id]);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [view, setView] = useState<BodyView | null>(null);
+
+  const primaryMuscles = exercise?.primaryMuscles ?? EMPTY_MUSCLES;
+  const secondaryMuscles = exercise?.secondaryMuscles ?? EMPTY_MUSCLES;
+
+  const effectiveView: BodyView =
+    view ??
+    (!hasAnyRegionForView(primaryMuscles, 'front') && hasAnyRegionForView(primaryMuscles, 'back')
+      ? 'back'
+      : 'front');
+
+  const regionColors = useMemo(() => {
+    const membership = regionMembershipForView(primaryMuscles, secondaryMuscles, effectiveView);
+    return Object.fromEntries(
+      Object.entries(membership).map(([slug, level]) => [slug, MEMBERSHIP_HEX[level]]),
+    );
+  }, [primaryMuscles, secondaryMuscles, effectiveView]);
 
   if (!exercise) {
     return (
@@ -63,9 +89,32 @@ export function ExerciseDetailPage() {
       </header>
 
       <section className="mb-4 space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Muskeln
-        </h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Muskeln</h2>
+        <div className="flex flex-col items-center gap-2">
+          <BodyDiagramToggle view={effectiveView} onChange={setView} />
+          <BodyDiagram
+            view={effectiveView}
+            regionColors={regionColors}
+            title={`Trainierte Muskeln, ${effectiveView === 'front' ? 'Vorderansicht' : 'Rückansicht'}`}
+            className="h-48 w-auto"
+          />
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1">
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: MEMBERSHIP_HEX.primary }}
+              />
+              Primär
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: MEMBERSHIP_HEX.secondary }}
+              />
+              Sekundär
+            </span>
+          </div>
+        </div>
         <div>
           <div className="text-xs text-slate-500">Primär</div>
           <div className="mt-1 flex flex-wrap gap-1">
@@ -114,9 +163,7 @@ export function ExerciseDetailPage() {
       ) : null}
 
       <Card as="section" className="mb-4 p-4">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Setup
-        </h2>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Setup</h2>
         <p className="text-sm">{exercise.execution.setup}</p>
       </Card>
 
@@ -128,9 +175,7 @@ export function ExerciseDetailPage() {
       </Card>
 
       <Card as="section" className="mb-4 p-4">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Cues
-        </h2>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Cues</h2>
         <ul className="list-inside list-disc space-y-1 text-sm">
           {exercise.execution.cues.map((c) => (
             <li key={c}>{c}</li>
