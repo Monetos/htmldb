@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, Search, Star, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import {
@@ -17,6 +17,7 @@ import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
 import { cardClassName } from '../../lib/cardStyles';
+import { toggleFavorite } from './exercisesLib';
 
 const MUSCLE_OPTIONS: MuscleGroup[] = Object.keys(MUSCLE_GROUP_LABELS) as MuscleGroup[];
 const EQUIPMENT_OPTIONS: Equipment[] = Object.keys(EQUIPMENT_LABELS) as Equipment[];
@@ -26,6 +27,7 @@ export function ExercisesPage() {
   const [muscleFilter, setMuscleFilter] = useState<MuscleGroup | ''>('');
   const [equipmentFilter, setEquipmentFilter] = useState<Equipment | ''>('');
   const [onlyCustom, setOnlyCustom] = useState(false);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
 
   const exercisesQuery = useLiveQuery(() => db.exercises.orderBy('name').toArray(), []);
   const exercises = exercisesQuery ?? EMPTY_EXERCISES;
@@ -37,11 +39,12 @@ export function ExercisesPage() {
       if (muscleFilter && !e.primaryMuscles.includes(muscleFilter)) return false;
       if (equipmentFilter && e.equipment !== equipmentFilter) return false;
       if (onlyCustom && !e.isCustom) return false;
+      if (onlyFavorites && !e.isFavorite) return false;
       return true;
     });
-  }, [exercises, search, muscleFilter, equipmentFilter, onlyCustom]);
+  }, [exercises, search, muscleFilter, equipmentFilter, onlyCustom, onlyFavorites]);
 
-  const hasActiveFilter = muscleFilter || equipmentFilter || search || onlyCustom;
+  const hasActiveFilter = muscleFilter || equipmentFilter || search || onlyCustom || onlyFavorites;
 
   return (
     <div className="flex min-h-full flex-col">
@@ -110,6 +113,15 @@ export function ExercisesPage() {
             />
             Nur eigene
           </label>
+          <label className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <input
+              type="checkbox"
+              checked={onlyFavorites}
+              onChange={(e) => setOnlyFavorites(e.target.checked)}
+              className="h-4 w-4"
+            />
+            Nur Favoriten
+          </label>
           {hasActiveFilter ? (
             <button
               type="button"
@@ -118,6 +130,7 @@ export function ExercisesPage() {
                 setMuscleFilter('');
                 setEquipmentFilter('');
                 setOnlyCustom(false);
+                setOnlyFavorites(false);
               }}
               className="ml-auto inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             >
@@ -133,10 +146,10 @@ export function ExercisesPage() {
         ) : (
           <ul className="space-y-2">
             {filtered.map((ex) => (
-              <li key={ex.id}>
+              <li key={ex.id} className="flex items-stretch gap-2">
                 <Link
                   to={`/uebungen/${ex.id}`}
-                  className={cardClassName({ interactive: true, className: 'block p-3' })}
+                  className={cardClassName({ interactive: true, className: 'flex-1 p-3' })}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="font-medium">{ex.name}</div>
@@ -155,6 +168,17 @@ export function ExercisesPage() {
                     ) : null}
                   </div>
                 </Link>
+                <button
+                  type="button"
+                  aria-label={ex.isFavorite ? `Favorit entfernen: ${ex.name}` : `Als Favorit markieren: ${ex.name}`}
+                  aria-pressed={Boolean(ex.isFavorite)}
+                  onClick={() => void toggleFavorite(ex.id, Boolean(ex.isFavorite))}
+                  className="flex shrink-0 items-center justify-center rounded-xl border border-slate-200 px-3 hover:border-brand-500 dark:border-slate-700"
+                >
+                  <Star
+                    className={`h-4 w-4 ${ex.isFavorite ? 'fill-brand-500 text-brand-500' : 'text-slate-400'}`}
+                  />
+                </button>
               </li>
             ))}
           </ul>

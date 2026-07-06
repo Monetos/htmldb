@@ -2,7 +2,7 @@ import type { Exercise } from './schema';
 
 // Deterministic IDs so seed rows can be reliably re-loaded / referenced.
 // Prefix `seed-` distinguishes them from custom-exercise UUIDs.
-type SeedTemplate = Omit<Exercise, 'id' | 'createdAt' | 'isCustom' | 'videoUrl'> & {
+type SeedTemplate = Omit<Exercise, 'id' | 'createdAt' | 'isCustom'> & {
   slug: string;
 };
 
@@ -10,6 +10,7 @@ const TEMPLATES: SeedTemplate[] = [
   // ───── Brust ─────
   {
     slug: 'bankdruecken-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=vthMCtgVtFw',
     name: 'Bankdrücken Langhantel',
     category: 'compound',
     primaryMuscles: ['chest'],
@@ -36,6 +37,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'bankdruecken-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=5Y3VZsLb1Ys',
     name: 'Bankdrücken Kurzhantel',
     category: 'compound',
     primaryMuscles: ['chest'],
@@ -55,6 +57,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'schraegbankdruecken-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=5kyLUGVq_pk',
     name: 'Schrägbankdrücken Langhantel',
     category: 'compound',
     primaryMuscles: ['chest', 'shoulders_front'],
@@ -70,6 +73,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'butterfly-maschine',
+    videoUrl: 'https://www.youtube.com/watch?v=JYmszQs-mRs',
     name: 'Butterfly (Maschine)',
     category: 'isolation',
     primaryMuscles: ['chest'],
@@ -85,6 +89,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'dips',
+    videoUrl: 'https://www.youtube.com/watch?v=wjUmnZH528Y',
     name: 'Dips',
     category: 'compound',
     primaryMuscles: ['chest', 'triceps'],
@@ -100,6 +105,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'fliegende-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=vJh-4hRLH-o',
     name: 'Fliegende mit Kurzhantel',
     category: 'isolation',
     primaryMuscles: ['chest'],
@@ -115,6 +121,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'liegestuetze',
+    videoUrl: 'https://www.youtube.com/watch?v=WDIpL0pjun0',
     name: 'Liegestütze',
     category: 'compound',
     primaryMuscles: ['chest', 'triceps'],
@@ -132,6 +139,7 @@ const TEMPLATES: SeedTemplate[] = [
   // ───── Rücken ─────
   {
     slug: 'klimmzug',
+    videoUrl: 'https://www.youtube.com/watch?v=Hdc7Mw6BIEE',
     name: 'Klimmzug (breit, Obergriff)',
     category: 'compound',
     primaryMuscles: ['back_lats'],
@@ -147,6 +155,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'latzug-breit',
+    videoUrl: 'https://www.youtube.com/watch?v=lueEJGjTuPQ',
     name: 'Latzug breit',
     category: 'compound',
     primaryMuscles: ['back_lats'],
@@ -162,6 +171,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'latzug-eng',
+    videoUrl: 'https://www.youtube.com/watch?v=fLnD4BYg7nU',
     name: 'Latzug eng (Untergriff)',
     category: 'compound',
     primaryMuscles: ['back_lats'],
@@ -177,6 +187,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'rudern-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=T3N-TO4reLQ',
     name: 'Rudern mit Langhantel (vorgebeugt)',
     category: 'compound',
     primaryMuscles: ['back_lats', 'back_rhomboids'],
@@ -192,6 +203,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'rudern-kurzhantel-einarmig',
+    videoUrl: 'https://www.youtube.com/watch?v=tLnlWj7LQ34',
     name: 'Einarmiges Kurzhantelrudern',
     category: 'compound',
     primaryMuscles: ['back_lats'],
@@ -207,6 +219,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'rudern-kabel-eng',
+    videoUrl: 'https://www.youtube.com/watch?v=XaHV_8Nbyug',
     name: 'Rudern am Kabel (enger Griff)',
     category: 'compound',
     primaryMuscles: ['back_lats', 'back_rhomboids'],
@@ -222,6 +235,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'rudern-maschine',
+    videoUrl: 'https://www.youtube.com/watch?v=FU6YQawma2Q',
     name: 'Rudern an der Maschine',
     category: 'compound',
     primaryMuscles: ['back_lats', 'back_rhomboids'],
@@ -237,6 +251,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'kreuzheben',
+    videoUrl: 'https://www.youtube.com/watch?v=GxsLrTzyGUU',
     name: 'Kreuzheben (konventionell)',
     category: 'compound',
     primaryMuscles: ['hamstrings', 'glutes', 'lower_back'],
@@ -252,6 +267,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'kreuzheben-rumaenisch',
+    videoUrl: 'https://www.youtube.com/watch?v=uhghy9pFIPY',
     name: 'Kreuzheben rumänisch',
     category: 'compound',
     primaryMuscles: ['hamstrings', 'glutes'],
@@ -267,6 +283,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'hyperextensions',
+    videoUrl: 'https://www.youtube.com/watch?v=qtjJUWCnDyE',
     name: 'Hyperextensions',
     category: 'isolation',
     primaryMuscles: ['lower_back', 'glutes'],
@@ -284,6 +301,7 @@ const TEMPLATES: SeedTemplate[] = [
   // ───── Schultern ─────
   {
     slug: 'schulterdruecken-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=bMksDb5a3P0',
     name: 'Schulterdrücken Langhantel (stehend)',
     category: 'compound',
     primaryMuscles: ['shoulders_front'],
@@ -299,6 +317,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'schulterdruecken-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=1jYq9QQEWqE',
     name: 'Schulterdrücken Kurzhantel (sitzend)',
     category: 'compound',
     primaryMuscles: ['shoulders_front'],
@@ -314,6 +333,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'arnold-press',
+    videoUrl: 'https://www.youtube.com/watch?v=6Z15_WdXmVw',
     name: 'Arnold Press',
     category: 'compound',
     primaryMuscles: ['shoulders_front', 'shoulders_side'],
@@ -329,6 +349,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'seitheben-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=Y29xKcze8Ik',
     name: 'Seitheben Kurzhantel',
     category: 'isolation',
     primaryMuscles: ['shoulders_side'],
@@ -344,6 +365,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'seitheben-kabel',
+    videoUrl: 'https://www.youtube.com/watch?v=qitQHqNZbeM',
     name: 'Seitheben am Kabel',
     category: 'isolation',
     primaryMuscles: ['shoulders_side'],
@@ -359,6 +381,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'reverse-fly-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=JoCRRZ3zRtI',
     name: 'Reverse Fly Kurzhantel',
     category: 'isolation',
     primaryMuscles: ['shoulders_rear'],
@@ -378,6 +401,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'face-pulls',
+    videoUrl: 'https://www.youtube.com/watch?v=0Po47vvj9g4',
     name: 'Face Pulls am Kabel',
     category: 'isolation',
     primaryMuscles: ['shoulders_rear'],
@@ -393,6 +417,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'shrugs-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=KbsQ1E8Hg0o',
     name: 'Shrugs (Langhantel)',
     category: 'isolation',
     primaryMuscles: ['back_traps'],
@@ -410,6 +435,7 @@ const TEMPLATES: SeedTemplate[] = [
   // ───── Beine ─────
   {
     slug: 'kniebeuge-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=SbgHegC6lEs',
     name: 'Kniebeuge (High-Bar)',
     category: 'compound',
     primaryMuscles: ['quads', 'glutes'],
@@ -425,6 +451,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'front-squat',
+    videoUrl: 'https://www.youtube.com/watch?v=wyDbagKS7Rg',
     name: 'Front Squat',
     category: 'compound',
     primaryMuscles: ['quads'],
@@ -440,6 +467,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'beinpresse-45grad',
+    videoUrl: 'https://www.youtube.com/watch?v=q4W4_VJbKW0',
     name: 'Beinpresse 45°',
     category: 'compound',
     primaryMuscles: ['quads', 'glutes'],
@@ -455,6 +483,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'ausfallschritte-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=_DLIS8SySzs',
     name: 'Ausfallschritte (Walking Lunges) Kurzhantel',
     category: 'compound',
     primaryMuscles: ['quads', 'glutes'],
@@ -470,6 +499,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'bulgarian-split-squat',
+    videoUrl: 'https://www.youtube.com/watch?v=VPhhE6bBzZE',
     name: 'Bulgarian Split Squat',
     category: 'compound',
     primaryMuscles: ['quads', 'glutes'],
@@ -485,6 +515,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'beinstrecker',
+    videoUrl: 'https://www.youtube.com/watch?v=tTbJBUKnWU8',
     name: 'Beinstrecker',
     category: 'isolation',
     primaryMuscles: ['quads'],
@@ -500,6 +531,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'beinbeuger-liegend',
+    videoUrl: 'https://www.youtube.com/watch?v=P7-RxTVe6O0',
     name: 'Beinbeuger liegend',
     category: 'isolation',
     primaryMuscles: ['hamstrings'],
@@ -515,6 +547,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'beinbeuger-sitzend',
+    videoUrl: 'https://www.youtube.com/watch?v=Wy1SwoY2aaQ',
     name: 'Beinbeuger sitzend',
     category: 'isolation',
     primaryMuscles: ['hamstrings'],
@@ -530,6 +563,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'hip-thrust',
+    videoUrl: 'https://www.youtube.com/watch?v=S_uZP4UH6J0',
     name: 'Hip Thrust',
     category: 'compound',
     primaryMuscles: ['glutes'],
@@ -545,6 +579,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'wadenheben-stehend',
+    videoUrl: 'https://www.youtube.com/watch?v=SVtg-1loH4c',
     name: 'Wadenheben stehend',
     category: 'isolation',
     primaryMuscles: ['calves'],
@@ -560,6 +595,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'wadenheben-sitzend',
+    videoUrl: 'https://www.youtube.com/watch?v=xz7sqxaJ-Ck',
     name: 'Wadenheben sitzend',
     category: 'isolation',
     primaryMuscles: ['calves'],
@@ -577,6 +613,7 @@ const TEMPLATES: SeedTemplate[] = [
   // ───── Arme ─────
   {
     slug: 'bizeps-curls-langhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=QZEqB6wUPxQ',
     name: 'Bizepscurls Langhantel',
     category: 'isolation',
     primaryMuscles: ['biceps'],
@@ -592,6 +629,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'hammercurls-kurzhantel',
+    videoUrl: 'https://www.youtube.com/watch?v=8XLxfXROrTo',
     name: 'Hammercurls Kurzhantel',
     category: 'isolation',
     primaryMuscles: ['biceps', 'forearms'],
@@ -607,6 +645,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'scott-curls',
+    videoUrl: 'https://www.youtube.com/watch?v=OI6gZcAPUMU',
     name: 'Scott-Curls (Preacher Curl)',
     category: 'isolation',
     primaryMuscles: ['biceps'],
@@ -622,6 +661,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'konzentrationscurls',
+    videoUrl: 'https://www.youtube.com/watch?v=oPGBZHIxusU',
     name: 'Konzentrationscurls',
     category: 'isolation',
     primaryMuscles: ['biceps'],
@@ -637,6 +677,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'trizepsdruecken-kabel',
+    videoUrl: 'https://www.youtube.com/watch?v=_w-HpW70nSQ',
     name: 'Trizepsdrücken am Kabel',
     category: 'isolation',
     primaryMuscles: ['triceps'],
@@ -652,6 +693,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'trizeps-french-press',
+    videoUrl: 'https://www.youtube.com/watch?v=D47mYdoKllE',
     name: 'French Press (SZ-Stange)',
     category: 'isolation',
     primaryMuscles: ['triceps'],
@@ -667,6 +709,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'enges-bankdruecken',
+    videoUrl: 'https://www.youtube.com/watch?v=i1uIv77eo6I',
     name: 'Enges Bankdrücken',
     category: 'compound',
     primaryMuscles: ['triceps', 'chest'],
@@ -682,6 +725,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'trizeps-kickback',
+    videoUrl: 'https://www.youtube.com/watch?v=6SS6K3lAwZ8',
     name: 'Trizeps Kickback Kurzhantel',
     category: 'isolation',
     primaryMuscles: ['triceps'],
@@ -697,6 +741,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'reverse-curls',
+    videoUrl: 'https://www.youtube.com/watch?v=nRgxYX2Ve9w',
     name: 'Reverse Curls (Obergriff)',
     category: 'isolation',
     primaryMuscles: ['forearms'],
@@ -714,6 +759,7 @@ const TEMPLATES: SeedTemplate[] = [
   // ───── Core ─────
   {
     slug: 'plank',
+    videoUrl: 'https://www.youtube.com/watch?v=A2b2EmIg0dA',
     name: 'Plank',
     category: 'isolation',
     primaryMuscles: ['abs'],
@@ -729,6 +775,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'crunches',
+    videoUrl: 'https://www.youtube.com/watch?v=GWIEON0VSaY',
     name: 'Crunches',
     category: 'isolation',
     primaryMuscles: ['abs'],
@@ -744,6 +791,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'beinheben-haengend',
+    videoUrl: 'https://www.youtube.com/watch?v=rbOJSK07AGA',
     name: 'Beinheben hängend',
     category: 'isolation',
     primaryMuscles: ['abs'],
@@ -759,6 +807,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'kabel-crunches',
+    videoUrl: 'https://www.youtube.com/watch?v=0KEP6A1deBE',
     name: 'Kabel-Crunches (knieend)',
     category: 'isolation',
     primaryMuscles: ['abs'],
@@ -774,6 +823,7 @@ const TEMPLATES: SeedTemplate[] = [
   },
   {
     slug: 'russian-twists',
+    videoUrl: 'https://www.youtube.com/watch?v=JyUqwkVpsi8',
     name: 'Russian Twists',
     category: 'isolation',
     primaryMuscles: ['abs'],
@@ -798,6 +848,7 @@ function buildExercise(t: SeedTemplate): Exercise {
     secondaryMuscles: t.secondaryMuscles,
     equipment: t.equipment,
     execution: t.execution,
+    videoUrl: t.videoUrl,
     defaultRestSeconds: t.defaultRestSeconds,
     isCustom: false,
     createdAt: 0,

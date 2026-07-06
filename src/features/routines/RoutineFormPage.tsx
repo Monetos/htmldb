@@ -10,7 +10,9 @@ import { SupersetGroup } from '../../components/SupersetGroup';
 import { toContiguousBlocks } from '../../lib/exerciseGrouping';
 import { newId } from '../../lib/id';
 import { ExercisePicker } from '../workout/ExercisePicker';
-import { saveRoutine } from './routinesLib';
+import { ROUTINE_TEMPLATES } from '../../db/routineTemplates';
+import { TemplatePickerModal } from './TemplatePickerModal';
+import { applyRoutineTemplate, saveRoutine } from './routinesLib';
 
 export function RoutineFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,7 @@ export function RoutineFormPage() {
   const [exercises, setExercises] = useState<RoutineExercise[]>([]);
   const [loaded, setLoaded] = useState(!editing);
   const [showPicker, setShowPicker] = useState(false);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -140,6 +143,19 @@ export function RoutineFormPage() {
     ]);
   };
 
+  const onPickTemplate = async (templateId: string) => {
+    setShowTemplatePicker(false);
+    const template = ROUTINE_TEMPLATES.find((t) => t.id === templateId);
+    if (!template) return;
+    const created = await applyRoutineTemplate(template);
+    if (created.length === 0) return;
+    if (created.length === 1) {
+      navigate(`/routinen/${created[0].id}`);
+    } else {
+      navigate('/routinen');
+    }
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -207,8 +223,19 @@ export function RoutineFormPage() {
             </Button>
           </div>
           {exercises.length === 0 ? (
-            <Card as="p" className="border-dashed p-4 text-center text-sm text-slate-500">
-              Noch keine Übungen.
+            <Card as="div" className="border-dashed p-4 text-center text-sm text-slate-500">
+              <p>Noch keine Übungen.</p>
+              {!editing ? (
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                  className="mt-3"
+                  onClick={() => setShowTemplatePicker(true)}
+                >
+                  Vorlage verwenden
+                </Button>
+              ) : null}
             </Card>
           ) : (
             <ol className="space-y-2">
@@ -353,6 +380,11 @@ export function RoutineFormPage() {
         onClose={() => setShowPicker(false)}
         onPick={onPick}
         excludeExerciseIds={exercises.map((e) => e.exerciseId)}
+      />
+      <TemplatePickerModal
+        open={showTemplatePicker}
+        onClose={() => setShowTemplatePicker(false)}
+        onPick={onPickTemplate}
       />
     </div>
   );

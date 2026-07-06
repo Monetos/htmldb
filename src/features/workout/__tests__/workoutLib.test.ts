@@ -7,6 +7,7 @@ import {
   getActiveWorkout,
   lastSetForExercise,
   lastWorkoutSetsForExercise,
+  recentExercisesForPicker,
   startFreeWorkout,
   totalVolumeKg,
 } from '../workoutLib';
@@ -195,6 +196,50 @@ describe('totalVolumeKg', () => {
         { isWarmup: false, weightKg: 80, reps: 5 } as never,
       ]),
     ).toBe(60 * 10 + 80 * 5);
+  });
+});
+
+describe('recentExercisesForPicker', () => {
+  it('returns the most recently trained exercises, distinct by exerciseId, limited', async () => {
+    const other: Exercise = { ...benchExercise, id: 'ex-other', name: 'Other' };
+    await db.exercises.bulkAdd([benchExercise, rowExercise, other]);
+    const w = await startFreeWorkout();
+    const minute = 60_000;
+    await db.sets.bulkAdd([
+      {
+        id: 's1',
+        workoutId: w.id,
+        exerciseId: rowExercise.id,
+        setNumber: 1,
+        weightKg: 70,
+        reps: 6,
+        isWarmup: false,
+        completedAt: Date.now() - 3 * minute,
+      },
+      {
+        id: 's2',
+        workoutId: w.id,
+        exerciseId: benchExercise.id,
+        setNumber: 1,
+        weightKg: 60,
+        reps: 8,
+        isWarmup: false,
+        completedAt: Date.now() - 2 * minute,
+      },
+      {
+        id: 's3',
+        workoutId: w.id,
+        exerciseId: other.id,
+        setNumber: 1,
+        weightKg: 20,
+        reps: 12,
+        isWarmup: false,
+        completedAt: Date.now() - 1 * minute,
+      },
+    ]);
+
+    const recents = await recentExercisesForPicker(2);
+    expect(recents.map((e) => e.id)).toEqual([other.id, benchExercise.id]);
   });
 });
 

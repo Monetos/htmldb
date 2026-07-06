@@ -77,6 +77,29 @@ export async function seedExercisesIfEmpty(): Promise<number> {
 }
 
 /**
+ * Backfills videoUrl on already-seeded exercise rows (matched by id) whenever
+ * it drifts from the current SEED_EXERCISES content — e.g. after a video gets
+ * researched and added post-install for an existing user. Idempotent: a
+ * matching row is left untouched.
+ */
+export async function reconcileSeedExerciseVideos(): Promise<number> {
+  return await db.transaction('rw', db.exercises, async () => {
+    const seedIds = SEED_EXERCISES.map((e) => e.id);
+    const existingRows = await db.exercises.bulkGet(seedIds);
+    let patched = 0;
+    for (let i = 0; i < SEED_EXERCISES.length; i++) {
+      const seed = SEED_EXERCISES[i];
+      const existing = existingRows[i];
+      if (!existing) continue;
+      if (existing.videoUrl === seed.videoUrl) continue;
+      await db.exercises.update(existing.id, { videoUrl: seed.videoUrl });
+      patched++;
+    }
+    return patched;
+  });
+}
+
+/**
  * Same idempotent contract as seedExercisesIfEmpty but for the foods table.
  */
 export async function seedFoodsIfEmpty(): Promise<number> {

@@ -146,6 +146,25 @@ export function exerciseOrderFromSets(sets: SetEntry[]): string[] {
   return ordered;
 }
 
+/**
+ * Returns the most recently trained exercises (distinct by exerciseId) up to
+ * `limit`. Used by the exercise picker's "Zuletzt verwendet" quick-access row.
+ */
+export async function recentExercisesForPicker(limit: number): Promise<Exercise[]> {
+  const recentSets = await db.sets.orderBy('completedAt').reverse().limit(limit * 5).toArray();
+  const seen = new Set<string>();
+  const ids: string[] = [];
+  for (const s of recentSets) {
+    if (seen.has(s.exerciseId)) continue;
+    seen.add(s.exerciseId);
+    ids.push(s.exerciseId);
+    if (ids.length >= limit) break;
+  }
+  if (ids.length === 0) return [];
+  const rows = await db.exercises.bulkGet(ids);
+  return rows.filter((e): e is Exercise => Boolean(e));
+}
+
 export async function getExerciseMap(ids: string[]): Promise<Map<string, Exercise>> {
   if (ids.length === 0) return new Map();
   const rows = await db.exercises.bulkGet(ids);
