@@ -8,6 +8,7 @@ import {
   muscleAmpelFromWeeks,
   newPrCategories,
   perWorkoutExerciseStats,
+  prBreakingSetsInWorkout,
   startOfIsoWeek,
   streakDays,
   volumePerMuscleGroup,
@@ -138,6 +139,61 @@ describe('newPrCategories', () => {
       s({ weightKg: 200, reps: 5, isDropSet: true }),
     );
     expect(cats).toEqual([]);
+  });
+});
+
+describe('prBreakingSetsInWorkout', () => {
+  it('returns an empty map for an empty history', () => {
+    expect(prBreakingSetsInWorkout([], 'w1').size).toBe(0);
+  });
+
+  it('flags a set that PRs against an earlier set from the SAME session', () => {
+    const history = [
+      s({ id: 's1', workoutId: 'w1', weightKg: 60, reps: 8, completedAt: 100 }),
+      s({ id: 's2', workoutId: 'w1', weightKg: 70, reps: 8, completedAt: 200 }),
+    ];
+    const broken = prBreakingSetsInWorkout(history, 'w1');
+    expect(broken.get('s1')?.sort()).toEqual(['best1Rm', 'heaviest', 'heaviestFor5'].sort());
+    expect(broken.get('s2')?.sort()).toEqual(['best1Rm', 'heaviest', 'heaviestFor5'].sort());
+  });
+
+  it('flags a set that PRs against a set from an EARLIER workout', () => {
+    const history = [
+      s({ id: 's1', workoutId: 'w0', weightKg: 60, reps: 8, completedAt: 100 }),
+      s({ id: 's2', workoutId: 'w1', weightKg: 70, reps: 8, completedAt: 200 }),
+    ];
+    const broken = prBreakingSetsInWorkout(history, 'w1');
+    expect(broken.has('s1')).toBe(false);
+    expect(broken.get('s2')?.sort()).toEqual(['best1Rm', 'heaviest', 'heaviestFor5'].sort());
+  });
+
+  it('does not flag a set in the target workout that fails to beat prior history', () => {
+    const history = [
+      s({ id: 's1', workoutId: 'w0', weightKg: 100, reps: 8, completedAt: 100 }),
+      s({ id: 's2', workoutId: 'w1', weightKg: 60, reps: 8, completedAt: 200 }),
+    ];
+    const broken = prBreakingSetsInWorkout(history, 'w1');
+    expect(broken.has('s2')).toBe(false);
+  });
+
+  it('excludes warmup and drop-sets from both detection and the running baseline', () => {
+    const history = [
+      s({ id: 's1', workoutId: 'w0', weightKg: 100, reps: 8, isWarmup: true, completedAt: 100 }),
+      s({ id: 's2', workoutId: 'w0', weightKg: 90, reps: 8, isDropSet: true, completedAt: 150 }),
+      s({ id: 's3', workoutId: 'w1', weightKg: 60, reps: 8, completedAt: 200 }),
+    ];
+    const broken = prBreakingSetsInWorkout(history, 'w1');
+    // s1/s2 are ignored entirely, so s3 (60kg) still counts as a fresh PR.
+    expect(broken.get('s3')?.sort()).toEqual(['best1Rm', 'heaviest', 'heaviestFor5'].sort());
+  });
+
+  it('never flags sets outside the target workout, even if they break PRs', () => {
+    const history = [
+      s({ id: 's1', workoutId: 'w0', weightKg: 60, reps: 8, completedAt: 100 }),
+      s({ id: 's2', workoutId: 'w2', weightKg: 90, reps: 8, completedAt: 200 }),
+    ];
+    const broken = prBreakingSetsInWorkout(history, 'w1');
+    expect(broken.size).toBe(0);
   });
 });
 

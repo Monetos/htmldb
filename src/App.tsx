@@ -2,7 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { BottomNav } from './components/BottomNav';
 import { UpdatePrompt } from './components/UpdatePrompt';
+import { DashboardPage } from './features/dashboard/DashboardPage';
 import { ActiveWorkoutPage } from './features/workout/ActiveWorkoutPage';
+import { WorkoutSummaryPage } from './features/workout/WorkoutSummaryPage';
 import { ExercisesPage } from './features/exercises/ExercisesPage';
 import { ExerciseFormPage } from './features/exercises/ExerciseFormPage';
 import { RoutinesPage } from './features/routines/RoutinesPage';
@@ -54,8 +56,9 @@ export default function App() {
       <div className="flex-1 pb-16">
         <Suspense fallback={<PageFallback />}>
           <Routes>
-            <Route path="/" element={<Navigate to="/training" replace />} />
+            <Route path="/" element={<DashboardPage />} />
             <Route path="/training" element={<ActiveWorkoutPage />} />
+            <Route path="/training/zusammenfassung/:workoutId" element={<WorkoutSummaryPage />} />
             <Route path="/uebungen" element={<ExercisesPage />} />
             <Route path="/uebungen/neu" element={<ExerciseFormPage />} />
             <Route path="/uebungen/:id" element={<ExerciseDetailPage />} />
@@ -83,7 +86,7 @@ export default function App() {
             <Route path="/ernaehrung/lebensmittel/neu" element={<FoodFormPage />} />
             <Route path="/ernaehrung/lebensmittel/:id/bearbeiten" element={<FoodFormPage />} />
             <Route path="/einstellungen" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/training" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </div>

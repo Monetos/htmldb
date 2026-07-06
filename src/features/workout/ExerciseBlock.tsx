@@ -14,7 +14,7 @@ import { SwipeToDelete } from '../../components/SwipeToDelete';
 import { MuscleChip } from '../../components/MuscleChip';
 import { formatWeightInUnit, kgToUnit } from '../../lib/units';
 import { useWeightUnit } from '../../hooks/useWeightUnit';
-import { emptyPr, newPrCategories, type PrBest } from '../../lib/progression';
+import { prBreakingSetsInWorkout } from '../../lib/progression';
 
 export interface GroupContext {
   groupId: string;
@@ -60,30 +60,8 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
     [exercise.id],
   );
   const prByCurrentSetId = useMemo(() => {
-    const map = new Map<string, ReturnType<typeof newPrCategories>>();
-    if (!historicalSetsQuery) return map;
-    let running: PrBest = emptyPr();
-    for (const past of historicalSetsQuery) {
-      const broke = newPrCategories(running, past);
-      if (past.workoutId === workoutId && broke.length > 0) {
-        map.set(past.id, broke);
-      }
-      // Roll the running best forward to include this set (drop-sets excluded,
-      // same rule as newPrCategories/bestPrFromSets in progression.ts).
-      if (!past.isWarmup && !past.isDropSet && past.weightKg > 0 && past.reps > 0) {
-        if (running.heaviestKg === null || past.weightKg > running.heaviestKg) {
-          running = { ...running, heaviestKg: past.weightKg };
-        }
-        if (past.reps >= 5 && (running.heaviestFor5Kg === null || past.weightKg > running.heaviestFor5Kg)) {
-          running = { ...running, heaviestFor5Kg: past.weightKg };
-        }
-        const e1rm = past.weightKg * (1 + past.reps / 30);
-        if (running.best1Rm === null || e1rm > running.best1Rm) {
-          running = { ...running, best1Rm: e1rm };
-        }
-      }
-    }
-    return map;
+    if (!historicalSetsQuery) return new Map();
+    return prBreakingSetsInWorkout(historicalSetsQuery, workoutId);
   }, [historicalSetsQuery, workoutId]);
 
   const [showDraftLocal, setShowDraftLocal] = useState(sets.length === 0);

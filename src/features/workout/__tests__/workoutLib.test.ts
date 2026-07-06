@@ -2,17 +2,21 @@ import { describe, expect, it } from 'vitest';
 import {
   addSet,
   bulkAddWarmupSets,
+  computeSessionPrSummary,
   exerciseOrderFromSets,
   finishWorkout,
   getActiveWorkout,
   lastSetForExercise,
+  lastWorkoutDate,
   lastWorkoutSetsForExercise,
   recentExercisesForPicker,
   startFreeWorkout,
   totalVolumeKg,
+  workoutsThisWeekCount,
 } from '../workoutLib';
 import { db } from '../../../db/database';
 import type { Exercise } from '../../../db/schema';
+import { addWeeks, startOfIsoWeek } from '../../../lib/progression';
 
 const benchExercise: Exercise = {
   id: 'ex-bench',
@@ -252,5 +256,70 @@ describe('exerciseOrderFromSets', () => {
       { exerciseId: 'C', completedAt: 150 } as never,
     ];
     expect(exerciseOrderFromSets(sets)).toEqual(['A', 'C', 'B']);
+  });
+});
+
+describe('workoutsThisWeekCount', () => {
+  it('counts only finished workouts within the ISO week containing `now`', async () => {
+    const now = Date.now();
+    const weekStart = startOfIsoWeek(now);
+    const prevWeekStart = addWeeks(weekStart, -1);
+    await db.workouts.bulkAdd([
+      { id: 'w1', date: weekStart + 1000, startedAt: weekStart + 1000, finishedAt: weekStart + 2000 },
+      { id: 'w2', date: weekStart + 3000, startedAt: weekStart + 3000 }, // unfinished, excluded
+      { id: 'w3', date: prevWeekStart + 1000, startedAt: prevWeekStart + 1000, finishedAt: prevWeekStart + 2000 }, // prior week
+    ]);
+    expect(await workoutsThisWeekCount(now)).toBe(1);
+  });
+});
+
+describe('lastWorkoutDate', () => {
+  it('returns null when there are no finished workouts', async () => {
+    await db.workouts.add({ id: 'w1', date: 0, startedAt: 0 });
+    expect(await lastWorkoutDate()).toBeNull();
+  });
+
+  it('returns the startedAt of the most recent finished workout, ignoring a later unfinished one', async () => {
+    await db.workouts.bulkAdd([
+      { id: 'w1', date: 100, startedAt: 100, finishedAt: 200 },
+      { id: 'w2', date: 300, startedAt: 300, finishedAt: 400 },
+      { id: 'w3', date: 500, startedAt: 500 },
+    ]);
+    expect(await lastWorkoutDate()).toBe(300);
+  });
+});
+
+describe('computeSessionPrSummary', () => {
+  it('returns an empty summary for a workout with no sets', async () => {
+    const summary = await computeSessionPrSummary('nonexistent');
+    expect(summary).toEqual({ entries: [], totalPrSets: 0, hasAnyPr: false });
+  });
+
+  it('aggregates PR-breaking sets per exercise across the session', async () => {
+    await db.exercises.bulkAdd([benchExercise, rowExercise]);
+    const w = await startFreeWorkout();
+    await addSet({ workoutId: w.id, exerciseId: benchExercise.id, weightKg: 60, reps: 8, isWarmup: false });
+    await addSet({ workoutId: w.id, exerciseId: rowExercise.id, weightKg: 40, reps: 8, isWarmup: false });
+
+    const summary = await computeSessionPrSummary(w.id);
+    expect(summary.hasAnyPr).toBe(true);
+    expect(summary.totalPrSets).toBe(2);
+    expect(summary.entries.map((e) => e.exerciseId).sort()).toEqual(
+      [benchExercise.id, rowExercise.id].sort(),
+    );
+  });
+
+  it('excludes exercises whose session sets fail to beat prior history', async () => {
+    await db.exercises.add(benchExercise);
+    const w1 = await startFreeWorkout();
+    await addSet({ workoutId: w1.id, exerciseId: benchExercise.id, weightKg: 100, reps: 8, isWarmup: false });
+    await finishWorkout(w1.id, {});
+
+    const w2 = await startFreeWorkout();
+    await addSet({ workoutId: w2.id, exerciseId: benchExercise.id, weightKg: 60, reps: 8, isWarmup: false });
+
+    const summary = await computeSessionPrSummary(w2.id);
+    expect(summary.hasAnyPr).toBe(false);
+    expect(summary.entries).toEqual([]);
   });
 });

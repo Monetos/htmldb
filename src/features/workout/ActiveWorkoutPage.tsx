@@ -218,7 +218,7 @@ export function ActiveWorkoutPage() {
     setAdHocGroups({});
     setBodyweight('');
     setNotes('');
-    navigate('/statistik');
+    navigate(`/training/zusammenfassung/${workout.id}`);
   };
 
   if (workout === undefined) {

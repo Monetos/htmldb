@@ -14,9 +14,9 @@ function renderApp(initialEntries: string[] = ['/']) {
 }
 
 describe('App shell', () => {
-  it('renders all five bottom-tab destinations', () => {
+  it('renders all six bottom-tab destinations', () => {
     renderApp();
-    for (const label of ['Training', 'Übungen', 'Statistik', 'Körper', 'Ernährung']) {
+    for (const label of ['Home', 'Training', 'Übungen', 'Statistik', 'Körper', 'Ernährung']) {
       // Each label appears at least once (the bottom nav link). Some pages also
       // render the same label in the header, which is fine.
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
