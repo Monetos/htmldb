@@ -167,6 +167,8 @@ export interface Settings {
   updatedAt: number;
   /** Wall-clock timestamp of the last successful JSON backup export. */
   lastBackupAt?: number;
+  /** Anthropic API key for the AI food estimation features (stored locally only). */
+  anthropicApiKey?: string;
 }
 
 export const DEFAULT_DAILY_TARGETS: DailyTargets = {

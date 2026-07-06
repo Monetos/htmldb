@@ -150,6 +150,18 @@ export async function recentFoods(limit: number): Promise<Food[]> {
   return rows.filter((f): f is Food => Boolean(f));
 }
 
+/**
+ * Amount (g) of the most recent log entry for this food, or null. Used to
+ * prefill the picker with "what you usually eat" instead of a static 100 g.
+ */
+export async function lastAmountForFood(foodId: string): Promise<number | null> {
+  const rows = await db.foodLog.orderBy('date').reverse().toArray();
+  const match = rows
+    .filter((e) => e.foodId === foodId)
+    .sort((a, b) => b.loggedAt - a.loggedAt)[0];
+  return match ? match.amountG : null;
+}
+
 /* ─────────────── Week aggregation ─────────────── */
 
 export interface WeeklyDay {

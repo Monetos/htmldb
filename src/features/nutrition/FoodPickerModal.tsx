@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, X } from 'lucide-react';
+import { ScanBarcode, Search, Sparkles, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Food, MealType } from '../../db/schema';
 import { Button } from '../../components/Button';
-import { logFood, macrosForAmount, recentFoods } from './nutritionLib';
+import { lastAmountForFood, logFood, macrosForAmount, recentFoods } from './nutritionLib';
+import { BarcodeScannerModal } from './BarcodeScannerModal';
+import { AiFoodModal } from './AiFoodModal';
 
 const EMPTY_FOODS: Food[] = [];
 const QUICK_AMOUNTS = [50, 100, 150, 200];
@@ -22,14 +24,30 @@ export function FoodPickerModal({ open, mealType, date, onClose, onLogged }: Pro
   const [search, setSearch] = useState('');
   const [picked, setPicked] = useState<Food | null>(null);
   const [amount, setAmount] = useState<string>('100');
+  const [showScanner, setShowScanner] = useState(false);
+  const [showAi, setShowAi] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setSearch('');
       setPicked(null);
       setAmount('100');
+      setShowScanner(false);
+      setShowAi(false);
     }
   }, [open]);
+
+  // Prefill the amount with the last logged amount for this food, so repeat
+  // entries take one tap instead of retyping the usual portion.
+  const pickFood = async (food: Food, presetAmount?: number) => {
+    if (presetAmount && presetAmount > 0) {
+      setAmount(String(Math.round(presetAmount)));
+    } else {
+      const last = await lastAmountForFood(food.id);
+      setAmount(last && last > 0 ? String(Math.round(last)) : '100');
+    }
+    setPicked(food);
+  };
 
   const foodsQuery = useLiveQuery(() => db.foods.orderBy('name').toArray(), [], EMPTY_FOODS);
   const foods = foodsQuery ?? EMPTY_FOODS;
@@ -138,6 +156,15 @@ export function FoodPickerModal({ open, mealType, date, onClose, onLogged }: Pro
           </div>
         ) : (
           <>
+            <div className="mb-3 grid grid-cols-2 gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setShowScanner(true)}>
+                <ScanBarcode className="h-4 w-4" /> Barcode
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setShowAi(true)}>
+                <Sparkles className="h-4 w-4" /> KI-Schätzung
+              </Button>
+            </div>
+
             <div className="relative mb-3">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -160,7 +187,7 @@ export function FoodPickerModal({ open, mealType, date, onClose, onLogged }: Pro
                     <button
                       key={f.id}
                       type="button"
-                      onClick={() => setPicked(f)}
+                      onClick={() => void pickFood(f)}
                       className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
                     >
                       {f.name}
@@ -175,7 +202,7 @@ export function FoodPickerModal({ open, mealType, date, onClose, onLogged }: Pro
                 <li key={f.id}>
                   <button
                     type="button"
-                    onClick={() => setPicked(f)}
+                    onClick={() => void pickFood(f)}
                     className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/60"
                   >
                     <div>
@@ -206,6 +233,23 @@ export function FoodPickerModal({ open, mealType, date, onClose, onLogged }: Pro
             </ul>
           </>
         )}
+
+        <BarcodeScannerModal
+          open={showScanner}
+          onClose={() => setShowScanner(false)}
+          onFoodReady={(food) => {
+            setShowScanner(false);
+            void pickFood(food);
+          }}
+        />
+        <AiFoodModal
+          open={showAi}
+          onClose={() => setShowAi(false)}
+          onFoodReady={(food, portion) => {
+            setShowAi(false);
+            void pickFood(food, portion);
+          }}
+        />
       </div>
     </div>
   );
