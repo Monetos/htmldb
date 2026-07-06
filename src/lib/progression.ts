@@ -65,6 +65,41 @@ export function newPrCategories(prior: PrBest, candidate: SetEntry): PrCategory[
   return broken;
 }
 
+/**
+ * Walks `history` (ALL sets for ONE exercise across every workout, sorted
+ * oldest → newest by completedAt) and returns setId → PR categories broken,
+ * restricted to sets belonging to `targetWorkoutId`. "Prior" means "earlier
+ * completedAt", not "different workout" — a set can legitimately PR against
+ * an earlier set from the same session. Mirrors ExerciseBlock.tsx's inline
+ * live-PR-detection loop exactly.
+ */
+export function prBreakingSetsInWorkout(
+  history: SetEntry[],
+  targetWorkoutId: string,
+): Map<string, PrCategory[]> {
+  const map = new Map<string, PrCategory[]>();
+  let running: PrBest = emptyPr();
+  for (const past of history) {
+    const broke = newPrCategories(running, past);
+    if (past.workoutId === targetWorkoutId && broke.length > 0) {
+      map.set(past.id, broke);
+    }
+    if (!past.isWarmup && !past.isDropSet && past.weightKg > 0 && past.reps > 0) {
+      if (running.heaviestKg === null || past.weightKg > running.heaviestKg) {
+        running = { ...running, heaviestKg: past.weightKg };
+      }
+      if (past.reps >= 5 && (running.heaviestFor5Kg === null || past.weightKg > running.heaviestFor5Kg)) {
+        running = { ...running, heaviestFor5Kg: past.weightKg };
+      }
+      const e1rm = estimatedOneRm(past.weightKg, past.reps);
+      if (running.best1Rm === null || e1rm > running.best1Rm) {
+        running = { ...running, best1Rm: e1rm };
+      }
+    }
+  }
+  return map;
+}
+
 export type MuscleVolume = Partial<Record<MuscleGroup, number>>;
 export type MuscleSetCount = Partial<Record<MuscleGroup, number>>;
 

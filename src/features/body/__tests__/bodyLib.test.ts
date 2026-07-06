@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   computeResizeTarget,
   deleteBodyMetric,
+  latestWeightTrend,
   saveBodyMetric,
 } from '../bodyLib';
 import { db } from '../../../db/database';
+
+const DAY = 24 * 60 * 60 * 1000;
 
 describe('computeResizeTarget', () => {
   it('returns the original dimensions when both edges are within the limit', () => {
@@ -62,6 +65,50 @@ describe('deleteBodyMetric', () => {
     const row = await saveBodyMetric({ date: Date.now(), weightKg: 80 });
     await deleteBodyMetric(row.id);
     expect(await db.bodyMetrics.get(row.id)).toBeUndefined();
+  });
+});
+
+describe('latestWeightTrend', () => {
+  it('returns null when there is no weight data', async () => {
+    expect(await latestWeightTrend(Date.now())).toBeNull();
+  });
+
+  it('returns a null delta when only one data point exists', async () => {
+    const now = Date.now();
+    await saveBodyMetric({ date: now, weightKg: 80 });
+    const trend = await latestWeightTrend(now);
+    expect(trend?.latestKg).toBe(80);
+    expect(trend?.deltaKg).toBeNull();
+    expect(trend?.comparedToDate).toBeNull();
+  });
+
+  it('picks the closest comparison point that is at least 30 days before latest', async () => {
+    const now = Date.now();
+    await saveBodyMetric({ date: now - 40 * DAY, weightKg: 85 });
+    await saveBodyMetric({ date: now - 32 * DAY, weightKg: 84 });
+    await saveBodyMetric({ date: now - 10 * DAY, weightKg: 82 }); // too recent, excluded
+    await saveBodyMetric({ date: now, weightKg: 80 });
+
+    const trend = await latestWeightTrend(now);
+    expect(trend?.latestKg).toBe(80);
+    expect(trend?.comparedToDate).toBe(now - 32 * DAY);
+    expect(trend?.deltaKg).toBe(80 - 84);
+  });
+
+  it('treats exactly-30-days-old as a valid comparison point', async () => {
+    const now = Date.now();
+    await saveBodyMetric({ date: now - 30 * DAY, weightKg: 90 });
+    await saveBodyMetric({ date: now, weightKg: 88 });
+
+    const trend = await latestWeightTrend(now);
+    expect(trend?.comparedToDate).toBe(now - 30 * DAY);
+    expect(trend?.deltaKg).toBe(88 - 90);
+  });
+
+  it('ignores metrics that have no weightKg', async () => {
+    const now = Date.now();
+    await saveBodyMetric({ date: now, bodyFatPercent: 15 });
+    expect(await latestWeightTrend(now)).toBeNull();
   });
 });
 

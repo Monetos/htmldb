@@ -1,6 +1,7 @@
 import { db } from '../../db/database';
 import type { Exercise, SetEntry, UnilateralSide, Workout } from '../../db/schema';
 import { newId } from '../../lib/id';
+import { addWeeks, prBreakingSetsInWorkout, startOfIsoWeek, type PrCategory } from '../../lib/progression';
 
 /**
  * Returns the currently active (= unfinished) workout, or `null` if none.
@@ -163,6 +164,72 @@ export async function recentExercisesForPicker(limit: number): Promise<Exercise[
   if (ids.length === 0) return [];
   const rows = await db.exercises.bulkGet(ids);
   return rows.filter((e): e is Exercise => Boolean(e));
+}
+
+/** Count of finished workouts whose startedAt falls in the ISO week containing `now`. */
+export async function workoutsThisWeekCount(now: number): Promise<number> {
+  const weekStart = startOfIsoWeek(now);
+  const weekEnd = addWeeks(weekStart, 1);
+  const rows = await db.workouts
+    .where('startedAt')
+    .between(weekStart, weekEnd, true, false)
+    .filter((w) => Boolean(w.finishedAt))
+    .toArray();
+  return rows.length;
+}
+
+/** startedAt of the most recent *finished* workout, across the whole app, or null. */
+export async function lastWorkoutDate(): Promise<number | null> {
+  const rows = await db.workouts
+    .orderBy('startedAt')
+    .reverse()
+    .filter((w) => Boolean(w.finishedAt))
+    .limit(1)
+    .toArray();
+  return rows[0]?.startedAt ?? null;
+}
+
+export interface SessionPrEntry {
+  exerciseId: string;
+  exerciseName: string;
+  /** Union of every category broken by any set of this exercise in the session. */
+  categories: PrCategory[];
+}
+
+export interface SessionPrSummary {
+  /** One entry per exercise with ≥1 PR-breaking set, first-encountered order. */
+  entries: SessionPrEntry[];
+  /** Count of individual sets that broke ≥1 category. */
+  totalPrSets: number;
+  hasAnyPr: boolean;
+}
+
+/**
+ * Runs once, at "view summary" time, over all of one workout's sets, exercise
+ * by exercise — using the exact chronological "prior" rule from
+ * ExerciseBlock.tsx's live PR detection (see prBreakingSetsInWorkout).
+ */
+export async function computeSessionPrSummary(workoutId: string): Promise<SessionPrSummary> {
+  const sessionSets = await db.sets.where('workoutId').equals(workoutId).toArray();
+  if (sessionSets.length === 0) return { entries: [], totalPrSets: 0, hasAnyPr: false };
+
+  const exerciseIds = exerciseOrderFromSets(sessionSets);
+  const entries: SessionPrEntry[] = [];
+  let totalPrSets = 0;
+
+  for (const exerciseId of exerciseIds) {
+    const history = await db.sets.where('exerciseId').equals(exerciseId).sortBy('completedAt');
+    const broken = prBreakingSetsInWorkout(history, workoutId);
+    if (broken.size === 0) continue;
+    const categories = new Set<PrCategory>();
+    for (const cats of broken.values()) {
+      totalPrSets++;
+      for (const c of cats) categories.add(c);
+    }
+    const ex = await db.exercises.get(exerciseId);
+    entries.push({ exerciseId, exerciseName: ex?.name ?? '?', categories: Array.from(categories) });
+  }
+  return { entries, totalPrSets, hasAnyPr: entries.length > 0 };
 }
 
 export async function getExerciseMap(ids: string[]): Promise<Map<string, Exercise>> {

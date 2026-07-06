@@ -52,6 +52,33 @@ export async function deletePhoto(id: string): Promise<void> {
   await db.progressPhotos.delete(id);
 }
 
+export interface WeightTrend {
+  latestKg: number;
+  latestDate: number;
+  /** Delta vs. the closest metric ≥30 days before latestDate; null if no such point exists. */
+  deltaKg: number | null;
+  comparedToDate: number | null;
+}
+
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+export async function latestWeightTrend(now: number): Promise<WeightTrend | null> {
+  const rows = (await db.bodyMetrics.orderBy('date').toArray()).filter(
+    (m): m is BodyMetric & { weightKg: number } => typeof m.weightKg === 'number' && m.date <= now,
+  );
+  if (rows.length === 0) return null;
+  const latest = rows[rows.length - 1];
+  const cutoff = latest.date - THIRTY_DAYS_MS;
+  const earlier = rows.filter((m) => m.date <= cutoff);
+  const comparedTo = earlier.length > 0 ? earlier[earlier.length - 1] : null;
+  return {
+    latestKg: latest.weightKg,
+    latestDate: latest.date,
+    deltaKg: comparedTo ? latest.weightKg - comparedTo.weightKg : null,
+    comparedToDate: comparedTo ? comparedTo.date : null,
+  };
+}
+
 export async function savePhoto(input: {
   date: number;
   imageBlob: Blob;
