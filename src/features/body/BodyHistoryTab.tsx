@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { BodyMetric } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { deleteBodyMetric } from './bodyLib';
 import { BodyTrendCharts } from './BodyTrendCharts';
 
@@ -33,16 +34,13 @@ export function BodyHistoryTab() {
           Einträge
         </h2>
         {metrics.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700">
+          <Card className="border-dashed p-6 text-center text-sm text-slate-500">
             Noch keine Körperdaten erfasst.
-          </div>
+          </Card>
         ) : (
           <ul className="space-y-2">
             {metrics.map((m) => (
-              <li
-                key={m.id}
-                className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40"
-              >
+              <Card as="li" key={m.id}>
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="text-sm font-medium">
@@ -79,7 +77,7 @@ export function BodyHistoryTab() {
                 {m.notes ? (
                   <p className="mt-2 text-xs text-slate-500">„{m.notes}"</p>
                 ) : null}
-              </li>
+              </Card>
             ))}
           </ul>
         )}

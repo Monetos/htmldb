@@ -6,6 +6,8 @@ import { db } from '../../db/database';
 import type { Routine } from '../../db/schema';
 import { AppHeader } from '../../components/AppHeader';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { cardClassName } from '../../lib/cardStyles';
 import { lastPerformedMap } from './routinesLib';
 
 const EMPTY_ROUTINES: Routine[] = [];
@@ -33,14 +35,14 @@ export function RoutinesPage() {
         </div>
 
         {routines.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          <Card className="border-dashed p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Du hast noch keine Routinen.
             <div className="mt-3">
               <Link to="/routinen/neu" className="text-brand-600 hover:underline">
                 Erste Routine anlegen →
               </Link>
             </div>
-          </div>
+          </Card>
         ) : (
           <ul className="space-y-2">
             {routines.map((r) => {
@@ -49,7 +51,7 @@ export function RoutinesPage() {
                 <li key={r.id}>
                   <Link
                     to={`/routinen/${r.id}`}
-                    className="block rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-brand-500"
+                    className={cardClassName({ interactive: true, className: 'block p-3' })}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>

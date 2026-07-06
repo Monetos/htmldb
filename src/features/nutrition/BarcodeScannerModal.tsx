@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, ScanBarcode, X } from 'lucide-react';
 import type { Food } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Modal } from '../../components/Modal';
 import { saveFood } from './nutritionLib';
 import { BarcodeLookupError, lookupBarcode, type BarcodeProduct } from './openFoodFacts';
 
@@ -144,35 +145,23 @@ export function BarcodeScannerModal({ open, onClose, onFoodReady }: Props) {
     onFoodReady(food);
   };
 
-  if (!open) return null;
-
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Barcode scannen"
-      className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92vh] w-full max-w-xl flex-col overflow-y-auto rounded-t-2xl bg-white p-4 dark:bg-slate-900 sm:rounded-2xl"
-      >
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
-            <ScanBarcode className="h-5 w-5" /> Barcode scannen
-          </h2>
-          <button
-            type="button"
-            aria-label="Schließen"
-            onClick={onClose}
-            className="rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <Modal open={open} onClose={onClose} title="Barcode scannen" stacked>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="inline-flex items-center gap-2 text-lg font-semibold">
+          <ScanBarcode className="h-5 w-5" /> Barcode scannen
+        </h2>
+        <button
+          type="button"
+          aria-label="Schließen"
+          onClick={onClose}
+          className="rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        {phase === 'scanning' ? (
+      {phase === 'scanning' ? (
           <>
             <div className="relative overflow-hidden rounded-2xl bg-black">
               <video
@@ -266,8 +255,7 @@ export function BarcodeScannerModal({ open, onClose, onFoodReady }: Props) {
             </div>
           </div>
         ) : null}
-      </div>
-    </div>
+    </Modal>
   );
 }
 

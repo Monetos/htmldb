@@ -6,8 +6,10 @@ import { db } from '../../db/database';
 import type { Exercise, RoutineExercise, SetEntry } from '../../db/schema';
 import { useRestTimer } from '../../store/restTimer';
 import { addSet, deleteSet, lastWorkoutSetsForExercise } from './workoutLib';
-import { SetDraftRow, type DraftSet } from './SetRow';
+import { SetDraftRow, SET_ROW_GRID_COLS, type DraftSet } from './SetRow';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { SwipeToDelete } from '../../components/SwipeToDelete';
 import { MuscleChip } from '../../components/MuscleChip';
 import { formatWeight } from '../../lib/format';
 import { emptyPr, newPrCategories, type PrBest } from '../../lib/progression';
@@ -109,10 +111,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
   };
 
   return (
-    <section
-      aria-label={`Übung ${exercise.name}`}
-      className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40"
-    >
+    <Card as="section" aria-label={`Übung ${exercise.name}`}>
       <header className="mb-2 flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
@@ -188,53 +187,71 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
         </details>
       ) : null}
 
-      <table className="w-full table-fixed text-sm">
-        <thead>
-          <tr className="text-xs uppercase tracking-wide text-slate-500">
-            <th className="w-8 px-1 py-1 text-center">#</th>
-            <th className="px-1 py-1 text-center">kg</th>
-            <th className="px-1 py-1 text-center">Wdh</th>
-            <th className="w-14 px-1 py-1 text-center">RPE</th>
-            <th className="w-10 px-1 py-1 text-center">W</th>
-            <th className="w-20 px-1 py-1"></th>
-          </tr>
-        </thead>
-        <tbody>
+      <div role="table" className="w-full text-sm">
+        <div role="rowgroup">
+          <div role="row" className={`${SET_ROW_GRID_COLS} text-xs uppercase tracking-wide text-slate-500`}>
+            <span role="columnheader" className="px-1 py-1 text-center">
+              #
+            </span>
+            <span role="columnheader" className="px-1 py-1 text-center">
+              kg
+            </span>
+            <span role="columnheader" className="px-1 py-1 text-center">
+              Wdh
+            </span>
+            <span role="columnheader" className="px-1 py-1 text-center">
+              RPE
+            </span>
+            <span role="columnheader" className="px-1 py-1 text-center">
+              W
+            </span>
+            <span role="columnheader" className="px-1 py-1"></span>
+          </div>
+        </div>
+        <div role="rowgroup">
           {sets.map((s) => {
             const broke = prByCurrentSetId.get(s.id) ?? [];
             return (
-              <tr key={s.id} className="border-t border-slate-200 dark:border-slate-700">
-                <td className="px-1 py-2 text-center text-xs font-medium text-slate-500">
-                  <div className="flex items-center justify-center gap-1">
-                    <span>{s.setNumber}</span>
-                    {broke.length > 0 ? (
-                      <span
-                        aria-label="Neuer Personal Record"
-                        title={`Neuer PR: ${broke.join(', ')}`}
-                        className="inline-flex h-4 items-center"
-                      >
-                        <Trophy className="h-3 w-3 text-amber-500" />
-                      </span>
-                    ) : null}
+              <SwipeToDelete key={s.id} onDelete={() => deleteSet(s.id)}>
+                <div role="row" className={`${SET_ROW_GRID_COLS} border-t border-slate-200 dark:border-slate-700`}>
+                  <div role="cell" className="px-1 py-2 text-center text-xs font-medium text-slate-500">
+                    <div className="flex items-center justify-center gap-1">
+                      <span>{s.setNumber}</span>
+                      {broke.length > 0 ? (
+                        <span
+                          aria-label="Neuer Personal Record"
+                          title={`Neuer PR: ${broke.join(', ')}`}
+                          className="inline-flex h-4 items-center"
+                        >
+                          <Trophy className="h-3 w-3 text-amber-500" />
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </td>
-                <td className="px-1 py-2 text-center tabular-nums">{formatWeight(s.weightKg)}</td>
-                <td className="px-1 py-2 text-center tabular-nums">{s.reps}</td>
-                <td className="px-1 py-2 text-center tabular-nums text-slate-500">
-                  {s.rpe ?? '–'}
-                </td>
-                <td className="px-1 py-2 text-center">{s.isWarmup ? '✓' : ''}</td>
-                <td className="px-1 py-2">
-                  <button
-                    type="button"
-                    aria-label={`Satz ${s.setNumber} löschen`}
-                    onClick={() => deleteSet(s.id)}
-                    className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-rose-600 dark:hover:bg-slate-800"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </td>
-              </tr>
+                  <div role="cell" className="px-1 py-2 text-center tabular-nums">
+                    {formatWeight(s.weightKg)}
+                  </div>
+                  <div role="cell" className="px-1 py-2 text-center tabular-nums">
+                    {s.reps}
+                  </div>
+                  <div role="cell" className="px-1 py-2 text-center tabular-nums text-slate-500">
+                    {s.rpe ?? '–'}
+                  </div>
+                  <div role="cell" className="px-1 py-2 text-center">
+                    {s.isWarmup ? '✓' : ''}
+                  </div>
+                  <div role="cell" className="px-1 py-2">
+                    <button
+                      type="button"
+                      aria-label={`Satz ${s.setNumber} löschen`}
+                      onClick={() => deleteSet(s.id)}
+                      className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-rose-600 dark:hover:bg-slate-800"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </SwipeToDelete>
             );
           })}
           {showDraft ? (
@@ -245,8 +262,8 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
               onCancel={sets.length > 0 ? () => setShowDraft(false) : undefined}
             />
           ) : null}
-        </tbody>
-      </table>
+        </div>
+      </div>
 
       {!showDraft ? (
         <div className="mt-2">
@@ -255,6 +272,6 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget }: Props) {
           </Button>
         </div>
       ) : null}
-    </section>
+    </Card>
   );
 }

@@ -4,6 +4,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { db } from '../../db/database';
 import { filterByTimeRange, perWorkoutExerciseStats, type TimeRange } from '../../lib/progression';
 import type { SetEntry, Workout } from '../../db/schema';
+import { Card } from '../../components/Card';
 
 const EMPTY_SETS: SetEntry[] = [];
 
@@ -53,12 +54,12 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
 
   if (points.length === 0) {
     return (
-      <section className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700">
+      <Card as="section" className="border-dashed p-4 text-center text-sm text-slate-500">
         Noch keine Trainingsdaten für diese Übung im gewählten Zeitraum.
         <div className="mt-3">
           <RangeTabs range={range} onChange={setRange} />
         </div>
-      </section>
+      </Card>
     );
   }
 
@@ -71,7 +72,7 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
         <RangeTabs range={range} onChange={setRange} />
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+      <Card>
         <p className="mb-1 text-xs text-slate-500">Höchstes Gewicht pro Workout</p>
         <div className="h-40 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -93,9 +94,9 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </Card>
 
-      <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+      <Card className="mt-2">
         <p className="mb-1 text-xs text-slate-500">Gesamtvolumen pro Workout</p>
         <div className="h-40 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -117,7 +118,7 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </Card>
     </section>
   );
 }

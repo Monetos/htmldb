@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Exercise } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { MuscleChip } from '../../components/MuscleChip';
 import { deleteRoutine, lastPerformedAt, startRoutineWorkout } from './routinesLib';
 import { getActiveWorkout } from '../workout/workoutLib';
@@ -106,18 +107,15 @@ export function RoutineDetailPage() {
           Übungen
         </h2>
         {orderedExercises.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700">
+          <Card className="border-dashed p-4 text-center text-sm text-slate-500">
             Keine Übungen in dieser Routine.
-          </div>
+          </Card>
         ) : (
           <ol className="space-y-2">
             {orderedExercises.map((re, i) => {
               const ex = exercises?.get(re.exerciseId);
               return (
-                <li
-                  key={`${re.exerciseId}-${i}`}
-                  className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40"
-                >
+                <Card as="li" key={`${re.exerciseId}-${i}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="text-xs text-slate-500">#{i + 1}</div>
@@ -140,7 +138,7 @@ export function RoutineDetailPage() {
                   {re.note ? (
                     <p className="mt-2 text-xs text-slate-500">„{re.note}"</p>
                   ) : null}
-                </li>
+                </Card>
               );
             })}
           </ol>

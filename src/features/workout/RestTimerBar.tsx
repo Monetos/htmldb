@@ -17,7 +17,7 @@ export function RestTimerBar() {
     <div
       role="status"
       aria-label="Satzpause"
-      className="sticky top-14 z-10 mx-auto mt-2 max-w-xl rounded-2xl border border-brand-500 bg-brand-50 p-3 shadow-sm dark:bg-brand-700/20"
+      className="sticky top-14 z-10 mx-auto mt-2 max-w-xl rounded-2xl border border-brand-500 bg-brand-50 p-3 shadow-elevated dark:bg-brand-700/20 dark:shadow-none dark:ring-1 dark:ring-white/5"
     >
       <div className="flex items-center justify-between gap-3">
         <div>

@@ -16,6 +16,7 @@ import { db } from '../../db/database';
 import type { DailyTargets } from '../../db/schema';
 import { DEFAULT_DAILY_TARGETS } from '../../db/schema';
 import { weeklyTotals, type WeeklyDay } from './nutritionLib';
+import { Card } from '../../components/Card';
 
 const EMPTY_BUCKETS: WeeklyDay[] = [];
 
@@ -144,9 +145,9 @@ export function WeekTab() {
 
 function ChartCard({ title, children, height = 160 }: { title: string; children: ReactNode; height?: number }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/40">
+    <Card as="section">
       <p className="mb-1 text-xs text-slate-500">{title}</p>
       <div style={{ height }}>{children}</div>
-    </section>
+    </Card>
   );
 }

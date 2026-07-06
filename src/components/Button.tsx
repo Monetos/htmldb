@@ -15,7 +15,7 @@ const VARIANTS: Record<Variant, string> = {
     'bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100',
   ghost:
     'bg-transparent hover:bg-slate-100 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-200',
-  danger: 'bg-rose-600 hover:bg-rose-700 text-white',
+  danger: 'bg-danger-600 hover:bg-danger-700 text-white',
 };
 
 const SIZES: Record<Size, string> = {
@@ -34,7 +34,7 @@ export function Button({
     <button
       type="button"
       {...rest}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition active:scale-[0.97] transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:active:scale-100 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
     />
   );
 }

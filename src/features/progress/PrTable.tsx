@@ -6,6 +6,8 @@ import { db } from '../../db/database';
 import { bestPrFromSets } from '../../lib/progression';
 import { formatWeight } from '../../lib/format';
 import type { Exercise, SetEntry } from '../../db/schema';
+import { Card } from '../../components/Card';
+import { cardClassName } from '../../lib/cardStyles';
 
 interface Row {
   exercise: Exercise;
@@ -73,14 +75,14 @@ export function PrTable() {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700">
+      <Card className="border-dashed p-4 text-center text-sm text-slate-500">
         Noch keine PRs – logge ein paar Sätze.
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/40">
+    <div className={cardClassName({ className: 'overflow-hidden' })}>
       <table className="w-full table-fixed text-sm">
         <thead>
           <tr className="text-xs uppercase tracking-wide text-slate-500">

@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { PhotoView, ProgressPhoto } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { deletePhoto } from './bodyLib';
 import { usePhotoUrl } from './usePhotoUrl';
 
@@ -49,9 +50,9 @@ export function BodyPhotosTab() {
       </div>
 
       {photos.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700">
+        <Card className="border-dashed p-6 text-center text-sm text-slate-500">
           Noch keine Fortschrittsfotos.
-        </div>
+        </Card>
       ) : (
         VIEW_ORDER.map((view) =>
           grouped[view].length > 0 ? (

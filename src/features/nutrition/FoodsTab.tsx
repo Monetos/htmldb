@@ -5,6 +5,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Food } from '../../db/schema';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { cardClassName } from '../../lib/cardStyles';
 
 const EMPTY: Food[] = [];
 
@@ -61,7 +63,10 @@ export function FoodsTab() {
           <li key={f.id}>
             <Link
               to={`/ernaehrung/lebensmittel/${f.id}/bearbeiten`}
-              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 hover:border-brand-500 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-brand-500"
+              className={cardClassName({
+                interactive: true,
+                className: 'flex items-center justify-between p-3',
+              })}
             >
               <div>
                 <div className="flex items-center gap-2 text-sm font-medium">
@@ -82,9 +87,9 @@ export function FoodsTab() {
           </li>
         ))}
         {filtered.length === 0 ? (
-          <li className="rounded-2xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700">
+          <Card as="li" className="border-dashed p-4 text-center text-sm text-slate-500">
             Nichts gefunden.
-          </li>
+          </Card>
         ) : null}
       </ul>
     </div>
