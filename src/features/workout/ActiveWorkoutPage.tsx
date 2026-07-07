@@ -351,6 +351,7 @@ export function ActiveWorkoutPage() {
           <ul className="mb-4 space-y-2">
             {groupableExtras.map((id) => {
               const ex = exerciseMap?.get(id);
+              if (!ex) return null;
               const checked = groupSelection.includes(id);
               return (
                 <li key={id}>
@@ -370,7 +371,7 @@ export function ActiveWorkoutPage() {
                       }
                       className="h-4 w-4"
                     />
-                    {ex?.name ?? id}
+                    {ex.name}
                   </label>
                 </li>
               );
