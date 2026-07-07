@@ -12,7 +12,7 @@ import {
   type Workout,
   DEFAULT_DAILY_TARGETS,
 } from './schema';
-import { SEED_EXERCISES } from './seedExercises';
+import { PRE_PHASE_16_SEED_IDS, SEED_EXERCISES } from './seedExercises';
 import { SEED_FOODS } from './seedFoods';
 
 export class FitnessDatabase extends Dexie {
@@ -73,6 +73,30 @@ export async function seedExercisesIfEmpty(): Promise<number> {
     const rows = SEED_EXERCISES.map((e) => ({ ...e, createdAt: now }));
     await db.exercises.bulkAdd(rows);
     return rows.length;
+  });
+}
+
+/**
+ * Inserts SEED_EXERCISES rows introduced after PRE_PHASE_16_SEED_IDS that are
+ * missing from db.exercises (matched by id) — i.e. exercises added in Phase
+ * 16 or later that an already-installed user doesn't have yet. Deliberately
+ * scoped to ids OUTSIDE that frozen baseline: a user who deleted one of the
+ * original pre-Phase-16 seed exercises keeps it deleted, it is never
+ * resurrected just because it's still in SEED_EXERCISES. Idempotent.
+ */
+export async function reconcileNewSeedExercises(): Promise<number> {
+  return await db.transaction('rw', db.exercises, async () => {
+    const newSeeds = SEED_EXERCISES.filter((e) => !PRE_PHASE_16_SEED_IDS.has(e.id));
+    const newIds = newSeeds.map((e) => e.id);
+    const existingRows = await db.exercises.bulkGet(newIds);
+    const now = Date.now();
+    const missing = newSeeds.filter((_, i) => !existingRows[i]).map((e) => ({
+      ...e,
+      createdAt: now,
+    }));
+    if (missing.length === 0) return 0;
+    await db.exercises.bulkAdd(missing);
+    return missing.length;
   });
 }
 

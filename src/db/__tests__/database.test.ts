@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   db,
   ensureSettings,
+  reconcileNewSeedExercises,
   reconcileSeedExerciseMovementPatterns,
   reconcileSeedExerciseVideos,
   seedExercisesIfEmpty,
 } from '../database';
-import { SEED_EXERCISES } from '../seedExercises';
+import { PRE_PHASE_16_SEED_IDS, SEED_EXERCISE_COUNT, SEED_EXERCISES } from '../seedExercises';
 import { DEFAULT_DAILY_TARGETS } from '../schema';
 
 describe('ensureSettings', () => {
@@ -58,6 +59,57 @@ describe('FitnessDatabase schema', () => {
     expect(names).toEqual(expect.arrayContaining(['name', 'primaryMuscles', 'equipment', 'isCustom']));
     const primary = indexes.find((i) => i.name === 'primaryMuscles');
     expect(primary?.multi).toBe(true);
+  });
+});
+
+const NEW_SEEDS_AFTER_BASELINE = SEED_EXERCISES.filter((e) => !PRE_PHASE_16_SEED_IDS.has(e.id));
+
+describe('reconcileNewSeedExercises', () => {
+  it('never resurrects a deleted pre-Phase-16 (baseline) seed exercise', async () => {
+    await seedExercisesIfEmpty();
+    const baselineExercise = SEED_EXERCISES.find((e) => PRE_PHASE_16_SEED_IDS.has(e.id))!;
+    await db.exercises.delete(baselineExercise.id);
+    expect(await db.exercises.count()).toBe(SEED_EXERCISE_COUNT - 1);
+
+    const added = await reconcileNewSeedExercises();
+    expect(added).toBe(0);
+    expect(await db.exercises.get(baselineExercise.id)).toBeUndefined();
+  });
+
+  it.skipIf(NEW_SEEDS_AFTER_BASELINE.length === 0)(
+    'inserts seed rows introduced after the Phase-16 baseline that are missing',
+    async () => {
+      await seedExercisesIfEmpty();
+      const newExercise = NEW_SEEDS_AFTER_BASELINE[0];
+      await db.exercises.delete(newExercise.id);
+
+      const added = await reconcileNewSeedExercises();
+      expect(added).toBeGreaterThanOrEqual(1);
+      expect((await db.exercises.get(newExercise.id))?.name).toBe(newExercise.name);
+    },
+  );
+
+  it('is idempotent: a second call inserts nothing once everything is present', async () => {
+    await seedExercisesIfEmpty();
+    await reconcileNewSeedExercises();
+    expect(await reconcileNewSeedExercises()).toBe(0);
+  });
+
+  it('never touches existing custom exercises', async () => {
+    await db.exercises.add({
+      id: 'custom-1',
+      name: 'X',
+      category: 'compound',
+      primaryMuscles: ['chest'],
+      secondaryMuscles: [],
+      equipment: 'bodyweight',
+      execution: { setup: 'x', movement: 'y', cues: ['a', 'b'], commonMistakes: ['c'] },
+      defaultRestSeconds: 90,
+      isCustom: true,
+      createdAt: Date.now(),
+    });
+    await reconcileNewSeedExercises();
+    expect(await db.exercises.get('custom-1')).toMatchObject({ name: 'X', isCustom: true });
   });
 });
 

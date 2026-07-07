@@ -27,7 +27,7 @@ const ALL_MUSCLES: MuscleGroup[] = [
   'lower_back',
 ];
 
-const ALL_EQUIPMENT: Equipment[] = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight'];
+const ALL_EQUIPMENT: Equipment[] = ['barbell', 'dumbbell', 'machine', 'cable', 'bodyweight', 'kettlebell'];
 
 const ALL_MOVEMENT_PATTERNS: MovementPattern[] = [
   'squat',

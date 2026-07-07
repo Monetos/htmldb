@@ -909,3 +909,65 @@ function buildExercise(t: SeedTemplate): Exercise {
 export const SEED_EXERCISES: Exercise[] = TEMPLATES.map(buildExercise);
 
 export const SEED_EXERCISE_COUNT = SEED_EXERCISES.length;
+
+/**
+ * Frozen snapshot of every seed exercise id that existed before Phase 16's
+ * library growth. `reconcileNewSeedExercises()` (src/db/database.ts) only
+ * ever considers ids OUTSIDE this set as candidates to insert — so a user
+ * who deliberately deleted one of these 50 keeps it deleted forever, instead
+ * of it being silently resurrected just because it's still in SEED_EXERCISES.
+ * Do not add to this set retroactively; a future phase that grows the
+ * library further should freeze its own new baseline the same way.
+ */
+export const PRE_PHASE_16_SEED_IDS: ReadonlySet<string> = new Set([
+  'bankdruecken-langhantel',
+  'bankdruecken-kurzhantel',
+  'schraegbankdruecken-langhantel',
+  'butterfly-maschine',
+  'dips',
+  'fliegende-kurzhantel',
+  'liegestuetze',
+  'klimmzug',
+  'latzug-breit',
+  'latzug-eng',
+  'rudern-langhantel',
+  'rudern-kurzhantel-einarmig',
+  'rudern-kabel-eng',
+  'rudern-maschine',
+  'kreuzheben',
+  'kreuzheben-rumaenisch',
+  'hyperextensions',
+  'schulterdruecken-langhantel',
+  'schulterdruecken-kurzhantel',
+  'arnold-press',
+  'seitheben-kurzhantel',
+  'seitheben-kabel',
+  'reverse-fly-kurzhantel',
+  'face-pulls',
+  'shrugs-langhantel',
+  'kniebeuge-langhantel',
+  'front-squat',
+  'beinpresse-45grad',
+  'ausfallschritte-kurzhantel',
+  'bulgarian-split-squat',
+  'beinstrecker',
+  'beinbeuger-liegend',
+  'beinbeuger-sitzend',
+  'hip-thrust',
+  'wadenheben-stehend',
+  'wadenheben-sitzend',
+  'bizeps-curls-langhantel',
+  'hammercurls-kurzhantel',
+  'scott-curls',
+  'konzentrationscurls',
+  'trizepsdruecken-kabel',
+  'trizeps-french-press',
+  'enges-bankdruecken',
+  'trizeps-kickback',
+  'reverse-curls',
+  'plank',
+  'crunches',
+  'beinheben-haengend',
+  'kabel-crunches',
+  'russian-twists',
+].map((slug) => `seed-${slug}`));

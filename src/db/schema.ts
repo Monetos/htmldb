@@ -19,7 +19,7 @@ export type MuscleGroup =
   | 'abs'
   | 'lower_back';
 
-export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight';
+export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'kettlebell';
 
 export type ExerciseCategory = 'compound' | 'isolation';
 
@@ -231,6 +231,7 @@ export const EQUIPMENT_LABELS: Record<Equipment, string> = {
   machine: 'Maschine',
   cable: 'Kabelzug',
   bodyweight: 'Körpergewicht',
+  kettlebell: 'Kettlebell',
 };
 
 export const MOVEMENT_PATTERN_LABELS: Record<MovementPattern, string> = {
