@@ -220,6 +220,8 @@ export interface Settings {
   lastTdeeEstimateKcal?: number;
   /** Set when a recalculation produces a new target; cleared on accept or reject. */
   pendingTdeeAdjustment?: TdeeAdjustmentSuggestion;
+  /** Per-exercise plateau-callout dismissals, keyed by exerciseId. Auto-stale once a newer workout for that exercise exists. */
+  dismissedPlateaus?: Record<string, { dismissedAt: number }>;
 }
 
 export const DEFAULT_DAILY_TARGETS: DailyTargets = {

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Link2, Plus, Square } from 'lucide-react';
+import { Link2, Plus, Sparkles, Square } from 'lucide-react';
 import { db } from '../../db/database';
 import type { Routine, RoutineExercise, SetEntry } from '../../db/schema';
 import { AppHeader } from '../../components/AppHeader';
@@ -94,6 +94,7 @@ import {
 import { RestTimerBar } from './RestTimerBar';
 import { ExercisePicker } from './ExercisePicker';
 import { ExerciseBlock } from './ExerciseBlock';
+import { NlSetLogModal } from './NlSetLogModal';
 import { formatWorkoutLength } from '../../lib/format';
 import { useRestTimer } from '../../store/restTimer';
 
@@ -105,6 +106,7 @@ export function ActiveWorkoutPage() {
   // Track exercise order locally (allows adding exercises before any sets exist).
   const [extraExerciseIds, setExtraExerciseIds] = useState<string[]>([]);
   const [showPicker, setShowPicker] = useState(false);
+  const [showTextLog, setShowTextLog] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
   const [bodyweight, setBodyweight] = useState('');
   const [notes, setNotes] = useState('');
@@ -311,9 +313,12 @@ export function ActiveWorkoutPage() {
           })}
         </div>
 
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="secondary" className="flex-1" onClick={() => setShowPicker(true)}>
             <Plus className="h-4 w-4" /> Übung hinzufügen
+          </Button>
+          <Button variant="secondary" onClick={() => setShowTextLog(true)}>
+            <Sparkles className="h-4 w-4" /> Per Text protokollieren
           </Button>
           {groupableExtras.length >= 2 ? (
             <Button variant="secondary" onClick={() => setShowGroupPicker(true)}>
@@ -332,6 +337,16 @@ export function ActiveWorkoutPage() {
           onPick={(id) => {
             setExtraExerciseIds((prev) => [...prev, id]);
             setShowPicker(false);
+          }}
+        />
+
+        <NlSetLogModal
+          open={showTextLog}
+          onClose={() => setShowTextLog(false)}
+          workoutId={workout.id}
+          unit={unit}
+          onCommitted={(ids) => {
+            setExtraExerciseIds((prev) => [...prev, ...ids.filter((id) => !exerciseIds.includes(id))]);
           }}
         />
 

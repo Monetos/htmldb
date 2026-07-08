@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, Circle, ExternalLink, Flame, Trash2, TrendingDown, Trophy } from 'lucide-react';
+import { Calculator, Circle, ExternalLink, Flame, MessageSquareText, Trash2, TrendingDown, Trophy } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
 import type { Exercise, RoutineExercise, SetEntry, UnilateralSide } from '../../db/schema';
@@ -8,6 +8,7 @@ import { useRestTimer } from '../../store/restTimer';
 import { addSet, deleteSet, lastWorkoutSetsForExercise } from './workoutLib';
 import { SetDraftRow, SET_ROW_GRID_COLS, type DraftSet } from './SetRow';
 import { CalculatorModal } from './CalculatorModal';
+import { SetTextQuickEntryModal } from './SetTextQuickEntryModal';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { SwipeToDelete } from '../../components/SwipeToDelete';
@@ -66,6 +67,7 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
 
   const [showDraftLocal, setShowDraftLocal] = useState(sets.length === 0);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [showTextEntry, setShowTextEntry] = useState(false);
   // Grouped members' draft visibility is fully derived from round state — the
   // user can't open/close it out of turn (round order is fixed for Phase 10).
   const showDraft = group ? group.isActive : showDraftLocal;
@@ -156,6 +158,14 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
               className="text-slate-400 hover:text-brand-500"
             >
               <Calculator className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Per Text protokollieren"
+              onClick={() => setShowTextEntry(true)}
+              className="text-slate-400 hover:text-brand-500"
+            >
+              <MessageSquareText className="h-4 w-4" />
             </button>
           </div>
           <div className="mt-1 flex flex-wrap gap-1">
@@ -337,6 +347,15 @@ export function ExerciseBlock({ workoutId, exercise, routineTarget, group }: Pro
         exercise={exercise}
         unit={unit}
         initialWeightKg={previousSet?.weightKg}
+      />
+
+      <SetTextQuickEntryModal
+        open={showTextEntry}
+        onClose={() => setShowTextEntry(false)}
+        workoutId={workoutId}
+        exercise={exercise}
+        unit={unit}
+        restSeconds={restSecondsForTimer}
       />
     </ExerciseSurface>
   );

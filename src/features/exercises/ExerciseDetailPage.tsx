@@ -210,7 +210,7 @@ export function ExerciseDetailPage() {
       </Card>
 
       <div className="mb-4">
-        <ExerciseTrendCharts exerciseId={exercise.id} />
+        <ExerciseTrendCharts exerciseId={exercise.id} exerciseName={exercise.name} />
       </div>
 
       {exercise.isCustom ? (
