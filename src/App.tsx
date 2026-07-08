@@ -22,6 +22,7 @@ import { FoodsTab } from './features/nutrition/FoodsTab';
 import { FoodFormPage } from './features/nutrition/FoodFormPage';
 import { useTheme } from './hooks/useTheme';
 import { useBootstrap } from './hooks/useBootstrap';
+import { useAdaptiveTdee } from './hooks/useAdaptiveTdee';
 
 // Chart-heavy routes are lazy-loaded so Recharts only enters the bundle when
 // the user actually navigates to a stats / week view.
@@ -50,6 +51,7 @@ export default function App() {
   // Initialize theme from settings + seed exercises on first launch.
   useTheme();
   useBootstrap();
+  useAdaptiveTdee();
 
   return (
     <div className="flex min-h-full flex-col bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">

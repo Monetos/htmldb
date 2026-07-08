@@ -185,6 +185,20 @@ export type ThemeMode = 'light' | 'dark';
 
 export type WeightUnit = 'kg' | 'lbs';
 
+/** A computed-but-not-yet-applied adaptive TDEE target change, awaiting user confirmation. */
+export interface TdeeAdjustmentSuggestion {
+  proposedKcal: number;
+  proposedProteinG: number;
+  proposedCarbsG: number;
+  proposedFatG: number;
+  proposedWaterMl: number;
+  estimatedTdeeKcal: number;
+  previousKcal: number;
+  computedAt: number;
+  /** Lazily filled in once the user requests the optional AI explanation. */
+  explanation?: string;
+}
+
 export interface Settings {
   id: 'singleton';
   dailyTargets: DailyTargets;
@@ -196,6 +210,16 @@ export interface Settings {
   anthropicApiKey?: string;
   /** Display/input unit preference. Storage is always kg regardless of this value. */
   weightUnit?: WeightUnit;
+  /** Opt-in switch for the adaptive TDEE feature. Default off. */
+  adaptiveTdeeEnabled?: boolean;
+  /** Deficit/surplus (kcal) vs. estimated TDEE, captured on the first successful estimate and preserved across recalculations. */
+  tdeeGoalOffsetKcal?: number;
+  /** Wall-clock timestamp of the last recalculation attempt (successful or not), used to gate the weekly cadence. */
+  lastTdeeRecalcAt?: number;
+  /** Most recent successful TDEE estimate in kcal, shown for transparency even without a pending suggestion. */
+  lastTdeeEstimateKcal?: number;
+  /** Set when a recalculation produces a new target; cleared on accept or reject. */
+  pendingTdeeAdjustment?: TdeeAdjustmentSuggestion;
 }
 
 export const DEFAULT_DAILY_TARGETS: DailyTargets = {

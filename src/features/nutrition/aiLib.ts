@@ -1,7 +1,7 @@
 import type { Macros } from '../../db/schema';
+import { AI_MODEL, AiError, callClaudeJson, type UserContent } from '../../lib/anthropicClient';
 
-/** Fixed per user request: Sonnet 5 quality is required, Haiku is not enough. */
-export const AI_MODEL = 'claude-sonnet-5';
+export { AI_MODEL, AiError };
 
 export interface FoodEstimate {
   name: string;
@@ -11,15 +11,6 @@ export interface FoodEstimate {
   suggestedPortionG?: number;
   confidence: 'high' | 'medium' | 'low';
   notes?: string;
-}
-
-export class AiError extends Error {
-  constructor(
-    message: string,
-    public readonly kind: 'no_key' | 'auth' | 'rate_limit' | 'offline' | 'bad_response' | 'other',
-  ) {
-    super(message);
-  }
 }
 
 const ESTIMATE_SCHEMA = {
@@ -109,60 +100,14 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
-type UserContent =
-  | { type: 'text'; text: string }
-  | {
-      type: 'image';
-      source: { type: 'base64'; media_type: 'image/jpeg' | 'image/png' | 'image/webp'; data: string };
-    };
-
 async function runEstimate(apiKey: string, content: UserContent[]): Promise<FoodEstimate> {
-  if (!apiKey.trim()) {
-    throw new AiError('Kein API-Key hinterlegt. Trage ihn in den Einstellungen ein.', 'no_key');
-  }
-  // Lazy-load the SDK so it stays out of the initial bundle.
-  const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic({
-    apiKey: apiKey.trim(),
-    dangerouslyAllowBrowser: true,
-    maxRetries: 1,
+  const raw = await callClaudeJson({
+    apiKey,
+    system: SYSTEM_PROMPT,
+    content,
+    schema: ESTIMATE_SCHEMA,
   });
-  try {
-    const response = await client.messages.create({
-      model: AI_MODEL,
-      max_tokens: 1024,
-      output_config: {
-        effort: 'low',
-        format: { type: 'json_schema', schema: ESTIMATE_SCHEMA },
-      },
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content }],
-    });
-    if (response.stop_reason === 'refusal') {
-      throw new AiError('Die KI hat die Anfrage abgelehnt.', 'bad_response');
-    }
-    const text = response.content.find((b) => b.type === 'text');
-    if (!text || text.type !== 'text') {
-      throw new AiError('KI-Antwort war leer.', 'bad_response');
-    }
-    return parseEstimate(JSON.parse(text.text));
-  } catch (err) {
-    if (err instanceof AiError) throw err;
-    const { default: Anthropic2 } = await import('@anthropic-ai/sdk');
-    if (err instanceof Anthropic2.AuthenticationError) {
-      throw new AiError('API-Key ungültig. Prüfe ihn in den Einstellungen.', 'auth');
-    }
-    if (err instanceof Anthropic2.RateLimitError) {
-      throw new AiError('Rate-Limit erreicht — warte kurz und versuche es erneut.', 'rate_limit');
-    }
-    if (err instanceof Anthropic2.APIConnectionError) {
-      throw new AiError('Keine Verbindung zur KI. Bist du online?', 'offline');
-    }
-    if (err instanceof Anthropic2.APIError) {
-      throw new AiError(`KI-Fehler: ${err.message}`, 'other');
-    }
-    throw new AiError(`Unerwarteter Fehler: ${(err as Error).message}`, 'other');
-  }
+  return parseEstimate(raw);
 }
 
 export async function estimateFoodFromText(
