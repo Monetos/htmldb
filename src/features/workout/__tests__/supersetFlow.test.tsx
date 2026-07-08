@@ -32,8 +32,8 @@ describe('active workout: ad-hoc superset round behavior', () => {
     // Group the two ad-hoc exercises into a superset.
     await user.click(await screen.findByRole('button', { name: /Gruppieren/ }));
     const groupDialog = await screen.findByRole('dialog', { name: /Übungen gruppieren/ });
-    await user.click(within(groupDialog).getByRole('checkbox', { name: /Bankdrücken Langhantel/ }));
-    await user.click(within(groupDialog).getByRole('checkbox', { name: /Bizepscurls Langhantel/ }));
+    await user.click(await within(groupDialog).findByRole('checkbox', { name: /Bankdrücken Langhantel/ }));
+    await user.click(await within(groupDialog).findByRole('checkbox', { name: /Bizepscurls Langhantel/ }));
     await user.click(within(groupDialog).getByRole('button', { name: /Gruppieren \(2\)/ }));
 
     expect(await screen.findByText('Superset (2 Übungen)')).toBeInTheDocument();

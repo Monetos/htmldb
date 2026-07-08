@@ -1,12 +1,24 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Loader2, Sparkles } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { db } from '../../db/database';
 import { filterByTimeRange, perWorkoutExerciseStats, type TimeRange } from '../../lib/progression';
+import {
+  detectPlateau,
+  perWorkoutBestE1rm,
+  type PlateauResult,
+  type WorkoutStrengthPoint,
+} from '../../lib/plateauDetection';
 import type { SetEntry, Workout } from '../../db/schema';
 import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
 import { kgToUnit } from '../../lib/units';
 import { useWeightUnit } from '../../hooks/useWeightUnit';
+import { AiError } from '../../lib/anthropicClient';
+import { explainPlateau } from '../workout/workoutAiLib';
+import { dismissPlateau, isPlateauCurrentlyDismissed, nutritionStatsForPlateauWindow } from './plateauLib';
 
 const EMPTY_SETS: SetEntry[] = [];
 
@@ -20,9 +32,10 @@ const RANGES: { value: TimeRange; label: string }[] = [
 
 interface Props {
   exerciseId: string;
+  exerciseName: string;
 }
 
-export function ExerciseTrendCharts({ exerciseId }: Props) {
+export function ExerciseTrendCharts({ exerciseId, exerciseName }: Props) {
   const [range, setRange] = useState<TimeRange>('3m');
   const { unit } = useWeightUnit();
 
@@ -57,6 +70,22 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
     }));
   }, [sets, workoutsMap, range, unit]);
 
+  // Plateau detection always looks at the exercise's full history, independent of the chart's selected range.
+  const strengthPoints = useMemo(
+    () => (workoutsMap ? perWorkoutBestE1rm(sets, workoutsMap) : []),
+    [sets, workoutsMap],
+  );
+  const plateauResult = useMemo(() => detectPlateau(strengthPoints), [strengthPoints]);
+  const latestPointStartedAt =
+    strengthPoints.length > 0 ? strengthPoints[strengthPoints.length - 1].startedAt : null;
+  const isDismissed = useLiveQuery(
+    () => (latestPointStartedAt !== null ? isPlateauCurrentlyDismissed(exerciseId, latestPointStartedAt) : false),
+    [exerciseId, latestPointStartedAt],
+  );
+  const showPlateauCallout =
+    isDismissed === false &&
+    (plateauResult.status === 'plateaued' || plateauResult.status === 'regressing');
+
   if (points.length === 0) {
     return (
       <Card as="section" className="border-dashed p-4 text-center text-sm text-slate-500">
@@ -76,6 +105,15 @@ export function ExerciseTrendCharts({ exerciseId }: Props) {
         </h2>
         <RangeTabs range={range} onChange={setRange} />
       </div>
+
+      {showPlateauCallout ? (
+        <PlateauCallout
+          exerciseId={exerciseId}
+          exerciseName={exerciseName}
+          plateauResult={plateauResult}
+          strengthPoints={strengthPoints}
+        />
+      ) : null}
 
       <Card>
         <p className="mb-1 text-xs text-slate-500">Höchstes Gewicht pro Workout</p>
@@ -146,5 +184,76 @@ function RangeTabs({ range, onChange }: { range: TimeRange; onChange: (r: TimeRa
         </button>
       ))}
     </div>
+  );
+}
+
+function PlateauCallout({
+  exerciseId,
+  exerciseName,
+  plateauResult,
+  strengthPoints,
+}: {
+  exerciseId: string;
+  exerciseName: string;
+  plateauResult: PlateauResult;
+  strengthPoints: WorkoutStrengthPoint[];
+}) {
+  const settings = useLiveQuery(() => db.settings.get('singleton'), []);
+  const apiKey = settings?.anthropicApiKey ?? '';
+
+  const [explaining, setExplaining] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [narrative, setNarrative] = useState<string | null>(null);
+
+  const onExplain = async () => {
+    setExplaining(true);
+    setError(null);
+    try {
+      const nutritionStats = await nutritionStatsForPlateauWindow(strengthPoints, Date.now());
+      const result = await explainPlateau(apiKey, { exerciseName, plateauResult, nutritionStats });
+      setNarrative(result.narrative);
+    } catch (err) {
+      setError(err instanceof AiError ? err.message : (err as Error).message);
+    } finally {
+      setExplaining(false);
+    }
+  };
+
+  return (
+    <Card className="mb-2 border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20">
+      <p className="text-sm text-amber-800 dark:text-amber-200">
+        {plateauResult.status === 'regressing'
+          ? 'Deine Kraftwerte sind zuletzt gesunken.'
+          : 'Deine Kraftwerte stagnieren seit einigen Workouts.'}
+      </p>
+      {narrative ? <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">{narrative}</p> : null}
+      {!apiKey ? (
+        <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
+          Für eine KI-Erklärung brauchst du einen Anthropic-API-Key.{' '}
+          <Link to="/einstellungen" className="font-medium underline">
+            In den Einstellungen hinterlegen →
+          </Link>
+        </p>
+      ) : null}
+      {error ? <p className="mt-2 text-xs text-rose-600">{error}</p> : null}
+      <div className="mt-3 flex gap-2">
+        {!narrative && apiKey ? (
+          <Button size="sm" variant="ghost" onClick={() => void onExplain()} disabled={explaining}>
+            {explaining ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Claude erklärt…
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" /> Erklären
+              </>
+            )}
+          </Button>
+        ) : null}
+        <Button size="sm" variant="ghost" onClick={() => void dismissPlateau(exerciseId)}>
+          Verwerfen
+        </Button>
+      </div>
+    </Card>
   );
 }

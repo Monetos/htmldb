@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { db, seedExercisesIfEmpty } from '../database';
 import { SEED_EXERCISES, SEED_EXERCISE_COUNT } from '../seedExercises';
-import { MUSCLE_GROUP_LABELS, type MuscleGroup } from '../schema';
+import { MOVEMENT_PATTERN_LABELS, MUSCLE_GROUP_LABELS, type MovementPattern, type MuscleGroup } from '../schema';
 
 describe('seedExercises content', () => {
-  it('ships at least 50 curated exercises', () => {
-    expect(SEED_EXERCISE_COUNT).toBeGreaterThanOrEqual(50);
+  it('ships at least 120 curated exercises', () => {
+    expect(SEED_EXERCISE_COUNT).toBeGreaterThanOrEqual(120);
   });
 
   it('marks every seed row as isCustom: false', () => {
@@ -38,23 +38,37 @@ describe('seedExercises content', () => {
     }
   });
 
-  it('covers all major muscle groups in primary roles', () => {
+  it('uses only declared movement patterns, when set', () => {
+    const validPatterns = new Set(Object.keys(MOVEMENT_PATTERN_LABELS) as MovementPattern[]);
+    for (const ex of SEED_EXERCISES) {
+      if (ex.movementPattern) expect(validPatterns.has(ex.movementPattern)).toBe(true);
+    }
+  });
+
+  it('covers every muscle group in primary roles', () => {
     const covered = new Set<MuscleGroup>();
     for (const ex of SEED_EXERCISES) ex.primaryMuscles.forEach((m) => covered.add(m));
-    // The roadmap's "must-have" groups for a strength-training library:
+    // Phase 16 deliberately deepened back_traps/back_rhomboids/forearms/
+    // lower_back coverage, which were previously 1-2 exercises each — all 16
+    // groups are now a real regression risk worth locking in, not an
+    // accident of content.
     const required: MuscleGroup[] = [
       'chest',
       'back_lats',
+      'back_traps',
+      'back_rhomboids',
       'shoulders_front',
       'shoulders_side',
       'shoulders_rear',
       'biceps',
       'triceps',
+      'forearms',
       'quads',
       'hamstrings',
       'glutes',
       'calves',
       'abs',
+      'lower_back',
     ];
     for (const m of required) expect(covered.has(m)).toBe(true);
   });

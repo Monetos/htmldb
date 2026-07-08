@@ -12,7 +12,7 @@ import {
   type Workout,
   DEFAULT_DAILY_TARGETS,
 } from './schema';
-import { SEED_EXERCISES } from './seedExercises';
+import { PRE_PHASE_16_SEED_IDS, SEED_EXERCISES } from './seedExercises';
 import { SEED_FOODS } from './seedFoods';
 
 export class FitnessDatabase extends Dexie {
@@ -77,6 +77,30 @@ export async function seedExercisesIfEmpty(): Promise<number> {
 }
 
 /**
+ * Inserts SEED_EXERCISES rows introduced after PRE_PHASE_16_SEED_IDS that are
+ * missing from db.exercises (matched by id) — i.e. exercises added in Phase
+ * 16 or later that an already-installed user doesn't have yet. Deliberately
+ * scoped to ids OUTSIDE that frozen baseline: a user who deleted one of the
+ * original pre-Phase-16 seed exercises keeps it deleted, it is never
+ * resurrected just because it's still in SEED_EXERCISES. Idempotent.
+ */
+export async function reconcileNewSeedExercises(): Promise<number> {
+  return await db.transaction('rw', db.exercises, async () => {
+    const newSeeds = SEED_EXERCISES.filter((e) => !PRE_PHASE_16_SEED_IDS.has(e.id));
+    const newIds = newSeeds.map((e) => e.id);
+    const existingRows = await db.exercises.bulkGet(newIds);
+    const now = Date.now();
+    const missing = newSeeds.filter((_, i) => !existingRows[i]).map((e) => ({
+      ...e,
+      createdAt: now,
+    }));
+    if (missing.length === 0) return 0;
+    await db.exercises.bulkAdd(missing);
+    return missing.length;
+  });
+}
+
+/**
  * Backfills videoUrl on already-seeded exercise rows (matched by id) whenever
  * it drifts from the current SEED_EXERCISES content — e.g. after a video gets
  * researched and added post-install for an existing user. Idempotent: a
@@ -93,6 +117,29 @@ export async function reconcileSeedExerciseVideos(): Promise<number> {
       if (!existing) continue;
       if (existing.videoUrl === seed.videoUrl) continue;
       await db.exercises.update(existing.id, { videoUrl: seed.videoUrl });
+      patched++;
+    }
+    return patched;
+  });
+}
+
+/**
+ * Backfills movementPattern on already-seeded exercise rows (matched by id)
+ * whenever it drifts from the current SEED_EXERCISES content — e.g. after a
+ * pattern gets classified/corrected post-install for an existing user.
+ * Idempotent: a matching row is left untouched.
+ */
+export async function reconcileSeedExerciseMovementPatterns(): Promise<number> {
+  return await db.transaction('rw', db.exercises, async () => {
+    const seedIds = SEED_EXERCISES.map((e) => e.id);
+    const existingRows = await db.exercises.bulkGet(seedIds);
+    let patched = 0;
+    for (let i = 0; i < SEED_EXERCISES.length; i++) {
+      const seed = SEED_EXERCISES[i];
+      const existing = existingRows[i];
+      if (!existing) continue;
+      if (existing.movementPattern === seed.movementPattern) continue;
+      await db.exercises.update(existing.id, { movementPattern: seed.movementPattern });
       patched++;
     }
     return patched;

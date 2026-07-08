@@ -17,6 +17,7 @@ import type { DailyTargets } from '../../db/schema';
 import { DEFAULT_DAILY_TARGETS } from '../../db/schema';
 import { weeklyTotals, type WeeklyDay } from './nutritionLib';
 import { Card } from '../../components/Card';
+import { WeeklyDigestCard } from './WeeklyDigestCard';
 
 const EMPTY_BUCKETS: WeeklyDay[] = [];
 
@@ -86,6 +87,8 @@ export function WeekTab() {
 
   return (
     <div className="space-y-3">
+      <WeeklyDigestCard />
+
       <ChartCard title="Kalorien pro Tag">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 8, bottom: 4, left: 0 }}>

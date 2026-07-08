@@ -14,6 +14,7 @@ import { MuscleVolumeAmpel } from './MuscleVolumeAmpel';
 import { MuscleTrendChart } from './MuscleTrendChart';
 import { PrTable } from './PrTable';
 import { WorkoutCalendar } from './WorkoutCalendar';
+import { PlateauSummarySection } from './PlateauSummarySection';
 
 interface WorkoutWithStats {
   workout: Workout;
@@ -54,6 +55,7 @@ export function ProgressPage() {
         <Section title="Personal Records">
           <PrTable />
         </Section>
+        <PlateauSummarySection />
         <Section title="Trainingstage">
           <WorkoutCalendar />
         </Section>

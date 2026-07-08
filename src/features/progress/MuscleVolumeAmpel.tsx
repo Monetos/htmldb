@@ -1,15 +1,18 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/database';
+import { type AmpelStatus, muscleAmpelFromWeeks, weeklyMuscleVolume } from '../../lib/progression';
 import {
-  type AmpelStatus,
-  muscleAmpelFromWeeks,
-  weeklyMuscleVolume,
-} from '../../lib/progression';
-import { MUSCLE_GROUP_LABELS, type Exercise, type MuscleGroup, type SetEntry } from '../../db/schema';
+  MUSCLE_GROUP_LABELS,
+  type Exercise,
+  type MuscleGroup,
+  type SetEntry,
+} from '../../db/schema';
 import { Card } from '../../components/Card';
 import { kgToUnit } from '../../lib/units';
 import { useWeightUnit } from '../../hooks/useWeightUnit';
+import { BodyDiagram, BodyDiagramToggle } from '../../components/BodyDiagram';
+import { type BodyView, regionStatusesForView } from '../../lib/muscleDiagramMapping';
 
 const EMPTY_SETS: SetEntry[] = [];
 const EMPTY_EXERCISES: Exercise[] = [];
@@ -21,6 +24,13 @@ const STATUS_STYLES: Record<AmpelStatus, { dot: string; label: string }> = {
   in_range: { dot: 'bg-emerald-500', label: 'im Bereich' },
   above: { dot: 'bg-blue-500', label: 'über Schnitt' },
   no_baseline: { dot: 'bg-slate-300', label: '—' },
+};
+
+const STATUS_HEX: Record<AmpelStatus, string> = {
+  below: '#f43f5e',
+  in_range: '#10b981',
+  above: '#3b82f6',
+  no_baseline: '#cbd5e1',
 };
 
 export function MuscleVolumeAmpel() {
@@ -38,14 +48,16 @@ export function MuscleVolumeAmpel() {
 
   const ampel = useMemo(() => {
     const buckets = weeklyMuscleVolume(sets, exMap, Date.now(), 5);
-    return muscleAmpelFromWeeks(buckets, ALL_MUSCLES)
-      // Sort: rows with current activity first (any volume or sets), then by name.
-      .sort((a, b) => {
-        const aActive = a.currentSets > 0 || a.currentVolume > 0 || a.baselineVolume > 0 ? 1 : 0;
-        const bActive = b.currentSets > 0 || b.currentVolume > 0 || b.baselineVolume > 0 ? 1 : 0;
-        if (aActive !== bActive) return bActive - aActive;
-        return MUSCLE_GROUP_LABELS[a.muscle].localeCompare(MUSCLE_GROUP_LABELS[b.muscle]);
-      });
+    return (
+      muscleAmpelFromWeeks(buckets, ALL_MUSCLES)
+        // Sort: rows with current activity first (any volume or sets), then by name.
+        .sort((a, b) => {
+          const aActive = a.currentSets > 0 || a.currentVolume > 0 || a.baselineVolume > 0 ? 1 : 0;
+          const bActive = b.currentSets > 0 || b.currentVolume > 0 || b.baselineVolume > 0 ? 1 : 0;
+          if (aActive !== bActive) return bActive - aActive;
+          return MUSCLE_GROUP_LABELS[a.muscle].localeCompare(MUSCLE_GROUP_LABELS[b.muscle]);
+        })
+    );
   }, [sets, exMap]);
 
   const maxVolume = useMemo(
@@ -55,6 +67,14 @@ export function MuscleVolumeAmpel() {
 
   const hasActivity = ampel.some((a) => a.currentSets > 0 || a.currentVolume > 0);
 
+  const [view, setView] = useState<BodyView>('front');
+  const regionColors = useMemo(() => {
+    const statuses = regionStatusesForView(ampel, view);
+    return Object.fromEntries(
+      Object.entries(statuses).map(([slug, status]) => [slug, STATUS_HEX[status]]),
+    );
+  }, [ampel, view]);
+
   return (
     <Card>
       <div className="mb-3 flex items-end justify-between">
@@ -63,6 +83,16 @@ export function MuscleVolumeAmpel() {
           <p className="text-xs text-slate-500">Vergleich zum gleitenden 4-Wochen-Mittel</p>
         </div>
         <Legend />
+      </div>
+
+      <div className="mb-3 flex flex-col items-center gap-2">
+        <BodyDiagramToggle view={view} onChange={setView} />
+        <BodyDiagram
+          view={view}
+          regionColors={regionColors}
+          title={`Muskelstatus ${view === 'front' ? 'Vorderansicht' : 'Rückansicht'}`}
+          className="h-56 w-auto"
+        />
       </div>
 
       {!hasActivity ? (

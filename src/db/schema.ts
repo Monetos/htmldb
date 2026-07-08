@@ -19,9 +19,20 @@ export type MuscleGroup =
   | 'abs'
   | 'lower_back';
 
-export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight';
+export type Equipment = 'barbell' | 'dumbbell' | 'machine' | 'cable' | 'bodyweight' | 'kettlebell';
 
 export type ExerciseCategory = 'compound' | 'isolation';
+
+export type MovementPattern =
+  | 'squat'
+  | 'hinge'
+  | 'horizontal_push'
+  | 'horizontal_pull'
+  | 'vertical_push'
+  | 'vertical_pull'
+  | 'lunge'
+  | 'carry_core'
+  | 'isolation';
 
 export interface ExerciseExecution {
   setup: string;
@@ -43,6 +54,7 @@ export interface Exercise {
   isCustom: boolean;
   createdAt: number;
   isFavorite?: boolean;
+  movementPattern?: MovementPattern;
 }
 
 export interface RoutineExercise {
@@ -173,6 +185,20 @@ export type ThemeMode = 'light' | 'dark';
 
 export type WeightUnit = 'kg' | 'lbs';
 
+/** A computed-but-not-yet-applied adaptive TDEE target change, awaiting user confirmation. */
+export interface TdeeAdjustmentSuggestion {
+  proposedKcal: number;
+  proposedProteinG: number;
+  proposedCarbsG: number;
+  proposedFatG: number;
+  proposedWaterMl: number;
+  estimatedTdeeKcal: number;
+  previousKcal: number;
+  computedAt: number;
+  /** Lazily filled in once the user requests the optional AI explanation. */
+  explanation?: string;
+}
+
 export interface Settings {
   id: 'singleton';
   dailyTargets: DailyTargets;
@@ -184,6 +210,18 @@ export interface Settings {
   anthropicApiKey?: string;
   /** Display/input unit preference. Storage is always kg regardless of this value. */
   weightUnit?: WeightUnit;
+  /** Opt-in switch for the adaptive TDEE feature. Default off. */
+  adaptiveTdeeEnabled?: boolean;
+  /** Deficit/surplus (kcal) vs. estimated TDEE, captured on the first successful estimate and preserved across recalculations. */
+  tdeeGoalOffsetKcal?: number;
+  /** Wall-clock timestamp of the last recalculation attempt (successful or not), used to gate the weekly cadence. */
+  lastTdeeRecalcAt?: number;
+  /** Most recent successful TDEE estimate in kcal, shown for transparency even without a pending suggestion. */
+  lastTdeeEstimateKcal?: number;
+  /** Set when a recalculation produces a new target; cleared on accept or reject. */
+  pendingTdeeAdjustment?: TdeeAdjustmentSuggestion;
+  /** Per-exercise plateau-callout dismissals, keyed by exerciseId. Auto-stale once a newer workout for that exercise exists. */
+  dismissedPlateaus?: Record<string, { dismissedAt: number }>;
 }
 
 export const DEFAULT_DAILY_TARGETS: DailyTargets = {
@@ -219,4 +257,17 @@ export const EQUIPMENT_LABELS: Record<Equipment, string> = {
   machine: 'Maschine',
   cable: 'Kabelzug',
   bodyweight: 'Körpergewicht',
+  kettlebell: 'Kettlebell',
+};
+
+export const MOVEMENT_PATTERN_LABELS: Record<MovementPattern, string> = {
+  squat: 'Kniebeuge',
+  hinge: 'Hüft-Hinge',
+  horizontal_push: 'Waagerechtes Drücken',
+  horizontal_pull: 'Waagerechtes Ziehen',
+  vertical_push: 'Senkrechtes Drücken',
+  vertical_pull: 'Senkrechtes Ziehen',
+  lunge: 'Ausfallschritt',
+  carry_core: 'Tragen/Rumpf',
+  isolation: 'Isolation',
 };

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
   ensureSettings,
+  reconcileNewSeedExercises,
+  reconcileSeedExerciseMovementPatterns,
   reconcileSeedExerciseVideos,
   seedExercisesIfEmpty,
   seedFoodsIfEmpty,
@@ -19,7 +21,9 @@ export function useBootstrap() {
       await ensureSettings();
       await seedExercisesIfEmpty();
       await seedFoodsIfEmpty();
+      await reconcileNewSeedExercises();
       await reconcileSeedExerciseVideos();
+      await reconcileSeedExerciseMovementPatterns();
       if (!cancelled) setReady(true);
     })();
     return () => {

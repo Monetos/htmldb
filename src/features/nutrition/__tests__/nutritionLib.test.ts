@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   addMacros,
+  buildDigestStats,
+  dailyKcalWithLogFlag,
   dayAnchor,
   deleteFood,
   deleteFoodLogEntry,
@@ -11,11 +13,13 @@ import {
   saveFood,
   totalsFromEntries,
   weeklyTotals,
+  type WeeklyDay,
   ZERO_MACROS,
 } from '../nutritionLib';
 import { db, seedFoodsIfEmpty } from '../../../db/database';
 import { SEED_FOOD_COUNT } from '../../../db/seedFoods';
-import type { Food } from '../../../db/schema';
+import type { DailyTargets, Food } from '../../../db/schema';
+import type { WeightTrend } from '../../body/bodyLib';
 
 describe('macrosForAmount', () => {
   it('scales linearly from per-100g values', () => {
@@ -184,5 +188,57 @@ describe('weeklyTotals', () => {
     expect(buckets[buckets.length - 1].totals.macros.kcal).toBeCloseTo(67, 5);
     expect(buckets[buckets.length - 3].totals.macros.kcal).toBeCloseTo(67 * 2, 5);
     expect(buckets[0].totals.macros.kcal).toBe(0);
+  });
+});
+
+describe('dailyKcalWithLogFlag', () => {
+  it('flags days with a real food-log entry and reports the kcal total, oldest → newest', async () => {
+    const food = await saveFood({ name: 'Q2', per100g: { kcal: 50, protein: 5, carbs: 5, fat: 1 } });
+    const now = new Date(2026, 4, 11, 18).getTime();
+    const day = 86_400_000;
+    await logFood({ foodId: food.id, amountG: 200, mealType: 'lunch', date: now - 2 * day }); // 100 kcal
+    await logWater(500, now); // water-only day — no foodLog row
+
+    const rows = await dailyKcalWithLogFlag(now, 7);
+    expect(rows).toHaveLength(7);
+    expect(rows[rows.length - 3].hasLog).toBe(true);
+    expect(rows[rows.length - 3].kcal).toBeCloseTo(100, 5);
+    expect(rows[rows.length - 1].hasLog).toBe(false);
+    expect(rows[rows.length - 1].kcal).toBe(0);
+  });
+});
+
+describe('buildDigestStats', () => {
+  const targets: DailyTargets = { kcal: 2200, proteinG: 180, carbsG: 220, fatG: 70, waterMl: 3000 };
+  const DAY = 86_400_000;
+
+  function mkDay(kcal: number, protein: number): WeeklyDay {
+    return { dayStart: 0, totals: { macros: { kcal, protein, carbs: 0, fat: 0 }, waterMl: 0 } };
+  }
+
+  it('averages kcal/protein across all days and computes adherence percentages', () => {
+    const week = [mkDay(2000, 150), mkDay(2200, 180), mkDay(0, 0), mkDay(2400, 200)];
+    const stats = buildDigestStats(week, targets, null, null);
+    expect(stats.totalDays).toBe(4);
+    expect(stats.daysWithLog).toBe(3);
+    expect(stats.avgKcal).toBeCloseTo((2000 + 2200 + 0 + 2400) / 4, 5);
+    expect(stats.kcalAdherencePercent).toBeCloseTo((stats.avgKcal / 2200) * 100, 5);
+    expect(stats.avgProteinG).toBeCloseTo((150 + 180 + 0 + 200) / 4, 5);
+    expect(stats.proteinAdherencePercent).toBeCloseTo((stats.avgProteinG / 180) * 100, 5);
+  });
+
+  it('passes through the weight trend and TDEE estimate when provided', () => {
+    const weightTrend: WeightTrend = { latestKg: 79, latestDate: 40 * DAY, deltaKg: -1, comparedToDate: 10 * DAY };
+    const stats = buildDigestStats([mkDay(2200, 180)], targets, weightTrend, 2750);
+    expect(stats.weightChangeKg).toBe(-1);
+    expect(stats.weightTrendDays).toBe(30);
+    expect(stats.tdeeEstimateKcal).toBe(2750);
+  });
+
+  it('returns nulls for weight-trend fields when no trend is available', () => {
+    const stats = buildDigestStats([mkDay(2200, 180)], targets, null, null);
+    expect(stats.weightChangeKg).toBeNull();
+    expect(stats.weightTrendDays).toBeNull();
+    expect(stats.tdeeEstimateKcal).toBeNull();
   });
 });

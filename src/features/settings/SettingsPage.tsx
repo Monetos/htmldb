@@ -17,6 +17,7 @@ import { AppHeader } from '../../components/AppHeader';
 import { describeBackupAge } from './backupAge';
 import { useAppUpdate, type UpdateCheckStatus } from '../../store/appUpdate';
 import { useWeightUnit } from '../../hooks/useWeightUnit';
+import { TdeeCard } from './TdeeCard';
 
 export function SettingsPage() {
   const [status, setStatus] = useState<{ kind: 'idle' | 'ok' | 'error'; message: string }>({
@@ -81,6 +82,8 @@ export function SettingsPage() {
         <WeightUnitCard />
 
         <AiKeyCard />
+
+        <TdeeCard />
 
         <Card as="section" className="p-4">
           <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">
